@@ -1,0 +1,43 @@
+import { Request, Response } from 'express';
+import { asyncHandler } from '../utils/async-handler';
+import { ApiResponse } from '../utils/api-response';
+import { BookingService } from '../services/booking.service';
+import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
+import { AppError } from '../utils/app-error';
+
+export class BookingController {
+  static getBookings = asyncHandler(async (req: Request, res: Response) => {
+    const bookings = await BookingService.getBookings(req.user!.id);
+    return ApiResponse.success(res, 'Bookings retrieved successfully', bookings);
+  });
+
+  static getBookingById = asyncHandler(async (req: Request, res: Response) => {
+    const booking = await BookingService.getBookingById(req.user!.id, req.params.id as string);
+    return ApiResponse.success(res, 'Booking retrieved successfully', booking);
+  });
+
+  static createBooking = asyncHandler(async (req: Request, res: Response) => {
+    const booking = await BookingService.createBooking(req.body);
+    return ApiResponse.created(res, 'Booking created successfully', booking);
+  });
+
+  static updateBookingStatus = asyncHandler(async (req: Request, res: Response) => {
+    // Requires hostTimezone from frontend to send the correct cancellation/confirmation email times
+    const { timezone } = req.query;
+    if (!timezone) {
+      throw new AppError(
+        'Missing timezone in query parameters',
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODE.VALIDATION_ERROR,
+      );
+    }
+
+    const booking = await BookingService.updateBookingStatus(
+      req.user!.id,
+      req.params.id as string,
+      req.body,
+      timezone as string,
+    );
+    return ApiResponse.success(res, 'Booking status updated successfully', booking);
+  });
+}
