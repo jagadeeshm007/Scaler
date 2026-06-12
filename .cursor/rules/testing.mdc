@@ -1,0 +1,34 @@
+---
+description: Testing conventions for the Scaler project
+globs: ["**/*.test.ts", "**/*.spec.ts", "**/tests/**/*"]
+---
+
+# Testing Rules
+
+## What to Test
+- Every service function: unit test with mocked Prisma.
+- Every utility function: unit test with pure inputs/outputs.
+- Every API endpoint: integration test with supertest and a test database.
+- Every React component that contains logic: unit test with React Testing Library.
+- Every custom hook: unit test with renderHook.
+- Do NOT test: shadcn/ui components, pure presentational components with no logic, Next.js routing internals.
+
+## Test Structure
+- Arrange-Act-Assert pattern. Every test has exactly 3 sections with a blank line between them.
+- One assertion per test. If testing multiple behaviors, write multiple tests.
+- Test file co-located with the implementation: `booking.service.test.ts` next to `booking.service.ts`.
+- Test names follow: `describe('ServiceName', () => { it('should [expected behavior] when [condition]', ...) })`.
+- No shared mutable state between tests. Each test sets up its own fixtures.
+
+## Mocking Rules
+- Mock at the boundary: mock Prisma client, mock external API calls, mock email sends.
+- Never mock internal functions of the unit under test.
+- Use vitest's `vi.mock()` for module mocking.
+- Create typed mock factories in `tests/factories/` for all Prisma models.
+
+## Coverage Targets
+- Services: 90% line coverage minimum.
+- Utils: 100% line coverage.
+- Controllers: 80% line coverage via integration tests.
+- Frontend hooks: 80% line coverage.
+- Run coverage check in CI. Fail build if targets are not met.

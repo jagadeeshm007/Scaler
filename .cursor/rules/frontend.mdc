@@ -1,0 +1,529 @@
+---
+description: Frontend-specific rules for the Next.js 15 application
+globs: ["App/**/*"]
+---
+
+# Frontend Rules — Scaler App
+
+## Next.js App Router
+
+- **App Router only** — no Pages Router
+- **Server Components by default** — use `'use client'` only when required:
+  - Event handlers (onClick, onChange, onSubmit)
+  - React hooks (useState, useEffect, useContext)
+  - Browser-only APIs (localStorage, window, navigator)
+  - TanStack Query hooks
+  - Framer Motion animations
+- Layout hierarchy: root layout → route group layouts → page-specific layouts
+
+## Route Groups
+
+### `(unauthorised)` — Public / Unauthenticated Pages
+Pages accessible **without login**. No auth middleware applied.
+```
+App/src/app/(unauthorised)/
+├── login/page.tsx              # Login form
+├── signup/page.tsx             # Registration form
+├── [username]/                 # Public user profile
+│   └── [slug]/page.tsx         # Public booking page (calendar + slots + form)
+├── booking/
+│   ├── confirmed/page.tsx      # Booking success page
+│   └── [id]/
+│       ├── cancel/page.tsx     # Cancel booking flow
+│       └── reschedule/page.tsx # Reschedule booking flow
+└── layout.tsx                  # Minimal layout (no sidebar, no auth check)
+```
+
+### `(authorised)` — Protected / Authenticated Pages
+Pages requiring **active session**. Layout includes auth guard + sidebar navigation.
+All API calls are secured with JWT. Redirect to login if unauthenticated.
+```
+App/src/app/(authorised)/
+├── event-types/
+│   ├── page.tsx                # Event type list (card grid)
+│   ├── new/page.tsx            # Create new event type
+│   └── [id]/page.tsx           # Edit event type (multi-tab form + preview)
+├── bookings/
+│   └── page.tsx                # Bookings dashboard (tabs: Upcoming, Past, Cancelled)
+├── availability/
+│   ├── page.tsx                # Schedule list
+│   └── [id]/page.tsx           # Edit schedule (day toggles + time ranges + overrides)
+├── apps/
+│   ├── page.tsx                # Installed apps
+│   └── store/page.tsx          # App store (browse + install integrations)
+├── settings/
+│   ├── page.tsx                # Settings overview grid
+│   ├── profile/page.tsx        # Profile editing
+│   ├── general/page.tsx        # Language, timezone, time format
+│   ├── appearance/page.tsx     # Theme selection (System/Light/Dark)
+│   └── calendars/page.tsx      # Connected calendar accounts
+└── layout.tsx                  # Auth guard + sidebar + top bar
+```
+
+## API Communication
+
+- All API calls go through `lib/api.ts` (typed fetch wrapper)
+- The API client:
+  - Adds Authorization header automatically from auth store
+  - Handles token refresh on 401 responses
+  - Parses responses into `ApiResponse<T>` type
+  - Base URL from `NEXT_PUBLIC_API_URL` env var
+- **No direct `fetch()` calls in components** — always use TanStack Query hooks
+
+## Data Fetching Pattern
+
+```typescript
+// hooks/use-event-types.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/lib/api';
+
+export function useEventTypes() {
+  return useQuery({
+    queryKey: ['event-types'],
+    queryFn: () => api.get<EventType[]>('/event-types'),
+  });
+}
+
+export function useCreateEventType() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateEventTypeInput) => api.post<EventType>('/event-types', data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['event-types'] }),
+  });
+}
+```
+
+## Form Handling
+
+- All forms use **React Hook Form** + `zodResolver`
+- Zod schemas shared between frontend validation and backend (via shared types)
+- Pattern:
+  ```typescript
+  const form = useForm<CreateEventTypeInput>({
+    resolver: zodResolver(createEventTypeSchema),
+    defaultValues: { ... },
+  });
+  ```
+
+## UI Components
+
+- **shadcn/ui** for all UI primitives — do not build buttons, inputs, dialogs, dropdowns, etc. from scratch
+- Components installed via `npx shadcn@latest add <component>`
+- shadcn components live in `components/ui/`
+- Custom composite components in `components/` (e.g., `sidebar.tsx`, `booking-card.tsx`)
+
+## Styling Rules
+
+- **Tailwind CSS only** — no inline styles, no CSS modules, no styled-components
+- Use `cn()` utility (from shadcn) for conditional class merging
+- Color system: use Tailwind's neutral palette for dark theme, brand colors via CSS variables
+- Responsive design: mobile-first approach with `sm:`, `md:`, `lg:` breakpoints
+
+## Theme System
+
+- User-configurable theme (light/dark mode)
+- Default: dark mode (matching Cal.com screenshots)
+- Implementation: `next-themes` for theme switching
+- CSS variables define color tokens, toggled by `dark` class on `<html>`
+- Theme toggle available in sidebar/settings
+
+## Animation Rules
+
+- **Framer Motion** for:
+  - Page transitions (fade/slide between routes)
+  - Modal/dialog open/close animations
+  - List item enter/exit animations
+  - Micro-interactions (button hover, card hover)
+- Keep animations subtle and fast (150-300ms)
+- Use `AnimatePresence` for exit animations
+- Respect `prefers-reduced-motion` media query
+
+## Auth Flow (Frontend)
+
+- Auth state managed in Zustand store (`stores/auth-store.ts`)
+- On app load: check for existing refresh token cookie → auto-login
+- If no session: auto-login with default credentials (bypass mode for assignment)
+- Access token stored in memory (Zustand), refresh token in httpOnly cookie
+- API client intercepts 401 → attempts token refresh → retries original request
+- `(authorised)` layout checks auth state → redirects to `/login` if not authenticated
+- `(unauthorised)` layout checks auth state → redirects to `/event-types` if already logged in
+
+## File Naming
+
+- Components: `kebab-case.tsx` (e.g., `booking-card.tsx`, `time-slot-picker.tsx`)
+- Query hooks: `hooks/queries/use-{name}.ts` (e.g., `use-event-types.ts`)
+- Mutation hooks: `hooks/mutations/use-{name}.ts` (e.g., `use-create-booking.ts`)
+- Stores: `stores/{name}-store.ts` (e.g., `auth-store.ts`)
+- Types: `types/{name}.types.ts` or inline in the file
+- Pages: `page.tsx` (Next.js convention)
+- Layouts: `layout.tsx` (Next.js convention)
+- Error pages: `error.tsx` (Next.js convention — required in every route segment)
+- Loading pages: `loading.tsx` (Next.js convention — required in every route segment)
+
+## Component Organization
+
+```
+components/
+├── ui/                        # Atomic: shadcn/ui managed primitives (Button, Input, Badge, etc.)
+├── layout/                    # Layout: sidebar, top-bar, mobile-nav, page-shell
+│   ├── sidebar.tsx
+│   ├── top-bar.tsx
+│   ├── mobile-nav.tsx
+│   └── page-header.tsx
+├── event-types/               # Feature: event type specific
+│   ├── event-type-card.tsx
+│   ├── event-type-form.tsx
+│   └── event-type-card-skeleton.tsx
+├── bookings/                  # Feature: booking specific
+│   ├── booking-card.tsx
+│   ├── booking-detail-panel.tsx
+│   ├── booking-card-skeleton.tsx
+│   └── booking-tabs.tsx
+├── availability/              # Feature: availability specific
+│   ├── schedule-editor.tsx
+│   ├── day-row.tsx
+│   ├── date-override-card.tsx
+│   └── timezone-selector.tsx
+├── booking-page/              # Feature: public booking flow
+│   ├── calendar-view.tsx
+│   ├── time-slot-picker.tsx
+│   ├── booking-form.tsx
+│   ├── booking-confirmed.tsx
+│   ├── calendar-skeleton.tsx
+│   └── time-slot-skeleton.tsx
+├── settings/                  # Feature: settings pages
+│   ├── settings-card.tsx
+│   └── settings-nav.tsx
+├── apps/                      # Feature: app store
+│   ├── app-card.tsx
+│   └── installed-app-card.tsx
+└── shared/                    # Shared: error boundary, empty state, etc.
+    ├── error-boundary.tsx
+    ├── route-error-boundary.tsx
+    ├── empty-state.tsx
+    └── confirm-dialog.tsx
+```
+
+- **Atomic components** (`ui/`): shadcn-managed only — never edit manually
+- **Feature components** (`[feature]/`): contain feature-specific rendering logic
+- **Layout components** (`layout/`): structural shell — never mix feature logic into layout
+- **Shared components** (`shared/`): generic reusable patterns (error boundaries, empty states)
+
+## Props Rules
+
+- All component props defined as a TypeScript `interface`, never inline
+- All prop interfaces named `[ComponentName]Props`
+- Required props first, optional props last
+- No prop drilling beyond 2 levels — use context or Zustand beyond that
+- No passing entire objects when only one field is needed — pass the field
+- Callback props named `on[Event]`: `onBookingCancel`, `onSlotSelect`, `onToggleActive`
+
+```typescript
+// ✅ Correct
+interface BookingCardProps {
+  title: string;           // required first
+  startTime: string;
+  endTime: string;
+  status: BookingStatus;
+  onCancel: (id: string) => void;
+  meetingUrl?: string;     // optional last
+  className?: string;
+}
+
+// ❌ Wrong: inline props, entire object, wrong naming
+function BookingCard({ booking, cancel }: { booking: Booking; cancel: () => void }) {}
+```
+
+## Error Boundaries
+
+- Every route segment must be wrapped in an Error Boundary.
+- Create a reusable `<ErrorBoundary>` component that accepts a `fallback` render prop.
+- Create a `<RouteErrorBoundary>` that wraps each page and shows a styled error UI matching Cal.com's design.
+- Never let an uncaught render error crash the entire app.
+- In Next.js App Router: every route segment directory must have an `error.tsx` file.
+- Every async Server Component must have a corresponding `error.tsx` sibling.
+- Log all caught errors to the logger with component stack trace.
+
+## Suspense & Loading States
+
+- Every async data fetch must have a Suspense boundary with a skeleton fallback.
+- Never show a blank screen while data loads. Always show a skeleton that matches the shape of the loaded UI.
+- Create skeleton components for: BookingCardSkeleton, EventTypeCardSkeleton, TimeSlotSkeleton, CalendarSkeleton.
+- In Next.js App Router: every route segment directory must have a `loading.tsx` file.
+- Use `<Suspense>` boundaries at the component level, not just the page level.
+- Streaming: use Next.js streaming for the public booking page — stream the calendar shell immediately, stream time slots after.
+
+## TanStack Query Rules
+
+- Every API call is a TanStack Query hook. No raw fetch in components.
+- Query keys are defined as typed constants in lib/constants.ts (e.g. `QUERY_KEYS.EVENT_TYPES`). Never inline string query keys.
+- All query hooks live in hooks/queries/. All mutation hooks live in hooks/mutations/.
+- Every mutation hook implements:
+  - onSuccess: invalidate affected query keys
+  - onError: show toast notification with typed error message
+  - optimistic update where appropriate (booking cancel, event type toggle)
+- Retry logic: queries retry 2 times on network errors, 0 times on 4xx errors.
+- Stale time: 30 seconds for most data, 0 for bookings (always fresh), 5 minutes for public event type data.
+- Error handling: extract error message from ApiResponse envelope in a shared queryClient error handler.
+
+## API Client Rules
+
+- Single typed API client in `lib/api.ts`.
+- All methods are typed: `get<T>`, `post<T>`, `put<T>`, `patch<T>`, `delete<T>`.
+- All methods parse response as `ApiResponse<T>` and throw typed `ApiError` on non-2xx.
+- Automatic retry: 2 retries with exponential backoff (1s, 2s) for network errors only.
+- Automatic token refresh: intercept 401, refresh token, replay original request once.
+- If refresh fails, clear auth state and redirect to login.
+- Request deduplication: identical in-flight GET requests are deduplicated.
+
+## Debounce Rules
+
+- Any input that triggers an API call must be debounced. Minimum 300ms.
+- Slug uniqueness check on event type creation form: debounced 500ms.
+- Search inputs: debounced 300ms.
+- Use a single `useDebounce` hook from `hooks/use-debounce.ts`. Never inline debounce logic.
+- Never use setTimeout for debouncing in components. Use the hook.
+
+## Pagination Rules
+
+- Every list view uses cursor-based pagination, not offset pagination.
+- Backend returns `{ data: T[], nextCursor: string | null, hasMore: boolean }`.
+- Frontend uses TanStack Query `useInfiniteQuery` for infinite scroll lists.
+- Bookings list: infinite scroll with intersection observer. Load more when last card enters viewport.
+- Event types list: standard paginated (not infinite) because the list is short and managed.
+- Create a reusable `usePaginatedList` hook that handles cursor, loading state, and intersection observer.
+- Never load all records at once. Page size: 20 for bookings, 50 for time slots.
+
+## Performance Rules
+
+- `React.memo` on all presentational components that receive stable props.
+- `useMemo` for expensive derived data (available time slots calculation, filtered booking lists).
+- `useCallback` for all callback props passed to memoized children.
+- Dynamic imports (`next/dynamic`) for: date picker, rich text editor, any component > 50kb.
+- Images: always use `next/image`. Never raw `<img>`.
+- Fonts: `next/font` only. Never link tag fonts.
+- Bundle: analyze with `@next/bundle-analyzer` before any release. No bundle > 200kb initial JS.
+- Virtualization: use `@tanstack/react-virtual` for any list that can exceed 50 items.
+- No layout shift: all dynamic content areas have explicit height/min-height set.
+
+## Reusable Component Checklist
+
+Before building any component, ask:
+1. Does this already exist in shadcn/ui? If yes, use it.
+2. Does a similar component already exist in this codebase? If yes, extend it.
+3. Is this component generic enough to be reused in 2+ places? If yes, put it in components/ui/.
+4. Does this component mix data-fetching with rendering? If yes, split it.
+
+## Consistency Rules
+
+- All date/time display uses a single `formatDate` utility from `lib/format.ts`. Never use `toLocaleDateString()` directly in components.
+- All currency display uses a single `formatCurrency` utility.
+- All error messages come from a central `error-messages.ts` constants file. Never hardcode error strings in components.
+- All route paths come from `lib/constants.ts` constants. Never hardcode route strings.
+- All API endpoint paths come from `lib/constants.ts` constants. Never hardcode URL strings.
+- Toast notifications use a single `useToast` hook. Never call `toast()` directly in components.
+
+---
+
+# UI/UX Design Rules (Strict — from Cal.com Reference Screenshots)
+
+**Every page MUST match the Cal.com visual language from `task/ref/` screenshots.**
+Before building ANY component or page, open the corresponding reference screenshot first.
+
+## Color System
+
+### Dark Theme (Default)
+```
+Background (page):      #111111 / neutral-950
+Background (sidebar):   #111111 / neutral-950
+Background (card):      #1c1c1c / neutral-900
+Background (input):     #262626 / neutral-800
+Background (hover):     #262626 / neutral-800
+Border (subtle):        #333333 / neutral-700
+Border (card):          #2a2a2a / neutral-800
+Text (primary):         #f5f5f5 / neutral-100
+Text (secondary):       #a3a3a3 / neutral-400
+Text (muted):           #737373 / neutral-500
+Accent (brand):         #3b82f6 / blue-500 (used sparingly — links, active states)
+Danger:                 #ef4444 / red-500 (delete, cancel actions)
+Success:                #22c55e / green-500 (confirmed status, success checkmark)
+Warning/Hidden badge:   #f59e0b / amber-500
+Toggle active:          #3b82f6 / blue-500
+Toggle inactive:        #525252 / neutral-600
+```
+
+### Light Theme
+```
+Background (page):      #ffffff / white
+Background (sidebar):   #f9fafb / gray-50
+Background (card):      #ffffff / white
+Background (input):     #f3f4f6 / gray-100
+Border:                 #e5e7eb / gray-200
+Text (primary):         #111827 / gray-900
+Text (secondary):       #6b7280 / gray-500
+```
+
+## Typography
+
+- **Font family**: `Inter` (Google Font) — sans-serif fallback
+- **Page title**: 20px/1.5rem, font-semibold, text-primary (`text-xl font-semibold`)
+- **Page subtitle/description**: 14px, text-secondary (`text-sm text-muted-foreground`)
+- **Card title**: 16px, font-medium (`text-base font-medium`)
+- **Card subtitle/slug**: 14px, text-muted (`text-sm text-muted-foreground`)
+- **Body text**: 14px (`text-sm`)
+- **Small labels/badges**: 12px (`text-xs`)
+- **Sidebar nav items**: 14px, font-normal (`text-sm`)
+- **Tab labels**: 14px, font-medium
+- **Form labels**: 14px, font-medium (`text-sm font-medium`)
+- **Button text**: 14px, font-medium
+
+## Spacing System
+
+- **Page padding**: `px-6 py-6` (24px)
+- **Card padding**: `p-4` or `p-5` (16-20px)
+- **Section gap**: `space-y-6` (24px between sections)
+- **Card list gap**: `space-y-0` (cards border-touching, divided by border)
+- **Form field gap**: `space-y-4` (16px between fields)
+- **Sidebar padding**: `px-3 py-2` per nav item
+- **Content max-width**: `max-w-4xl mx-auto` (for forms/settings), full-width for lists
+
+## Sidebar (ref: bookings/side-menu.png, event-types/event-types-full.png)
+
+- Width: `w-64` (256px) on desktop, slide-in sheet on mobile
+- Dark background matching page (`bg-neutral-950`)
+- **Top section**: Logo "Scaler" (bold) + search icon + user avatar (rounded-full, brand-colored initial)
+- **Main nav items** (with Lucide icons, 20px):
+  - Event types (link icon)
+  - Bookings (calendar icon)
+  - Availability (clock icon)
+  - Apps (grid icon) → expandable submenu
+- **Bottom section** (separated by space, smaller text):
+  - View public page (external-link icon)
+  - Copy public page link (copy icon)
+  - Settings (gear icon)
+  - © Year Scaler branding
+- **Active state**: text-white, bg-neutral-800/50 rounded
+- **Hover state**: text-white, bg-neutral-800/30 rounded
+- **Inactive state**: text-neutral-400
+
+## Page Headers
+
+- Title + description on the left
+- Action buttons on the right (e.g., `+ New`, filter/view toggles)
+- Pattern: `flex items-center justify-between mb-6`
+- Title: `text-xl font-semibold`
+- Description: `text-sm text-muted-foreground mt-1`
+
+## Event Type Cards (ref: event-types/event-types-full.png, event-types-action-menu.png)
+
+- Full-width horizontal list items (NOT a grid of separate cards)
+- Contained in a single card wrapper with shared border
+- Each item separated by `border-b border-neutral-800`
+- **Left side**: Title (bold) + slug path (muted) on first line, duration badges (`15m`, `30m`) + "Hidden" badge (amber) below
+- **Right side**: Toggle switch + action icons (external-link, copy-link, three-dot menu)
+- **Three-dot menu** (DropdownMenu): Edit, Duplicate, Embed, Troubleshoot, Delete (red)
+- **Hidden badge**: amber/orange background, small rounded pill
+- **Duration badge**: neutral background, small rounded pill with clock icon
+
+## Bookings List (ref: bookings/bookings-page.png, booking-card-actions.png)
+
+- **Tab bar** at top: Upcoming | Unconfirmed | Recurring | Past | Cancelled | Filter button
+- Active tab: underlined, text-white
+- Each booking row: date+time column (left) | title + attendees column (center) | action menu (right)
+- Date format: `Thu, 25 Jun` — time format: `12:00pm - 12:30pm`
+- "Join" button: colored badge (Google Meet=green, Cal Video=dark, Zoom=blue)
+- **Left border accent**: thin colored left-border on each row (3px)
+- **Booking detail side panel** (ref: bookings/side-menu.png): slides from right, shows full booking info (Confirmed status, title, When, Who w/ Host badge, Where with meeting link)
+- **Action menu**: Reschedule booking, Request reschedule, Edit location, Add guests, (separator), View recordings, View session details, Mark as no show, (separator), Report booking (red), Cancel event (red)
+- **Pagination**: bottom of list, `rows per page` select + `1-4 of 4` counter + prev/next arrows
+
+## Availability Schedule List (ref: availability/avalibality-page.png)
+
+- Tab toggle: `My availability` | `Team availability` | `+ New`
+- Each schedule card: Name (bold) + "Default" badge (if default), day range (`Mon - Fri, 9:00 AM - 5:00 PM`), timezone with globe icon
+- Three-dot action menu per schedule
+- "Temporarily out-of-office? Add a redirect" CTA at bottom
+
+## Availability Editor (ref: availability/avalibitly-creation-page.png, avalibitly-creation-page-filled.png)
+
+- **Back arrow** + editable name (with pencil icon) + day range summary below
+- **Right side**: "Set as default" toggle | delete icon | Save button
+- **Timezone selector**: right sidebar card with dropdown
+- **Day rows**: Toggle switch + Day name + start time input + `-` + end time input + `+` button (add range) + copy button
+- Days without hours: toggle OFF, just day name shown
+- **Date overrides section**: separate card below, each override shows date + time or "Unavailable", with delete + edit icons
+- `+ Add an override` button
+
+## Public Booking Page (ref: cal-card/cal-card.png, cal-card/next-form.png)
+
+- **Three-column layout**: Event info | Calendar | Time slots
+- **Event info panel** (left): Avatar, name, event title (bold), duration (clock icon), location (video icon), timezone (globe icon with dropdown)
+- **Calendar** (center): Month/year header with prev/next arrows, day-of-week headers (SUN-SAT), date grid with available dates highlighted (neutral-700 bg), selected date (white border/bg), today (subtle indicator), dots on dates with existing bookings
+- **Time slots** (right): Day header (e.g., "Fri 19"), 12h/24h toggle, scrollable list of time buttons
+- Available slot: bordered button with green dot + time text
+- **Booking form** (replaces time slots on select): Your name, Email address, Additional notes textarea, Back + Confirm buttons
+
+## Booking Confirmed (ref: cal-card/sucessfull.png)
+
+- Centered card layout
+- Green checkmark circle at top
+- "This meeting is scheduled" heading (bold, centered)
+- "We sent an email..." subtitle (muted, centered)
+- Details table: What | When (with timezone) | Who (with Host badge) | Where (with link icon)
+- "Add to calendar" row with provider icons (Google, Outlook, Apple, ICS)
+- "Need to make a change? Reschedule or Cancel" link
+- "Report booking" link at bottom
+
+## Cancel/Reschedule Flow (ref: cal-card/cancel-1.png, rechudule-1.png)
+
+- Same confirmed card layout but with cancellation form below
+- "Reason for cancellation" textarea
+- "Cancellation reason will be shared with guests" helper text
+- "Nevermind" (ghost button) + "Cancel event" (red button) actions
+
+## Settings Overview (ref: settings/settings.png)
+
+- Grid layout: 3 columns on desktop, 2 on tablet, 1 on mobile
+- Category headers: "Personal settings", "Security", "Developer"
+- Each settings card: icon (in circle bg) + title (bold) + description (muted)
+- Clickable cards that navigate to sub-pages
+
+## Settings Sub-pages (ref: settings/profile-page.png, settings/general.png, settings/apparence.png)
+
+- **Left sidebar** with settings navigation (nested under user name):
+  - Profile, General, Calendars, Conferencing, Appearance, Out of office, Push notifications
+  - Security section: Password, Impersonation, Compliance
+  - Developer section: Webhooks, OAuth, API keys
+- **Content area**: page title + description, form sections in cards
+- **Profile page**: avatar upload, username, full name, email (with Primary badge), About (rich text), Connected accounts, Update button
+- **General page**: Language dropdown, Timezone dropdown, Time format, Start of week, toggle cards (Dynamic group links, Search indexing, etc.)
+- **Appearance page**: Theme preview cards (System default/Light/Dark) with radio selection, separate sections for Dashboard theme and Booking page theme
+
+## Mobile Responsive Rules (ref: all *-mobile.png screenshots)
+
+- **Sidebar**: hidden by default, opens as Sheet (slide-in from left) on hamburger tap
+- **Mobile header**: logo left + search icon + avatar right
+- **Bottom navigation bar**: icons for main nav items (link, calendar, clock, three-dot) + floating `+` FAB button
+- **Event type cards**: stacked full-width, three-dot menu replaces inline icons
+- **Booking detail**: full-screen overlay instead of side panel
+- **Calendar**: full-width, time slots stack below calendar
+- **Breakpoints**: `sm:640px` (mobile), `md:768px` (tablet), `lg:1024px` (desktop)
+
+## Interactive States
+
+- **Hover**: `transition-colors duration-150` on all interactive elements
+- **Focus**: `ring-2 ring-blue-500 ring-offset-2 ring-offset-neutral-900` for keyboard navigation
+- **Disabled**: `opacity-50 cursor-not-allowed`
+- **Loading**: skeleton shimmer with `animate-pulse` for content areas
+- **Empty state**: centered text + icon + CTA button (e.g., "No event types yet. Create your first one.")
+- **Toast notifications**: bottom-right, auto-dismiss after 5s, success (green) / error (red)
+
+## Component Patterns
+
+- **Dropdown menus**: shadcn `DropdownMenu`, positioned `align="end"`, subtle border, dark bg
+- **Dialogs/Modals**: shadcn `Dialog`, centered, backdrop blur, max-w-md
+- **Toggle switches**: shadcn `Switch`, blue when active, neutral when inactive
+- **Badges**: small rounded pills, contextual colors (amber=hidden, green=confirmed, red=cancelled)
+- **Tabs**: shadcn `Tabs`, underline variant, text-muted for inactive, text-white for active
+- **Search input**: full-width in toolbar, search icon prefix, `bg-neutral-800` input
+- **Time inputs**: small inline inputs (`w-24`), `HH:MM am/pm` format, neutral-800 bg

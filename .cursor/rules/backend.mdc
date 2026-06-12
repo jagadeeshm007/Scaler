@@ -1,0 +1,225 @@
+---
+description: Backend-specific rules for the Express.js server
+globs: ["server/**/*"]
+---
+
+# Backend Rules — Scaler Server
+
+## Route Files
+
+- Every route file exports a **single `express.Router()`**
+- Routes are mounted under `/api/v1` in `app.ts`
+- Route files only define paths, attach middleware, and delegate to controllers
+- Example pattern:
+  ```typescript
+  import { Router } from 'express';
+  import { requireAuth } from '../middleware/auth';
+  import { validate } from '../middleware/validate';
+  import { createEventTypeSchema } from '../types/schemas/event-type.schemas';
+  import { eventTypeController } from '../controllers/event-type.controller';
+
+  const router = Router();
+  router.post('/', requireAuth, validate(createEventTypeSchema, 'body'), eventTypeController.create);
+  export { router as eventTypeRoutes };
+  ```
+
+## Controller Functions
+
+- Every controller function is typed:
+  ```typescript
+  (req: Request, res: Response, next: NextFunction) => Promise<void>
+  ```
+- For authenticated routes, cast req to `AuthenticatedRequest`:
+  ```typescript
+  const { user } = req as AuthenticatedRequest;
+  ```
+- Controllers call services, then use `sendSuccess()` / `sendError()` helpers
+- Controllers NEVER import `prisma` directly
+- Controllers NEVER contain business logic — only request/response orchestration
+- Wrap every async controller with `asyncHandler()`
+
+## Service Functions
+
+- Services return typed results — never raw Prisma types unless intentional
+- Services throw `AppError` for business-level errors (not found, conflict, etc.)
+- Services NEVER throw HTTP-specific errors (no `res.status()`)
+- Services NEVER access `req` or `res` objects
+- Every public service function has a JSDoc comment:
+  ```typescript
+  /**
+   * Creates a new event type for a user.
+   * @param userId - The ID of the user creating the event type
+   * @param data - Event type creation data (validated)
+   * @returns The created event type
+   * @throws AppError CONFLICT if slug already exists for user
+   */
+  ```
+
+## Prisma Client
+
+- Singleton exported from `lib/prisma.ts`
+- Import as: `import { prisma } from '../lib/prisma';`
+- Only imported in service files (never in controllers or routes)
+- Use `prisma.$transaction()` for any operation touching multiple tables
+- Always use `select` or `include` to control response shape — avoid returning entire models with sensitive data
+
+## Dynamic App Store / Integration Architecture
+
+Integrations follow a **dynamic App Store model** (like Cal.com's app marketplace):
+
+- **App definitions** live in a DB table (`App`) — not hardcoded in env vars
+- Users **install** apps from the App Store UI, which triggers OAuth flows
+- App credentials (client_id, client_secret, redirect_uri) are stored **encrypted** in the `App` table
+- User-specific tokens (access_token, refresh_token) are stored **encrypted** in `IntegrationToken`
+- Admin can add new app definitions via settings UI → no code deploy needed for new providers
+- Only `ENCRYPTION_KEY` is in .env — everything else is in the database
+
+### Data Model
+```
+App (provider catalog — admin-managed)
+├── id, slug, name, description, logo, category
+├── auth_type (OAUTH2 | API_KEY | NONE)
+├── client_id_encrypted, client_secret_encrypted, redirect_uri
+├── scopes, metadata (JSON), is_active
+└── created_at, updated_at
+
+IntegrationToken (per-user installed apps)
+├── id, user_id FK, app_id FK
+├── access_token_encrypted, refresh_token_encrypted
+├── expires_at, scope, metadata (JSON)
+└── created_at, updated_at
+```
+
+### Security Rules
+- Use AES-256-GCM encryption from `utils/encryption.ts`
+- Encrypt before `prisma.create/update`, decrypt after `prisma.findUnique`
+- **Never** return raw encrypted fields in API responses
+- Implement refresh token rotation — refresh expired access tokens transparently in service layer
+- App credentials visible only to admin users in settings
+
+## Rate Limiting
+
+- Rate limiting on all auth endpoints (register, login, refresh)
+- Use `express-rate-limit` middleware
+- Auth endpoints: 10 requests per 15 minutes per IP
+- General API: 100 requests per 15 minutes per IP
+
+## CORS Configuration
+
+- CORS configured for app domain only (from `CLIENT_URL` env var)
+- Credentials enabled (for httpOnly cookies)
+- Allowed methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+- Allowed headers: Content-Type, Authorization
+
+## Request/Response Patterns
+
+### Successful Response
+```typescript
+sendSuccess(res, data, 200);        // GET
+sendSuccess(res, data, 201);        // POST (created)
+sendSuccess(res, null, 204);        // DELETE (no content)
+```
+
+### Error Response
+```typescript
+throw new AppError('Event type not found', 404, AppErrorCode.NOT_FOUND);
+// Global error handler catches and sends:
+// { success: false, error: 'NOT_FOUND', message: 'Event type not found' }
+```
+
+### Pagination
+```typescript
+sendPaginated(res, items, { page, limit, total, totalPages });
+```
+
+## File Organization per Module
+
+Each feature module follows this structure:
+```
+types/schemas/{module}.schemas.ts    # Zod schemas
+services/{module}.service.ts         # Business logic
+controllers/{module}.controller.ts   # Request handlers
+routes/{module}.routes.ts            # Express router
+```
+
+## Security Checklist
+
+- [x] Passwords hashed with bcrypt (salt rounds: 12)
+- [x] JWT secret rotatable via env vars
+- [x] SQL injection prevented by Prisma parameterized queries
+- [x] XSS prevented by helmet middleware
+- [x] CORS restricted to frontend domain
+- [x] Rate limiting on auth endpoints
+- [x] OAuth tokens encrypted at rest
+- [x] Refresh tokens hashed in DB, rotated on use
+- [x] Input validated with Zod before processing
+- [x] Sensitive data excluded from API responses (password_hash, token fields)
+
+## Shared Type Contract (Full-Stack Type Safety)
+
+This is the most critical rule in the entire project.
+
+The server and client MUST share types. The mechanism:
+1. All Zod schemas live in `packages/types/src/schemas/`.
+2. Types are inferred from schemas with `z.infer<>`.
+3. A shared types package is created at `packages/types/`.
+4. Backend services return types from this package.
+5. Frontend API hooks consume types from this package.
+6. There is ONE source of truth for every data shape. If the backend changes a field, TypeScript immediately fails on the frontend.
+
+Create `packages/types/src/index.ts` that re-exports:
+- All request/response types for every endpoint
+- All entity types (User, EventType, Booking, Schedule, etc.)
+- The `ApiResponse<T>` envelope type
+- All enum types (BookingStatus, LocationType, IntegrationProvider, etc.)
+
+Both `server/tsconfig.json` and `App/tsconfig.json` reference `packages/types` via path alias `@antigravity/types`.
+
+This means at no point is a frontend developer guessing what shape an API returns. It is typed and validated at compile time.
+
+## API Validation Contract
+
+- Every endpoint has a corresponding Zod schema for: request body, query params, route params.
+- Schemas live in `packages/types/src/schemas/` so they can be used by frontend for form validation too.
+- The `validate` middleware runs the schema and returns 422 with a structured Zod error if validation fails.
+- Zod error format: `{ field: string, message: string }[]` — never raw Zod output to clients.
+- Request type augmentation: after validate middleware runs, `req.body` is typed as the inferred schema type. No casting needed in controllers.
+
+## Prisma Best Practices
+
+- Never use `findMany` without `take` (pagination limit). Default take: 20. Max take: 100.
+- Always use `select` or `include` explicitly. Never return entire models with all fields.
+- Never expose password_hash, token data, or encrypted fields in service return values. Strip them explicitly.
+- All date comparisons use UTC. Never trust client-sent dates without parsing through date-fns-tz.
+- Use Prisma middleware for: automatic `updated_at` touch, soft-delete filter (exclude deleted_at IS NOT NULL by default).
+- Connection pooling: use pgBouncer connection string for queries, direct URL for migrations only.
+- Never run migrations in application startup code. Migrations are a manual deploy step.
+
+## Express Best Practices
+
+- Route handlers are thin. If a controller function exceeds 20 lines, extract to service.
+- All routes are versioned: `/api/v1/`.
+- Request ID middleware: every request gets a UUID attached to `req.id` and all logs for that request.
+- Security headers via Helmet with strict CSP.
+- Rate limiting: 100 req/15min on public endpoints, 20 req/15min on auth endpoints, 5 req/15min on booking creation.
+- Input sanitization: strip unknown fields in Zod schemas (use `.strict()` on request schemas).
+- HTTP method consistency: GET for reads, POST for creates, PUT for full updates, PATCH for partial updates, DELETE for deletes. Never use GET for mutations.
+- Compression: gzip all responses > 1kb.
+
+## Error Handling Rules
+
+- `AppError` is the only error class thrown in services.
+- Controllers never throw. They catch `AppError` and call `next(error)`.
+- The global error handler is the only place that writes error responses.
+- All operational errors (validation, not found, conflict) return structured `ApiResponse`.
+- All unexpected errors (programmer errors) return 500 with no internal details exposed.
+- Error logs include: request ID, user ID if authenticated, route, method, stack trace.
+- In production: stack traces are never sent to clients.
+
+## API Retry & Resilience (Backend-to-External-Services)
+
+- All calls to Google, Zoom, Microsoft APIs are wrapped in a retry utility.
+- Retry policy: 3 attempts, exponential backoff (500ms, 1s, 2s), retry only on 429 and 5xx.
+- Circuit breaker pattern: if an integration fails 5 consecutive times, mark it as degraded and skip calendar sync without failing the booking.
+- Booking creation never fails because a calendar integration fails. Log the calendar sync failure, complete the booking, retry calendar sync async.
+- Timeout: all external HTTP calls have a 10 second timeout. Never let an external call hang.

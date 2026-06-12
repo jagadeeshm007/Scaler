@@ -1,0 +1,38 @@
+---
+description: Git conventions and CI pipeline rules for the Scaler project
+globs: ["**/*"]
+---
+
+# Git & CI Rules
+
+## Commit Convention (Conventional Commits — enforced by commitlint)
+Format: `type(scope): description`
+Types: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `ci`
+Scopes: `server`, `app`, `types`, `prisma`, `auth`, `bookings`, `availability`, `integrations`, `ui`
+
+Examples:
+  - `feat(bookings): add optimistic cancel with rollback`
+  - `fix(availability): correct UTC offset for IST timezone`
+  - `perf(slots): cache slot calculation result per schedule day`
+  - `refactor(auth): extract token rotation to dedicated service`
+
+## Branch Strategy
+- `main`: production-ready only. Direct commits blocked.
+- `dev`: integration branch. All PRs target dev.
+- Feature branches: `feat/[scope]-[short-description]`
+- Fix branches: `fix/[scope]-[short-description]`
+
+## Pre-commit Hooks (Husky)
+Run in order, block commit on any failure:
+1. `lint-staged`: eslint --fix on staged .ts/.tsx files
+2. `prettier --check` on staged files
+3. `tsc --noEmit` (type check)
+4. `vitest run --passWithNoTests` on files related to staged changes
+
+## What Never Gets Committed
+- `.env` files
+- `node_modules`
+- `dist/` or `.next/` build outputs
+- Any file containing a real API key, secret, or token
+- `console.log` statements (lint rule catches this)
+- `TODO` comments (use GitHub issues instead)

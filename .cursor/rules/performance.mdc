@@ -1,0 +1,32 @@
+---
+description: Performance conventions for the Scaler project
+globs: ["**/*"]
+---
+
+# Performance Rules
+
+## Backend Performance
+- All list queries use indexes. Before writing a query, check the schema for the index. If it is missing, add it.
+- N+1 queries are strictly forbidden. Use Prisma include/select to eager load relations.
+- Any query that can return unbounded results must have pagination. No exceptions.
+- DB query time budget: 95th percentile under 100ms. Log a warning for queries over 50ms.
+- Use Prisma's query event logging in development to detect slow queries.
+- HTTP response time budget: 95th percentile under 200ms for simple reads, under 500ms for booking creation.
+- Slot calculation (`getAvailableSlots`) must complete in under 100ms for a single day. Profile and optimize.
+
+## Frontend Performance
+- Core Web Vitals targets: LCP < 2.5s, FID < 100ms, CLS < 0.1.
+- Public booking page (the critical path) must achieve LCP < 2s.
+- JavaScript bundle: initial load < 150kb gzipped. Check with next build output.
+- Critical CSS inlined. Non-critical CSS loaded async.
+- Time slots for a day must render within 100ms of data arriving. No expensive rendering logic.
+- Calendar component: memoized, re-renders only when month changes or selected date changes.
+- Booking form: fields validate on blur, not on every keystroke.
+- Avoid re-renders: use React DevTools Profiler to detect unnecessary re-renders before marking a page as done.
+
+## Caching Strategy
+- Public event type data (`GET /api/v1/public/:username/:slug`): cache 60 seconds at CDN level via `Cache-Control` headers.
+- Available time slots (`GET /api/v1/slots`): cache 30 seconds, purge on booking creation.
+- User profile public data: cache 5 minutes.
+- Private dashboard data: no cache, always fresh.
+- Frontend: TanStack Query stale times act as client-side cache. Align with backend cache TTLs.

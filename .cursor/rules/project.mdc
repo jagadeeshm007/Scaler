@@ -1,0 +1,327 @@
+---
+description: Scaler — Cal.com Clone Scheduling Platform — Project-wide conventions and rules
+globs: ["**/*"]
+---
+
+# Scaler Project Rules & Conventions
+
+## Stack
+
+### Backend
+- **Runtime**: Node.js 20+
+- **Framework**: Express 4.x + TypeScript strict mode
+- **ORM**: Prisma 5 with PostgreSQL (Supabase)
+- **Validation**: Zod
+- **Logging**: Pino
+- **Email**: Nodemailer
+- **Auth**: JWT (access + refresh tokens, bcrypt for password hashing)
+- **Encryption**: Node.js `crypto` module (AES-256-GCM for OAuth tokens)
+
+### Frontend
+- **Framework**: Next.js 15 App Router
+- **Language**: TypeScript strict mode
+- **Styling**: Tailwind CSS v4 (user-configurable theme — light/dark)
+- **UI Library**: shadcn/ui
+- **Data Fetching**: TanStack Query v5
+- **State Management**: Zustand
+- **Forms**: React Hook Form + Zod resolver
+- **Date Utilities**: date-fns + date-fns-tz
+- **Animations**: Framer Motion
+
+## Repository Layout
+
+```
+Scaler/
+├── server/               # Express backend
+│   ├── prisma/           # Schema, migrations, seed
+│   ├── src/
+│   │   ├── config/       # env.ts
+│   │   ├── controllers/  # Request handlers
+│   │   ├── lib/          # Singletons (prisma, logger, mailer, integrations)
+│   │   ├── middleware/    # auth, validate, error-handler
+│   │   ├── routes/       # Express routers
+│   │   ├── services/     # Business logic
+│   │   ├── types/        # Shared types + Zod schemas
+│   │   │   └── schemas/  # Per-module Zod schemas
+│   │   ├── utils/        # Helpers (app-error, async-handler, api-response, encryption)
+│   │   ├── app.ts        # Express app setup
+│   │   └── index.ts      # Entry point
+│   ├── .env.example
+│   ├── package.json
+│   └── tsconfig.json
+├── App/                  # Next.js 15 frontend
+│   ├── src/
+│   │   ├── app/          # App Router pages
+│   │   ├── components/   # React components
+│   │   ├── hooks/        # TanStack Query hooks
+│   │   ├── lib/          # API client, utils
+│   │   ├── stores/       # Zustand stores
+│   │   └── types/        # Frontend types
+│   ├── package.json
+│   └── tsconfig.json
+├── task/
+│   └── ref/              # UI reference screenshots
+├── .cursor/rules/        # Project rules (this file)
+├── CLAUDE.md             # AI agent briefing
+└── README.md             # Project documentation
+```
+
+## Architecture Rules
+
+### Backend Layered Architecture
+```
+Routes → Controllers → Services → Prisma
+```
+- **Routes**: Define HTTP endpoints, attach middleware (auth, validation), delegate to controllers
+- **Controllers**: Handle request/response, call services, send API responses. NEVER import Prisma directly.
+- **Services**: Business logic, data access via Prisma. Return typed results. Throw `AppError` for business errors, never HTTP-specific errors.
+- **Prisma**: Data access layer via singleton client.
+- **NEVER skip a layer.** Controllers never call Prisma. Routes never contain business logic.
+
+## Strict TypeScript Rules
+
+- `strict: true` everywhere — both server and frontend `tsconfig.json`
+- **No `any`** — use `unknown` + type narrowing when type is uncertain
+- **No `as any`** — proper type assertions only
+- **No `@ts-ignore`** — fix the type error instead
+- **No `// @ts-nocheck`** — every file must pass type checking
+- Use discriminated unions for state management
+- Prefer `interface` for object shapes, `type` for unions/intersections
+
+## Naming Conventions
+
+| Entity | Convention | Example |
+|--------|-----------|---------|
+| Files | kebab-case | `event-type.service.ts` |
+| Types/Interfaces | PascalCase | `EventType`, `ApiResponse` |
+| Functions/Variables | camelCase | `createBooking`, `eventTypeId` |
+| Constants | SCREAMING_SNAKE_CASE | `HTTP_STATUS.OK`, `ERROR_CODE.NOT_FOUND` |
+| DB columns | snake_case | `created_at`, `user_id` |
+| Env variables | SCREAMING_SNAKE_CASE | `DATABASE_URL`, `JWT_ACCESS_SECRET` |
+| CSS classes | Tailwind utilities | `bg-neutral-900`, `text-sm` |
+| React components | PascalCase | `BookingCard`, `TimeSlotPicker` |
+
+## Constants Rule
+
+- **All constants, magic numbers, enums, and static lists** live in a centralized `constants.ts` file
+- Backend: `server/src/config/constants.ts`
+- Frontend: `App/src/lib/constants.ts`
+- **Always UPPERCASE** with grouped objects — never inline magic strings/numbers
+- Never scatter constants across random files — single source of truth
+
+### Example Pattern
+```typescript
+// server/src/config/constants.ts
+
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  INTERNAL_SERVER_ERROR: 500,
+} as const;
+
+export const ERROR_CODE = {
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  CONFLICT: 'CONFLICT',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
+
+export const AUTH = {
+  SALT_ROUNDS: 12,
+  ACCESS_TOKEN_PREFIX: 'Bearer',
+  COOKIE_NAME: 'refresh_token',
+} as const;
+
+export const PAGINATION = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 10,
+  MAX_LIMIT: 100,
+} as const;
+
+export const BOOKING_STATUS = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  RESCHEDULED: 'RESCHEDULED',
+} as const;
+
+export const LOCATION_TYPE = {
+  IN_PERSON: 'IN_PERSON',
+  PHONE: 'PHONE',
+  GOOGLE_MEET: 'GOOGLE_MEET',
+  ZOOM: 'ZOOM',
+  MS_TEAMS: 'MS_TEAMS',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export const INTEGRATION_PROVIDER = {
+  GOOGLE: 'GOOGLE',
+  ZOOM: 'ZOOM',
+  MICROSOFT: 'MICROSOFT',
+} as const;
+
+export const SCHEDULE = {
+  DEFAULT_START_TIME: '09:00',
+  DEFAULT_END_TIME: '17:00',
+  SLOT_INTERVAL_MINUTES: 15,
+  DAYS_OF_WEEK: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+} as const;
+```
+
+```typescript
+// App/src/lib/constants.ts
+
+export const ROUTES = {
+  HOME: '/',
+  EVENT_TYPES: '/event-types',
+  BOOKINGS: '/bookings',
+  AVAILABILITY: '/availability',
+  SETTINGS: '/settings',
+  APPS: '/apps',
+} as const;
+
+export const BOOKING_STATUS = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  RESCHEDULED: 'RESCHEDULED',
+} as const;
+
+export const THEME = {
+  LIGHT: 'light',
+  DARK: 'dark',
+  SYSTEM: 'system',
+} as const;
+
+export const QUERY_KEYS = {
+  EVENT_TYPES: 'event-types',
+  BOOKINGS: 'bookings',
+  AVAILABILITY: 'availability',
+  SCHEDULES: 'schedules',
+  USER: 'user',
+  APPS: 'apps',
+} as const;
+
+export const API_ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register',
+    REFRESH: '/auth/refresh',
+    LOGOUT: '/auth/logout',
+    ME: '/auth/me',
+  },
+  EVENT_TYPES: '/event-types',
+  BOOKINGS: '/bookings',
+  AVAILABILITY: '/availability',
+  INTEGRATIONS: '/integrations',
+  USERS: '/users',
+} as const;
+```
+
+## API Response Envelope
+
+Every API response follows this structure:
+```typescript
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+```
+
+For paginated responses:
+```typescript
+interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+```
+
+## Date Handling Rule
+
+- **Always store UTC** in the database (DateTime fields)
+- **Convert to user timezone** in the response layer only
+- Use `date-fns` and `date-fns-tz` for all date operations
+- **Never use moment.js** (see DO NOT list)
+- Time strings in Schedule (HH:MM format) are interpreted relative to the schedule's timezone
+
+## Error Handling Rule
+
+- Centralized `AppError` class extending `Error` with `statusCode`, `code` (enum), `isOperational`
+- `asyncHandler` wrapper on **every** async route handler
+- Use Pino logger for all server-side logging
+- **Never `console.log` in route handlers** — use `logger.info/warn/error`
+- Global error handler middleware catches all errors and returns `ApiResponse` format
+
+## Validation Rule
+
+- Zod schema defined **first** for every endpoint (in `types/schemas/`)
+- Validated in middleware (via `validate()` factory) **before** controller runs
+- Controller can trust that `req.body`/`req.query`/`req.params` are valid typed data
+
+## Environment Variable Rule
+
+- **All** `process.env` access goes through `config/env.ts` only
+- Validated with Zod at startup
+- **Fail fast** — server refuses to start if any required env var is missing
+- Never reference `process.env.XYZ` outside of `config/env.ts`
+- **Integration credentials (Google, Zoom, Microsoft, etc.) are NOT in .env** — they are stored encrypted in the database via the dynamic App Store
+
+## Integration Architecture (Dynamic App Store)
+
+- Integrations follow a **marketplace/app-store model** (like Cal.com)
+- `App` table defines available integration providers (Google Calendar, Zoom, Microsoft Teams, etc.)
+- App credentials (client_id, client_secret) stored **encrypted** in the `App` table using AES-256-GCM
+- Users "install" apps via the UI, triggering OAuth flows — user tokens stored in `IntegrationToken` table (also encrypted)
+- New integrations can be added via admin settings UI — no code deploy or .env changes needed
+- Only `ENCRYPTION_KEY` stays in .env as the master encryption secret
+
+## Database Rules
+
+- **UUID primary keys** on every table
+- **`created_at`** and **`updated_at`** on every table (auto-managed)
+- **Soft deletes** via `deleted_at` (nullable DateTime) where specified
+- Use `prisma.$transaction` for multi-table writes
+- **Indexes** on all FK columns and query-critical fields (email, username, slug, status, start_time)
+- Column defaults: `uuid()` for id, `now()` for created_at, `@updatedAt` for updated_at
+
+## DO NOT List
+
+- ❌ **No moment.js** — use date-fns
+- ❌ **No axios on backend** — use native fetch (Node 18+)
+- ❌ **No default exports** except Next.js pages/layouts (required by framework)
+- ❌ **No `var`** — use `const` or `let`
+- ❌ **No raw SQL** unless commented with detailed reason
+- ❌ **No `console.log`** in production code — use Pino logger
+- ❌ **No inline styles** in React — use Tailwind utilities
+- ❌ **No CSS modules** — Tailwind only
+- ❌ **No direct `fetch()` in React components** — use TanStack Query hooks
+
+## Auth Strategy
+
+- Full JWT auth flow (register, login, refresh, logout)
+- Frontend auto-logs in with default credentials on first visit (bypass mode)
+- Default user is seeded in database
+- Access token: 15 min expiry, stored in memory
+- Refresh token: 7 days expiry, stored in httpOnly cookie + DB (hashed)
+- Refresh token rotation on every refresh
+
+## Theme System
+
+- User-configurable theme (light/dark mode)
+- Default: dark mode (matching Cal.com reference screenshots)
+- Theme preference stored in localStorage + user profile
+- CSS variables for theme tokens, toggled via class on `<html>`
