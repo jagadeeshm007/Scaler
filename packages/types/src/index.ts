@@ -1,2 +1,4 @@
-// Empty barrel export to be filled in Phase 1
-export {};
+export * from './schemas/auth.schemas';
+export * from './schemas/user.schemas';
+export * from './schemas/event-type.schemas';
+export * from './schemas/availability.schemas';

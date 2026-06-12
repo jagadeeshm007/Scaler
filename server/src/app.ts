@@ -10,6 +10,7 @@ import { logger } from './lib/logger';
 import { errorHandler } from './middleware/error-handler';
 import { HTTP_STATUS } from './config/constants';
 import { ApiResponse } from './utils/api-response';
+import apiRoutes from './routes/index';
 
 // Request ID augmentation
 declare global {
@@ -61,8 +62,8 @@ app.get('/health', (req: Request, res: Response) => {
   res.status(HTTP_STATUS.OK).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// API Routes will be mounted here in future phases
-// app.use('/api/v1', routes);
+// API Routes
+app.use('/api/v1', apiRoutes);
 
 // 404 Handler
 app.use('*', (req: Request, res: Response) => {

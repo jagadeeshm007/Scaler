@@ -6,6 +6,8 @@ A full-stack scheduling/booking web application that replicates Cal.com's design
 
 A highly robust, production-ready scheduling platform. Features dynamic availability rules, robust timezone handling, double-booking prevention, and full integration with external calendars (Google, Outlook) and conferencing tools (Google Meet, Zoom, MS Teams).
 
+> 📄 **See the detailed [Backend Implementation Plan](file:///home/jagadeesh/Desktop/task/Scaler/docs/backend-implementation-plan.md) for architectural specifics.**
+
 ## 2. Monorepo Structure
 
 ```

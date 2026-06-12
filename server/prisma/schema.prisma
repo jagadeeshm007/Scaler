@@ -36,7 +36,7 @@ model EventType {
   duration_mins    Int
   is_active        Boolean @default(true)
   is_hidden        Boolean @default(false)
-  location_type    String  @default("GOOGLE_MEET") // In constants: GOOGLE_MEET, ZOOM, IN_PERSON, PHONE, CUSTOM
+  location_type    String
   location_details String? // Optional link or address
 
   // Booking policies
