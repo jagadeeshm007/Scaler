@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  password_hash String?
+  full_name     String
+  avatar_url    String?
+  timezone      String    @default("UTC")
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  eventTypes    EventType[]
+  schedules     Schedule[]
+  credentials   Credential[]
+  refreshTokens RefreshToken[]
+  hostBookings  Booking[]      @relation("HostBookings")
+
+  @@map("users")
+}
+
+model EventType {
+  id               String  @id @default(uuid())
+  user_id          String
+  title            String
+  slug             String
+  description      String?
+  duration_mins    Int
+  is_active        Boolean @default(true)
+  is_hidden        Boolean @default(false)
+  location_type    String  @default("GOOGLE_MEET") // In constants: GOOGLE_MEET, ZOOM, IN_PERSON, PHONE, CUSTOM
+  location_details String? // Optional link or address
+
+  // Booking policies
+  requires_confirmation Boolean @default(false)
+  buffer_before_mins    Int     @default(0)
+  buffer_after_mins     Int     @default(0)
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@unique([user_id, slug])
+  @@index([user_id])
+  @@map("event_types")
+}
+
+model Schedule {
+  id         String   @id @default(uuid())
+  user_id    String
+  name       String
+  timezone   String
+  is_default Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user         User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  availability ScheduleAvailability[]
+  overrides    DateOverride[]
+
+  @@index([user_id])
+  @@map("schedules")
+}
+
+model ScheduleAvailability {
+  id          String   @id @default(uuid())
+  schedule_id String
+  day_of_week Int      // 0 (Sun) to 6 (Sat)
+  start_time  String   // Format: "HH:MM" (e.g., "09:00")
+  end_time    String   // Format: "HH:MM" (e.g., "17:00")
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  schedule Schedule @relation(fields: [schedule_id], references: [id], onDelete: Cascade)
+
+  @@index([schedule_id])
+  @@map("schedule_availability")
+}
+
+model DateOverride {
+  id           String   @id @default(uuid())
+  schedule_id  String
+  date         DateTime // The specific date (stored as midnight UTC)
+  start_time   String?  // Format: "HH:MM", null if unavailable all day
+  end_time     String?  // Format: "HH:MM", null if unavailable all day
+  is_available Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  schedule Schedule @relation(fields: [schedule_id], references: [id], onDelete: Cascade)
+
+  @@index([schedule_id, date])
+  @@map("date_overrides")
+}
+
+model Booking {
+  id            String   @id @default(uuid())
+  uid           String   @unique @default(uuid()) // Public short-id for URLs
+  event_type_id String
+  host_id       String
+
+  guest_name  String
+  guest_email String
+  guest_notes String?
+
+  start_time          DateTime
+  end_time            DateTime
+  status              String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, RESCHEDULED
+  cancellation_reason String?
+
+  meeting_url    String?
+  integration_id String? // ID from external calendar if synced
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  event_type EventType @relation(fields: [event_type_id], references: [id], onDelete: Cascade)
+  host       User      @relation("HostBookings", fields: [host_id], references: [id], onDelete: Cascade)
+
+  @@index([host_id, start_time])
+  @@index([event_type_id])
+  @@index([uid])
+  @@index([guest_email])
+  @@map("bookings")
+}
+
+model App {
+  id                      String   @id @default(uuid())
+  slug                    String   @unique
+  name                    String
+  description             String?
+  logo_url                String?
+  category                String
+  auth_type               String   @default("OAUTH2") // OAUTH2, API_KEY, NONE
+  client_id_encrypted     String?
+  client_secret_encrypted String?
+  redirect_uri            String?
+  scopes                  String?
+  is_active               Boolean  @default(true)
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  credentials Credential[]
+
+  @@map("apps")
+}
+
+model Credential {
+  id                      String    @id @default(uuid())
+  user_id                 String
+  app_id                  String
+  access_token_encrypted  String
+  refresh_token_encrypted String?
+  expires_at              DateTime?
+  scopes                  String?
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  app  App  @relation(fields: [app_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, app_id])
+  @@index([user_id])
+  @@index([app_id])
+  @@map("credentials")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  token_hash String   @unique
+  user_id    String
+  expires_at DateTime
+  is_revoked Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([token_hash])
+  @@map("refresh_tokens")
+}

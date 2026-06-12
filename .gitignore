@@ -48,3 +48,4 @@ coverage/
 .vercel
 
 task/
+.agents

@@ -1,5 +1,5 @@
 {
-  "name": "@antigravity/types",
+  "name": "@scaler/types",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "typescript": "^5.4.5"

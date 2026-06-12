@@ -1,0 +1,15 @@
+{
+  "name": "scaler",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd server && pnpm dev",
+    "dev:frontend": "cd client && pnpm dev",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  }
+}

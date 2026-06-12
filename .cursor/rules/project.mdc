@@ -28,6 +28,15 @@ globs: ["**/*"]
 - **Date Utilities**: date-fns + date-fns-tz
 - **Animations**: Framer Motion
 
+## Code Quality Verification (Mandatory)
+
+**After completing any code implementation phase or significant feature, you MUST:**
+1. Check for lint issues (`pnpm lint` or equivalent).
+2. Check for TypeScript type issues (`tsc --noEmit`).
+3. Check for formatting issues (`prettier --check`).
+4. Proactively fix any errors and warnings before considering the task complete.
+
+
 ## Repository Layout
 
 ```

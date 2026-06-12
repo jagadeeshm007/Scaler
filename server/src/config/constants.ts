@@ -1,0 +1,70 @@
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_SERVER_ERROR: 500,
+} as const;
+
+export const ERROR_CODE = {
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  CONFLICT: 'CONFLICT',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  RATE_LIMITED: 'RATE_LIMITED',
+} as const;
+
+export const AUTH = {
+  SALT_ROUNDS: 12,
+  ACCESS_TOKEN_PREFIX: 'Bearer',
+  COOKIE_NAME: 'refresh_token',
+} as const;
+
+export const PAGINATION = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 20,
+  MAX_LIMIT: 100,
+} as const;
+
+export const BOOKING_STATUS = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  RESCHEDULED: 'RESCHEDULED',
+} as const;
+
+export const LOCATION_TYPE = {
+  IN_PERSON: 'IN_PERSON',
+  PHONE: 'PHONE',
+  GOOGLE_MEET: 'GOOGLE_MEET',
+  ZOOM: 'ZOOM',
+  MS_TEAMS: 'MS_TEAMS',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export const INTEGRATION_PROVIDER = {
+  GOOGLE: 'GOOGLE',
+  ZOOM: 'ZOOM',
+  MICROSOFT: 'MICROSOFT',
+} as const;
+
+export const SCHEDULE = {
+  DEFAULT_START_TIME: '09:00',
+  DEFAULT_END_TIME: '17:00',
+  SLOT_INTERVAL_MINUTES: 15,
+  DAYS_OF_WEEK: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+} as const;
+
+export const APP_AUTH_TYPE = {
+  OAUTH2: 'OAUTH2',
+  API_KEY: 'API_KEY',
+  NONE: 'NONE',
+} as const;

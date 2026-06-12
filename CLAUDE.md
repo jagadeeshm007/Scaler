@@ -3,6 +3,7 @@
 A full-stack scheduling/booking web application that replicates Cal.com's design and user experience. Built as a Scaler SDE Fullstack Assignment.
 
 ## 1. Project Overview
+
 A highly robust, production-ready scheduling platform. Features dynamic availability rules, robust timezone handling, double-booking prevention, and full integration with external calendars (Google, Outlook) and conferencing tools (Google Meet, Zoom, MS Teams).
 
 ## 2. Monorepo Structure
@@ -18,7 +19,7 @@ Scaler/
 └── CLAUDE.md             # This file
 ```
 
-**The `packages/types/` Contract**: This is the most critical piece of the architecture. Both `server/` and `App/` depend on `@antigravity/types`. It contains Zod schemas that are used by the backend for API validation and by the frontend for form validation. The inferred TS types ensure the frontend always knows exactly what shape the API returns. No guessing, no `any`.
+**The `packages/types/` Contract**: This is the most critical piece of the architecture. Both `server/` and `App/` depend on `@scaler/types`. It contains Zod schemas that are used by the backend for API validation and by the frontend for form validation. The inferred TS types ensure the frontend always knows exactly what shape the API returns. No guessing, no `any`.
 
 ## 3. Dev Setup
 
@@ -51,6 +52,7 @@ cd App && npm run dev       # http://localhost:3000
 - **Auth Bypass**: Full JWT implementation exists, but frontend automatically logs in as the seeded default user to meet assignment requirements.
 
 ## 5. Full-Stack Type Safety
+
 All endpoint request/response shapes are defined in `packages/types/src/schemas/`. Backend controllers don't need to manually type `req.body` because the validation middleware infers it from the schema. Frontend API hooks get perfect autocompletion for responses.
 
 ## 6. Rules Index
@@ -64,14 +66,14 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 
 ## 7. Integration Status
 
-| Provider | Purpose | Status |
-|----------|---------|--------|
-| Google Calendar | Sync + Conflicts | Planned |
-| Google Meet | Video Links | Planned |
-| Microsoft Outlook | Sync + Conflicts | Planned |
-| Microsoft Teams | Video Links | Planned |
-| Zoom | Video Links | Planned |
-| SMTP | Email Notifications | Planned |
+| Provider          | Purpose             | Status  |
+| ----------------- | ------------------- | ------- |
+| Google Calendar   | Sync + Conflicts    | Planned |
+| Google Meet       | Video Links         | Planned |
+| Microsoft Outlook | Sync + Conflicts    | Planned |
+| Microsoft Teams   | Video Links         | Planned |
+| Zoom              | Video Links         | Planned |
+| SMTP              | Email Notifications | Planned |
 
 ## 8. Implementation Status
 
@@ -87,11 +89,13 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 - [ ] Phase 9: Frontend Implementation
 
 ## 9. Known Constraints & Assumptions
+
 - Assignment specifies "No Login Required" for admin side. We assume a default seeded user (`jagadeesh.m@deeptaai.com`) exists and is automatically authenticated by the frontend.
 - Dates are strictly UTC in DB. Timezone conversion happens at the edge/frontend.
 - Cal.com reference UI is the single source of truth for design.
 
 ## 10. Performance Budgets
+
 - **DB Queries**: 95p < 100ms. Zero N+1 queries.
 - **API Response**: 95p < 200ms (reads), < 500ms (writes).
 - **Slot Calculation**: < 100ms per day.
