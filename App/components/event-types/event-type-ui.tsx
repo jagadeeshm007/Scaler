@@ -2,16 +2,18 @@
 
 import { cn } from '@/lib/utils';
 
-interface EventTypeActionGroupProps {
+/* ── Action button group ── */
+export function EventTypeActionGroup({
+  children,
+  className,
+}: {
   children: React.ReactNode;
   className?: string;
-}
-
-export function EventTypeActionGroup({ children, className }: EventTypeActionGroupProps) {
+}) {
   return (
     <div
       className={cn(
-        'flex items-center overflow-hidden rounded-md border border-neutral-800 bg-[#1a1a1a]',
+        'flex items-center overflow-hidden rounded-md border border-neutral-800 bg-neutral-950',
         className,
       )}
     >
@@ -20,28 +22,26 @@ export function EventTypeActionGroup({ children, className }: EventTypeActionGro
   );
 }
 
-interface EventTypeActionGroupButtonProps {
-  label: string;
-  onClick?: () => void;
-  children: React.ReactNode;
-  className?: string;
-  showDivider?: boolean;
-}
-
 export function EventTypeActionGroupButton({
   label,
   onClick,
   children,
   className,
   showDivider = true,
-}: EventTypeActionGroupButtonProps) {
+}: {
+  label: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+  className?: string;
+  showDivider?: boolean;
+}) {
   return (
     <button
       type="button"
       aria-label={label}
       onClick={onClick}
       className={cn(
-        'flex h-8 w-9 items-center justify-center text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300',
+        'flex h-7 w-8 items-center justify-center text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200',
         showDivider && 'border-r border-neutral-800 last:border-r-0',
         className,
       )}
@@ -51,20 +51,24 @@ export function EventTypeActionGroupButton({
   );
 }
 
-interface EventTypeBadgeProps {
+/* ── Metadata badges ── */
+export function EventTypeBadge({
+  children,
+  variant = 'default',
+  className,
+}: {
   children: React.ReactNode;
   variant?: 'default' | 'hidden';
   className?: string;
-}
-
-export function EventTypeBadge({ children, variant = 'default', className }: EventTypeBadgeProps) {
+}) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs',
-        variant === 'default' && 'border border-neutral-800 bg-[#1a1a1a] text-neutral-400',
-        variant === 'hidden' &&
-          'border border-amber-500/30 bg-amber-500/10 text-amber-500',
+        'inline-flex items-center gap-1 px-1.5 py-0.5 text-xs',
+        /* duration chips — small box-rounded */
+        variant === 'default' && 'rounded-md border border-neutral-800 bg-neutral-950 text-neutral-400',
+        /* hidden chip — slightly wider box-rounded, amber */
+        variant === 'hidden' && 'rounded-md border border-amber-500/40 bg-amber-500/10 font-medium text-amber-500',
         className,
       )}
     >

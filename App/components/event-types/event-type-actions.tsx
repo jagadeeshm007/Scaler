@@ -16,7 +16,6 @@ import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EventTypeActiveToggle } from '@/components/event-types/event-type-active-toggle';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,6 +94,7 @@ export function EventTypeActions({
 
   const fullEventType = eventTypes?.find((item) => item.id === eventTypeId) ?? eventType;
   const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}${ROUTES.publicBooking(username, slug)}`;
+  const profileToggleLabel = fullEventType.is_hidden ? 'Show on profile' : 'Hide from profile';
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(publicUrl);
@@ -176,11 +176,12 @@ export function EventTypeActions({
               />
               <MobileSheetItem icon={Copy} label="Duplicate" onClick={handleDuplicate} />
               <div className="flex items-center justify-between rounded-lg px-2 py-3">
-                <span className="text-sm text-white">Hide from profile</span>
+                <span className="text-sm text-white">{profileToggleLabel}</span>
                 <EventTypeActiveToggle
-                  checked={fullEventType.is_hidden}
+                  checked={!fullEventType.is_hidden}
+                  disabled={updateMutation.isPending}
                   onCheckedChange={(checked) =>
-                    updateMutation.mutate({ id: eventTypeId, data: { is_hidden: checked } })
+                    updateMutation.mutate({ id: eventTypeId, data: { is_hidden: !checked } })
                   }
                 />
               </div>
@@ -219,7 +220,7 @@ export function EventTypeActions({
           <button
             type="button"
             aria-label="Event type actions"
-            className="flex h-9 w-9 items-center justify-center text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
+            className="flex h-7 w-8 items-center justify-center text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
           >
             <MoreHorizontal className="size-[15px] stroke-[1.75]" />
           </button>

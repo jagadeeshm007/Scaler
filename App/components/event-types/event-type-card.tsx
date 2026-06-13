@@ -62,10 +62,10 @@ export function EventTypeCard({ eventType, username }: EventTypeCardProps) {
         {/* Desktop: toggle + grouped actions */}
         <div className="hidden shrink-0 items-center gap-2.5 md:flex">
           <EventTypeActiveToggle
-            checked={eventType.is_active}
+            checked={!eventType.is_hidden}
             disabled={updateMutation.isPending}
             onCheckedChange={(checked) =>
-              updateMutation.mutate({ id: eventType.id, data: { is_active: checked } })
+              updateMutation.mutate({ id: eventType.id, data: { is_hidden: !checked } })
             }
           />
 
@@ -74,10 +74,10 @@ export function EventTypeCard({ eventType, username }: EventTypeCardProps) {
               label="Open booking page"
               onClick={() => window.open(publicUrl, '_blank')}
             >
-              <ExternalLink className="size-[15px] stroke-[1.75]" />
+              <ExternalLink className="size-3.5" />
             </EventTypeActionGroupButton>
             <EventTypeActionGroupButton label="Copy link" onClick={() => void copyLink()}>
-              <Link2 className="size-[15px] stroke-[1.75]" />
+              <Link2 className="size-3.5" />
             </EventTypeActionGroupButton>
             <EventTypeActions
               eventTypeId={eventType.id}

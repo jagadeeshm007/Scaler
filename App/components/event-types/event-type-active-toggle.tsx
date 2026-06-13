@@ -2,20 +2,18 @@
 
 import { cn } from '@/lib/utils';
 
-interface EventTypeActiveToggleProps {
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-  disabled?: boolean;
-  className?: string;
-}
-
-/** Cal.com active toggle — white thumb when on, muted when off */
+/** Cal.com toggle: ON = white track + near-black thumb, OFF = dark track + grey thumb */
 export function EventTypeActiveToggle({
   checked,
   onCheckedChange,
   disabled,
   className,
-}: EventTypeActiveToggleProps) {
+}: {
+  checked: boolean;
+  onCheckedChange: (v: boolean) => void;
+  disabled?: boolean;
+  className?: string;
+}) {
   return (
     <button
       type="button"
@@ -24,15 +22,15 @@ export function EventTypeActiveToggle({
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
-        'relative inline-flex h-[18px] w-8 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-50',
-        checked ? 'bg-neutral-600' : 'bg-neutral-800',
+        'relative inline-flex h-[18px] w-[30px] shrink-0 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600 disabled:cursor-not-allowed disabled:opacity-50',
+        checked ? 'bg-white' : 'bg-neutral-700',
         className,
       )}
     >
       <span
         className={cn(
-          'pointer-events-none absolute top-1/2 size-3.5 -translate-y-1/2 rounded-full transition-transform duration-200',
-          checked ? 'translate-x-[14px] bg-white' : 'translate-x-0.5 bg-neutral-500',
+          'pointer-events-none absolute top-1/2 size-3 -translate-y-1/2 rounded-full transition-transform duration-150',
+          checked ? 'translate-x-[15px] bg-neutral-950' : 'translate-x-[3px] bg-neutral-400',
         )}
       />
     </button>

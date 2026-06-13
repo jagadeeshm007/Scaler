@@ -37,37 +37,48 @@ interface SidebarProps {
   onNavigate?: () => void;
 }
 
-interface SidebarNavLinkProps {
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+  active,
+  onNavigate,
+}: {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   active: boolean;
   onNavigate?: () => void;
-}
-
-function SidebarNavLink({ href, label, icon: Icon, active, onNavigate }: SidebarNavLinkProps) {
-  const link = (
-    <TransitionLink
-      href={href}
-      onClick={onNavigate}
-      aria-label={label}
-      className={cn(
-        'flex items-center rounded-lg text-sm font-medium transition-colors duration-150',
-        'justify-center p-2.5 lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
-        active
-          ? 'bg-neutral-800/60 text-white'
-          : 'text-neutral-500 hover:bg-neutral-800/30 hover:text-neutral-200',
-      )}
-    >
-      <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.25 : 2} />
-      <span className="hidden lg:inline">{label}</span>
-    </TransitionLink>
-  );
-
+}) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side="right" className="border-neutral-700 bg-neutral-800 text-white lg:hidden">
+      <TooltipTrigger asChild>
+        <TransitionLink
+          href={href}
+          onClick={onNavigate}
+          aria-label={label}
+          className={cn(
+            'flex items-center rounded-md text-sm font-medium transition-colors duration-100',
+            /* collapsed: icon-only centered; full: left-aligned with label */
+            'justify-center p-2 lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
+            active
+              ? 'bg-neutral-800 text-white'
+              : 'text-neutral-500 hover:bg-neutral-800/50 hover:text-neutral-200',
+          )}
+        >
+          <Icon
+            className="size-[18px] shrink-0"
+            strokeWidth={active ? 2.25 : 1.75}
+          />
+          <span className="hidden lg:inline">{label}</span>
+        </TransitionLink>
+      </TooltipTrigger>
+      {/* Tooltip only on collapsed (md, not lg) */}
+      <TooltipContent
+        side="right"
+        sideOffset={8}
+        className="border-neutral-700 bg-neutral-900 text-xs text-neutral-200 lg:hidden"
+      >
         {label}
       </TooltipContent>
     </Tooltip>
@@ -80,49 +91,56 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
   const username = user?.username ?? process.env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
 
   return (
-    <TooltipProvider delayDuration={0}>
+    <TooltipProvider delayDuration={200}>
       <aside
         className={cn(
-          'flex w-[72px] shrink-0 flex-col bg-neutral-950 py-4 lg:w-64 lg:border-r lg:border-neutral-800/40 lg:px-3 lg:py-5',
+          /* no right border — page bg handles separation */
+          'flex w-[60px] shrink-0 flex-col bg-neutral-950 py-3 lg:w-60 lg:px-3 lg:py-4',
           className,
         )}
       >
-        {/* Header — icon rail on md, full row on lg */}
-        <div className="mb-6 flex flex-col items-center gap-3 px-2 lg:mb-8 lg:flex-row lg:items-center lg:justify-between lg:px-2">
-          <span className="hidden text-lg font-bold tracking-tight text-white lg:inline">Scaler</span>
-          <span className="flex size-9 items-center justify-center rounded-lg bg-white text-sm font-bold text-black lg:hidden">
-            S
+        {/* ── Header ── */}
+        <div className="mb-4 flex flex-col items-center gap-3 px-1.5 lg:mb-5 lg:flex-row lg:items-center lg:justify-between lg:px-1">
+          {/* Logo — "Scaler" text on lg, "Cal" text chip on md */}
+          <span className="hidden text-base font-bold tracking-tight text-white lg:inline">
+            Scaler
           </span>
-          <div className="flex flex-col items-center gap-2 lg:flex-row">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Search"
-                  className="flex size-9 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-800/40 hover:text-white lg:size-auto lg:p-0 lg:hover:bg-transparent"
-                >
-                  <Search className="size-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="right"
-                className="border-neutral-700 bg-neutral-800 text-white lg:hidden"
-              >
-                Search
-              </TooltipContent>
-            </Tooltip>
-            {user && (
-              <div className="relative">
-                <AvatarFallback name={user.full_name} className="size-8" />
-                <span className="absolute right-0 bottom-0 size-2 rounded-full border-2 border-neutral-950 bg-green-500" />
-              </div>
-            )}
-          </div>
+          <span className="text-sm font-bold text-white lg:hidden">Cal</span>
+
+          {/* Avatar — always visible */}
+          {user ? (
+            <div className="relative">
+              <AvatarFallback name={user.full_name} className="size-7 text-xs lg:size-8" />
+              <span className="absolute right-0 bottom-0 size-2 rounded-full border-2 border-neutral-950 bg-green-500" />
+            </div>
+          ) : (
+            /* placeholder so layout doesn't jump before auth hydration */
+            <div className="size-7 rounded-full bg-neutral-800 lg:size-8" />
+          )}
         </div>
 
-        <nav className="flex flex-1 flex-col gap-0.5 px-1 lg:px-0">
+        {/* ── Search (below header in collapsed, in header row on lg) ── */}
+        <div className="mb-2 flex justify-center px-1 lg:hidden">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label="Search"
+                className="flex size-9 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-800/50 hover:text-neutral-200"
+              >
+                <Search className="size-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8} className="border-neutral-700 bg-neutral-900 text-xs text-neutral-200">
+              Search
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* ── Main nav ── */}
+        <nav className="flex flex-1 flex-col gap-0.5 px-1.5 lg:px-0">
           {navItems.map(({ href, label, icon }) => (
-            <SidebarNavLink
+            <NavItem
               key={href}
               href={href}
               label={label}
@@ -133,8 +151,9 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
           ))}
         </nav>
 
-        <div className="mt-auto space-y-0.5 border-t border-neutral-800/80 px-1 pt-3 lg:px-0 lg:pt-4">
-          <SidebarNavLink
+        {/* ── Bottom nav ── */}
+        <div className="mt-auto flex flex-col gap-0.5 border-t border-neutral-800/60 px-1.5 pt-3 lg:px-0 lg:pt-4">
+          <NavItem
             href={ROUTES.publicBooking(username, '15min')}
             label="View public page"
             icon={ExternalLink}
@@ -142,7 +161,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
             onNavigate={onNavigate}
           />
           {bottomItems.map(({ href, label, icon }) => (
-            <SidebarNavLink
+            <NavItem
               key={href}
               href={href}
               label={label}
@@ -151,7 +170,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
               onNavigate={onNavigate}
             />
           ))}
-          <p className="hidden px-3 pt-3 text-xs text-neutral-600 lg:block">
+          <p className="hidden px-3 pt-3 text-xs text-neutral-700 lg:block">
             © {new Date().getFullYear()} Scaler
           </p>
         </div>

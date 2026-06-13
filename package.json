@@ -5,8 +5,12 @@
   "scripts": {
     "dev:backend": "cd server && pnpm dev",
     "dev:frontend": "cd App && pnpm dev",
-    "lint": "eslint .",
+    "lint": "pnpm --filter scaler-app lint && pnpm --filter server lint",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm --filter server typecheck",
+    "build": "pnpm --filter @scaler/types build && pnpm --filter server build && pnpm --filter scaler-app build",
+    "build:types": "pnpm --filter @scaler/types build",
     "prepare": "husky"
   },
   "devDependencies": {
