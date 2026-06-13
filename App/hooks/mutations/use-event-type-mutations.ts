@@ -6,7 +6,12 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/endpoints';
 import { queryKeys } from '@/lib/query-keys';
-import type { CreateEventTypeInput, EventType, ReorderEventTypesInput, UpdateEventTypeInput } from '@/types';
+import type {
+  CreateEventTypeInput,
+  EventType,
+  ReorderEventTypesInput,
+  UpdateEventTypeInput,
+} from '@/types';
 
 export function useCreateEventType() {
   const queryClient = useQueryClient();

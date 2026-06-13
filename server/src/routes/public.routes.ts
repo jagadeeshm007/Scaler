@@ -1,14 +1,33 @@
+import { updateBookingStatusSchema } from '@scaler/types';
 import { Router } from 'express';
 
+import { BookingController } from '../controllers/booking.controller';
 import type { Request, Response } from 'express';
 import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
 import { prisma } from '../lib/prisma';
+import { validate } from '../middleware/validate';
 import { ApiResponse } from '../utils/api-response';
 import { AppError } from '../utils/app-error';
 import { asyncHandler } from '../utils/async-handler';
 import { SlotCalculator } from '../utils/slot-calculator';
 
 const router = Router();
+
+/**
+ * GET /api/v1/public/bookings/:uid
+ * Public booking lookup for confirmation / cancel / reschedule pages
+ */
+router.get('/bookings/:uid', BookingController.getPublicBookingByUid);
+
+/**
+ * PATCH /api/v1/public/bookings/:uid/status?timezone=...
+ * Guest-initiated cancel or reschedule (no auth required)
+ */
+router.patch(
+  '/bookings/:uid/status',
+  validate(updateBookingStatusSchema),
+  BookingController.updatePublicBookingStatus,
+);
 
 /**
  * GET /api/v1/slots
@@ -70,7 +89,10 @@ router.get(
     const monthEnd = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
 
     // Use raw query to avoid stale Prisma generated-type issues with the emoji column
-    interface RawOverride { date: Date; emoji: string | null }
+    interface RawOverride {
+      date: Date;
+      emoji: string | null;
+    }
     const rows = await prisma.$queryRaw<RawOverride[]>`
       SELECT d.date, d.emoji
       FROM date_overrides d
@@ -86,7 +108,9 @@ router.get(
     const blocked = rows
       .map((r) => ({ date: r.date.toISOString().slice(0, 10), emoji: r.emoji ?? '🔒' }))
       .filter(({ date }) => {
-        if (seen.has(date)) { return false; }
+        if (seen.has(date)) {
+          return false;
+        }
         seen.add(date);
         return true;
       });
@@ -97,9 +121,7 @@ router.get(
       include: { availability: true },
     });
     const workingDaySet = new Set(
-      (defaultSchedule?.availability ?? [])
-        .filter((a) => a.is_active)
-        .map((a) => a.day_of_week),
+      (defaultSchedule?.availability ?? []).filter((a) => a.is_active).map((a) => a.day_of_week),
     );
     const nonWorkingDays = [0, 1, 2, 3, 4, 5, 6].filter((d) => !workingDaySet.has(d));
 

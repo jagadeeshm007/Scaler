@@ -2,6 +2,7 @@
 
 import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
 
@@ -11,6 +12,7 @@ import { ColumnView } from '@/components/booking-page/column-view';
 import { EventInfoPanel } from '@/components/booking-page/event-info-panel';
 import { MonthView } from '@/components/booking-page/month-view';
 import { WeekView } from '@/components/booking-page/week-view';
+import { usePublicBooking } from '@/hooks/queries/use-bookings';
 import { useTimezone } from '@/hooks/use-timezone';
 import type { BookingLayout } from '@/components/booking-page/booking-view-switcher';
 import type { PublicEventType, Slot } from '@/types';
@@ -20,6 +22,10 @@ interface BookingPageShellProps {
 }
 
 export function BookingPageShell({ eventType }: BookingPageShellProps) {
+  const searchParams = useSearchParams();
+  const rescheduleUid = searchParams.get('reschedule') ?? '';
+  const { data: rescheduleBooking } = usePublicBooking(rescheduleUid);
+
   const [layout, setLayout] = useQueryState(
     'layout',
     parseAsStringLiteral(['month', 'column', 'week'] as const).withDefault('month'),
@@ -50,10 +56,12 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-6">
         {layout === 'month' ? (
           /* Centered card for month view */
-          <div className={cn(
-            'w-full overflow-hidden lg:rounded-2xl lg:border lg:border-neutral-800 transition-[max-width] duration-300 ease-in-out',
-            selectedSlot ? 'lg:max-w-2xl' : 'lg:max-w-6xl',
-          )}>
+          <div
+            className={cn(
+              'w-full overflow-hidden lg:rounded-2xl lg:border lg:border-neutral-800 transition-[max-width] duration-500 ease-[cubic-bezier(0,0,0.2,1)]',
+              selectedSlot ? 'lg:max-w-2xl' : 'lg:max-w-6xl',
+            )}
+          >
             <div className="flex flex-col lg:flex-row">
               <EventInfoPanel
                 eventType={eventType}
@@ -63,6 +71,7 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
                 selectedSlot={selectedSlot}
                 selectedDuration={selectedDuration}
                 onDurationChange={setSelectedDuration}
+                rescheduleBooking={rescheduleBooking}
               />
               <MonthView
                 eventType={eventType}
@@ -71,6 +80,7 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
                 onLayoutChange={handleLayoutChange}
                 selectedSlot={selectedSlot}
                 onSlotSelect={setSelectedSlot}
+                rescheduleBooking={rescheduleBooking}
               />
             </div>
           </div>

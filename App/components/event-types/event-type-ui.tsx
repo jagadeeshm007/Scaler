@@ -20,10 +20,7 @@ export function EventTypeDragHandleIcon({ className }: { className?: string }) {
 export function EventTypeListRowPlaceholder({ className }: { className?: string }) {
   return (
     <div
-      className={cn(
-        'rounded-lg border border-dashed border-neutral-600 bg-neutral-900',
-        className,
-      )}
+      className={cn('rounded-lg border border-dashed border-neutral-600 bg-neutral-900', className)}
       aria-hidden
     />
   );

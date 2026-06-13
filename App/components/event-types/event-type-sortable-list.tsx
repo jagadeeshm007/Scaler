@@ -127,12 +127,7 @@ export function EventTypeSortableList({
             )}
             style={activeWidth ? { width: activeWidth } : undefined}
           >
-            <EventTypeCard
-              eventType={activeItem}
-              username={username}
-              isOverlay
-              showDragHandle
-            />
+            <EventTypeCard eventType={activeItem} username={username} isOverlay showDragHandle />
           </div>
         ) : null}
       </DragOverlay>

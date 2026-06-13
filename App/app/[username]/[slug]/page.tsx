@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
 import { BookingPageShell } from '@/components/booking-page/booking-page-shell';
+import { Skeleton } from '@/components/ui/skeleton';
 import { serverFetch } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/endpoints';
 import type { PublicEventType } from '@/types';
@@ -19,5 +21,9 @@ export default async function BookingPage({ params }: BookingPageProps) {
     notFound();
   }
 
-  return <BookingPageShell eventType={eventType} />;
+  return (
+    <Suspense fallback={<Skeleton className="min-h-screen w-full bg-neutral-950" />}>
+      <BookingPageShell eventType={eventType} />
+    </Suspense>
+  );
 }

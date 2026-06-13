@@ -97,12 +97,18 @@ export function ColumnView({
           <ToggleGroup
             type="single"
             value={fmt}
-            onValueChange={(v) => { if (v) void setFmt(v as '12h' | '24h'); }}
+            onValueChange={(v) => {
+              if (v) void setFmt(v as '12h' | '24h');
+            }}
             variant="outline"
             size="sm"
           >
-            <ToggleGroupItem value="12h" aria-label="12h">12h</ToggleGroupItem>
-            <ToggleGroupItem value="24h" aria-label="24h">24h</ToggleGroupItem>
+            <ToggleGroupItem value="12h" aria-label="12h">
+              12h
+            </ToggleGroupItem>
+            <ToggleGroupItem value="24h" aria-label="24h">
+              24h
+            </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>
@@ -129,9 +135,7 @@ export function ColumnView({
                   <p
                     className={cn(
                       'mt-0.5 inline-flex size-7 items-center justify-center rounded-full text-sm font-semibold',
-                      todayDay
-                        ? 'bg-neutral-100 text-neutral-900'
-                        : 'text-white',
+                      todayDay ? 'bg-neutral-100 text-neutral-900' : 'text-white',
                     )}
                   >
                     {day}
@@ -143,10 +147,7 @@ export function ColumnView({
                   {isLoading && (
                     <div className="flex flex-col gap-1.5">
                       {Array.from({ length: 4 }).map((_, k) => (
-                        <div
-                          key={k}
-                          className="h-8 animate-pulse rounded-md bg-neutral-800"
-                        />
+                        <div key={k} className="h-8 animate-pulse rounded-md bg-neutral-800" />
                       ))}
                     </div>
                   )}

@@ -118,7 +118,11 @@ export class EventTypeService {
 
     for (const id of uniqueIds) {
       if (!ownedIds.has(id)) {
-        throw new AppError('Invalid event type id', HTTP_STATUS.BAD_REQUEST, ERROR_CODE.VALIDATION_ERROR);
+        throw new AppError(
+          'Invalid event type id',
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_CODE.VALIDATION_ERROR,
+        );
       }
     }
 

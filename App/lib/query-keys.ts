@@ -9,6 +9,7 @@ export const queryKeys = {
     all: () => ['bookings'] as const,
     list: (filters: Record<string, unknown> = {}) => ['bookings', 'list', filters] as const,
     byId: (id: string) => ['bookings', id] as const,
+    publicByUid: (uid: string) => ['bookings', 'public', uid] as const,
   },
   availability: {
     all: () => ['availability'] as const,
@@ -20,8 +21,7 @@ export const queryKeys = {
       ['slots', eventTypeId, date, timezone] as const,
   },
   blockedDates: {
-    byMonth: (username: string, month: string) =>
-      ['blocked-dates', username, month] as const,
+    byMonth: (username: string, month: string) => ['blocked-dates', username, month] as const,
   },
   integrations: {
     all: () => ['integrations'] as const,

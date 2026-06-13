@@ -28,3 +28,11 @@ export function useBooking(id: string) {
     enabled: Boolean(id) && isAuthenticated,
   });
 }
+
+export function usePublicBooking(uid: string) {
+  return useQuery({
+    queryKey: queryKeys.bookings.publicByUid(uid),
+    queryFn: () => api.get<Booking>(ENDPOINTS.publicBookings.byUid(uid)),
+    enabled: Boolean(uid),
+  });
+}

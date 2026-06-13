@@ -1,15 +1,19 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT" || exit 1
+
 echo "Running pre-commit checks..."
 
-# 1. Type check
 echo "→ Generating Prisma client..."
 cd server && pnpm prisma:generate
 if [ $? -ne 0 ]; then
   echo "✗ Prisma generate failed."
   exit 1
 fi
+
+cd "$ROOT" || exit 1
 
 echo "→ Type checking..."
 pnpm typecheck
@@ -18,11 +22,17 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 2. Lint (errors only in pre-commit, not warnings)
 echo "→ Linting..."
 pnpm lint
 if [ $? -ne 0 ]; then
   echo "✗ Lint errors found. Run pnpm lint:fix or fix manually."
+  exit 1
+fi
+
+echo "→ Formatting..."
+pnpm format:check
+if [ $? -ne 0 ]; then
+  echo "✗ Prettier check failed. Run pnpm format to fix."
   exit 1
 fi
 

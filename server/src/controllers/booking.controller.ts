@@ -43,6 +43,29 @@ export class BookingController {
     return res.status(HTTP_STATUS.CREATED).json(payload);
   });
 
+  static getPublicBookingByUid = asyncHandler(async (req: Request, res: Response) => {
+    const booking = await BookingService.getBookingByUid(req.params.uid as string);
+    return ApiResponse.success(res, 'Booking retrieved successfully', booking);
+  });
+
+  static updatePublicBookingStatus = asyncHandler(async (req: Request, res: Response) => {
+    const { timezone } = req.query;
+    if (!timezone) {
+      throw new AppError(
+        'Missing timezone in query parameters',
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODE.VALIDATION_ERROR,
+      );
+    }
+
+    const booking = await BookingService.updateBookingStatusByUid(
+      req.params.uid as string,
+      req.body,
+      timezone as string,
+    );
+    return ApiResponse.success(res, 'Booking status updated successfully', booking);
+  });
+
   static updateBookingStatus = asyncHandler(async (req: Request, res: Response) => {
     // Requires hostTimezone from frontend to send the correct cancellation/confirmation email times
     const { timezone } = req.query;

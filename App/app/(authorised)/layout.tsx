@@ -26,7 +26,9 @@ export default function AuthorisedLayout({ children }: { children: React.ReactNo
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-950 px-6 text-center">
-        <p className="text-sm text-neutral-400">Could not connect to the app. Check your network and try again.</p>
+        <p className="text-sm text-neutral-400">
+          Could not connect to the app. Check your network and try again.
+        </p>
         <Button
           type="button"
           variant="outline"

@@ -3,7 +3,13 @@
 import * as React from 'react';
 import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { DayPicker, useDayPicker, type DayButton, type CalendarMonth, type Matcher } from 'react-day-picker';
+import {
+  DayPicker,
+  useDayPicker,
+  type DayButton,
+  type CalendarMonth,
+  type Matcher,
+} from 'react-day-picker';
 
 import { cn } from '@/lib/utils';
 import type { BlockedDate } from '@/types';
@@ -22,8 +28,7 @@ function BookingMonthCaption({ calendarMonth }: { calendarMonth: CalendarMonth }
   return (
     <div className="mb-5 flex items-center justify-between px-1">
       <p className="text-base">
-        <span className="font-semibold text-white">{format(calendarMonth.date, 'MMMM')}</span>
-        {' '}
+        <span className="font-semibold text-white">{format(calendarMonth.date, 'MMMM')}</span>{' '}
         <span className="font-normal text-neutral-400">{format(calendarMonth.date, 'yyyy')}</span>
       </p>
 
@@ -99,11 +104,12 @@ function BookingDayButton({
         isNonWorkingWeekday &&
           'cursor-default bg-transparent text-neutral-600 hover:bg-transparent hover:text-neutral-600 pointer-events-none',
         // Past dates (not non-working weekday): dark box, greyed out
-        modifiers.disabled && !isNonWorkingWeekday && !isHoliday &&
+        modifiers.disabled &&
+          !isNonWorkingWeekday &&
+          !isHoliday &&
           'cursor-not-allowed bg-neutral-900 text-neutral-600 hover:bg-neutral-900 hover:text-neutral-600',
         // Holiday: show emoji, subtle dark bg, no hover
-        isHoliday &&
-          'cursor-default bg-neutral-900 hover:bg-neutral-900 pointer-events-none',
+        isHoliday && 'cursor-default bg-neutral-900 hover:bg-neutral-900 pointer-events-none',
         // Today ring (not selected)
         modifiers.today && !modifiers.selected && 'ring-1 ring-inset ring-neutral-400',
         // Selected
@@ -153,10 +159,7 @@ export function BookingCalendar({
     [blockedDates],
   );
 
-  const nonWorkingSet = React.useMemo(
-    () => new Set(nonWorkingDays),
-    [nonWorkingDays],
-  );
+  const nonWorkingSet = React.useMemo(() => new Set(nonWorkingDays), [nonWorkingDays]);
 
   // Combine all disabled matchers: past dates, non-working weekdays, holiday dates
   const disabledMatchers = React.useMemo<Matcher[]>(() => {
@@ -169,40 +172,40 @@ export function BookingCalendar({
 
   return (
     <NonWorkingDaysContext.Provider value={nonWorkingSet}>
-    <BlockedDatesContext.Provider value={blockedMap}>
-      <DayPicker
-        mode="single"
-        selected={selected}
-        onSelect={onSelect}
-        disabled={disabledMatchers}
-        month={month}
-        onMonthChange={onMonthChange}
-        showOutsideDays={false}
-        captionLayout="label"
-        className={cn('w-full select-none p-0', className)}
-        classNames={{
-          months: 'w-full',
-          month: 'w-full',
-          nav: 'hidden',
-          month_caption: '',
-          caption_label: 'hidden',
-          month_grid: 'w-full',
-          weekdays: 'flex',
-          weekday:
-            'flex-1 pb-3 text-center text-xs font-medium uppercase tracking-wide text-neutral-500 select-none',
-          week: 'mt-2 flex gap-2',
-          day: 'flex-1 p-0',
-          outside: 'pointer-events-none',
-          disabled: '',
-          selected: '',
-          today: '',
-        }}
-        components={{
-          MonthCaption: BookingMonthCaption,
-          DayButton: BookingDayButton,
-        }}
-      />
-    </BlockedDatesContext.Provider>
+      <BlockedDatesContext.Provider value={blockedMap}>
+        <DayPicker
+          mode="single"
+          selected={selected}
+          onSelect={onSelect}
+          disabled={disabledMatchers}
+          month={month}
+          onMonthChange={onMonthChange}
+          showOutsideDays={false}
+          captionLayout="label"
+          className={cn('w-full select-none p-0', className)}
+          classNames={{
+            months: 'w-full',
+            month: 'w-full',
+            nav: 'hidden',
+            month_caption: '',
+            caption_label: 'hidden',
+            month_grid: 'w-full',
+            weekdays: 'flex',
+            weekday:
+              'flex-1 pb-3 text-center text-xs font-medium uppercase tracking-wide text-neutral-500 select-none',
+            week: 'mt-2 flex gap-2',
+            day: 'flex-1 p-0',
+            outside: 'pointer-events-none',
+            disabled: '',
+            selected: '',
+            today: '',
+          }}
+          components={{
+            MonthCaption: BookingMonthCaption,
+            DayButton: BookingDayButton,
+          }}
+        />
+      </BlockedDatesContext.Provider>
     </NonWorkingDaysContext.Provider>
   );
 }

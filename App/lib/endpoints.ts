@@ -34,6 +34,10 @@ export const ENDPOINTS = {
     byId: (id: string) => `/bookings/${id}`,
     status: (id: string) => `/bookings/${id}/status`,
   },
+  publicBookings: {
+    byUid: (uid: string) => `/public/bookings/${uid}`,
+    status: (uid: string) => `/public/bookings/${uid}/status`,
+  },
   integrations: {
     list: '/integrations',
     connect: (slug: string) => `/integrations/${slug}/connect`,

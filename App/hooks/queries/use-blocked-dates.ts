@@ -17,9 +17,7 @@ export function useBlockedDates({ username, month, enabled = true }: UseBlockedD
   return useQuery({
     queryKey: queryKeys.blockedDates.byMonth(username, month),
     queryFn: () =>
-      api.get<BlockedDatesData>(
-        `${ENDPOINTS.eventTypes.blockedDates(username)}?month=${month}`,
-      ),
+      api.get<BlockedDatesData>(`${ENDPOINTS.eventTypes.blockedDates(username)}?month=${month}`),
     staleTime: 5 * 60_000,
     enabled: enabled && Boolean(username && month),
   });

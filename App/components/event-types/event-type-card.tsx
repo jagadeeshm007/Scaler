@@ -91,7 +91,9 @@ export function EventTypeCard({
         <div
           className={cn(
             'flex w-4 shrink-0 items-center justify-center text-neutral-500 transition-opacity duration-150',
-            showDragHandle ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-active:opacity-100',
+            showDragHandle
+              ? 'opacity-100'
+              : 'opacity-0 group-hover:opacity-100 group-active:opacity-100',
           )}
           aria-hidden
         >
@@ -101,9 +103,7 @@ export function EventTypeCard({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-sm font-semibold text-white md:text-[15px]">
-            {eventType.title}
-          </span>
+          <span className="text-sm font-semibold text-white md:text-[15px]">{eventType.title}</span>
           <span className="hidden truncate text-sm text-neutral-500 md:inline">
             /{username}/{eventType.slug}
           </span>

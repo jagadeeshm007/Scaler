@@ -107,9 +107,43 @@ export class BookingService {
       });
     });
 
-    // 2. Dispatch Post-Booking Actions asynchronously via Event Bus
-    if (booking.status === BOOKING_STATUS.CONFIRMED) {
+    if (data.reschedule_from_uid) {
+      const previousBooking = await this.getBookingByUid(data.reschedule_from_uid);
+
+      if (previousBooking.event_type_id !== booking.event_type_id) {
+        throw new AppError(
+          'Cannot reschedule to a different event type',
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_CODE.VALIDATION_ERROR,
+        );
+      }
+
+      await prisma.booking.update({
+        where: { id: previousBooking.id },
+        data: { status: BOOKING_STATUS.RESCHEDULED },
+      });
+
+      eventBus.emit(EVENTS.BOOKING_RESCHEDULED, {
+        previousBooking,
+        newBooking: booking,
+        timezone: data.timezone,
+        reason: data.guest_notes,
+      });
+    } else if (booking.status === BOOKING_STATUS.CONFIRMED) {
       eventBus.emit(EVENTS.BOOKING_CREATED, { booking, timezone: data.timezone });
+    }
+
+    return booking;
+  }
+
+  static async getBookingByUid(uid: string): Promise<FullBookingWithRelations> {
+    const booking = await prisma.booking.findUnique({
+      where: { uid },
+      include: { event_type: true, host: true },
+    });
+
+    if (!booking) {
+      throw new AppError('Booking not found', HTTP_STATUS.NOT_FOUND, ERROR_CODE.NOT_FOUND);
     }
 
     return booking;
@@ -123,39 +157,70 @@ export class BookingService {
   ): Promise<Booking> {
     const booking = await this.getBookingById(userId, id);
 
-    // Fetch full relations for notifications
     const fullBooking = await prisma.booking.findUniqueOrThrow({
-      where: { id },
+      where: { id: booking.id },
       include: { event_type: true, host: true },
     });
 
+    return this.applyStatusUpdate(fullBooking, data, hostTimezone, true);
+  }
+
+  static async updateBookingStatusByUid(
+    uid: string,
+    data: UpdateBookingStatusInput,
+    timezone: string,
+  ): Promise<Booking> {
+    const allowedGuestStatuses: UpdateBookingStatusInput['status'][] = [
+      BOOKING_STATUS.CANCELLED,
+      BOOKING_STATUS.RESCHEDULED,
+    ];
+
+    if (!allowedGuestStatuses.includes(data.status)) {
+      throw new AppError(
+        'Guests can only cancel or reschedule bookings',
+        HTTP_STATUS.FORBIDDEN,
+        ERROR_CODE.FORBIDDEN,
+      );
+    }
+
+    const fullBooking = await this.getBookingByUid(uid);
+    return this.applyStatusUpdate(fullBooking, data, timezone, false);
+  }
+
+  private static async applyStatusUpdate(
+    fullBooking: FullBookingWithRelations,
+    data: UpdateBookingStatusInput,
+    timezone: string,
+    isHost: boolean,
+  ): Promise<Booking> {
     const updated = await prisma.booking.update({
-      where: { id },
+      where: { id: fullBooking.id },
       data: {
         status: data.status,
         cancellation_reason: data.cancellation_reason,
       },
     });
 
-    // Handle notifications
-    if (data.status === BOOKING_STATUS.CANCELLED && booking.status !== BOOKING_STATUS.CANCELLED) {
-      // Pass fullBooking and indicate it was cancelled by the host
+    if (
+      data.status === BOOKING_STATUS.CANCELLED &&
+      fullBooking.status !== BOOKING_STATUS.CANCELLED
+    ) {
       eventBus.emit(EVENTS.BOOKING_CANCELLED, {
         booking: {
           ...fullBooking,
           status: data.status,
           cancellation_reason: data.cancellation_reason ?? null,
         },
-        timezone: hostTimezone,
-        isHost: true,
+        timezone,
+        isHost,
       });
     } else if (
       data.status === BOOKING_STATUS.CONFIRMED &&
-      booking.status === BOOKING_STATUS.PENDING
+      fullBooking.status === BOOKING_STATUS.PENDING
     ) {
       eventBus.emit(EVENTS.BOOKING_CREATED, {
         booking: { ...fullBooking, status: data.status },
-        timezone: hostTimezone,
+        timezone,
       });
     }
 

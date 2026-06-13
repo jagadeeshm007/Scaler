@@ -21,6 +21,52 @@ export function useCreateBooking() {
   });
 }
 
+export function usePublicMarkRescheduled() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ uid, timezone }: { uid: string; timezone: string }) =>
+      api.patch<Booking>(
+        `${ENDPOINTS.publicBookings.status(uid)}?timezone=${encodeURIComponent(timezone)}`,
+        { status: 'RESCHEDULED', cancellation_reason: null },
+      ),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.all() });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function usePublicCancelBooking() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ uid, reason, timezone }: { uid: string; reason?: string; timezone: string }) =>
+      api.patch<Booking>(
+        `${ENDPOINTS.publicBookings.status(uid)}?timezone=${encodeURIComponent(timezone)}`,
+        { status: 'CANCELLED', cancellation_reason: reason ?? null },
+      ),
+    onSuccess: (_data, { uid }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.publicByUid(uid) });
+      toast.success('Booking cancelled');
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useMarkRescheduled() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, timezone }: { id: string; timezone: string }) =>
+      api.patch<Booking>(
+        `${ENDPOINTS.bookings.status(id)}?timezone=${encodeURIComponent(timezone)}`,
+        { status: 'RESCHEDULED', cancellation_reason: null },
+      ),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.all() });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
 export function useCancelBooking() {
   const queryClient = useQueryClient();
   return useMutation({

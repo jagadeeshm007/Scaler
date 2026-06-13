@@ -56,12 +56,7 @@ export function SortableEventTypeCard({
       {isDragging ? (
         <EventTypeListRowPlaceholder className="min-h-[64px]" />
       ) : (
-        <EventTypeCard
-          eventType={eventType}
-          username={username}
-          isSortable
-          dragProps={dragProps}
-        />
+        <EventTypeCard eventType={eventType} username={username} isSortable dragProps={dragProps} />
       )}
     </div>
   );

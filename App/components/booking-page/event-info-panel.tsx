@@ -1,4 +1,7 @@
+'use client';
+
 import { CalendarDays, Clock, Globe, Video } from 'lucide-react';
+import { AnimatePresence, LazyMotion, domAnimation, m } from 'motion/react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -8,14 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  formatBookingDate,
-  formatBookingTimeRange,
-  formatDuration,
-  getEventTypeDurations,
-} from '@/lib/format';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { formatBookingTimeRange, formatDuration, getEventTypeDurations } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import type { EventType, PublicEventType, Slot } from '@/types';
+import { formatBookingDate } from '@/lib/format';
+import type { Booking, EventType, PublicEventType, Slot } from '@/types';
 
 const LOCATION_LABELS: Record<string, string> = {
   GOOGLE_MEET: 'Google Meet',
@@ -53,6 +53,7 @@ interface EventInfoPanelProps {
   selectedSlot?: Slot | null;
   selectedDuration?: number;
   onDurationChange?: (d: number) => void;
+  rescheduleBooking?: Booking;
   className?: string;
 }
 
@@ -64,6 +65,7 @@ export function EventInfoPanel({
   selectedSlot,
   selectedDuration,
   onDurationChange,
+  rescheduleBooking,
   className,
 }: EventInfoPanelProps) {
   const initials = host.full_name
@@ -97,23 +99,23 @@ export function EventInfoPanel({
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold text-white">{eventType.title}</h1>
 
-        {hasMultipleDurations && onDurationChange && (
-          <div className="flex flex-wrap gap-2">
+        {hasMultipleDurations && onDurationChange && !selectedSlot && (
+          <ToggleGroup
+            type="single"
+            value={String(activeDuration)}
+            onValueChange={(v) => {
+              if (v) onDurationChange(Number(v));
+            }}
+            variant="outline"
+            size="sm"
+            className="flex-wrap justify-start gap-y-1"
+          >
             {durations.map((d) => (
-              <button
-                key={d}
-                onClick={() => onDurationChange(d)}
-                className={cn(
-                  'rounded-full border px-3 py-1 text-sm transition-colors',
-                  d === activeDuration
-                    ? 'border-neutral-400 bg-neutral-800 text-white'
-                    : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200',
-                )}
-              >
+              <ToggleGroupItem key={d} value={String(d)} aria-label={formatDuration(d)}>
                 {formatDuration(d)}
-              </button>
+              </ToggleGroupItem>
             ))}
-          </div>
+          </ToggleGroup>
         )}
 
         {eventType.description && (
@@ -121,30 +123,102 @@ export function EventInfoPanel({
         )}
 
         <ul className="space-y-3 text-sm text-neutral-400">
-          {selectedSlot ? (
-            <>
-              <li className="flex items-center gap-2">
-                <CalendarDays className="size-4 shrink-0 text-neutral-500" />
-                <span>{formatBookingDate(selectedSlot.startTime, timezone)}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Clock className="size-4 shrink-0 text-neutral-500" />
-                <span>
-                  {formatBookingTimeRange(selectedSlot.startTime, selectedSlot.endTime, timezone)}
-                </span>
-              </li>
-              <li>
-                <span className="inline-block rounded-full bg-neutral-800 px-2 py-0.5 text-xs">
-                  {formatDuration(activeDuration)}
-                </span>
-              </li>
-            </>
-          ) : !hasMultipleDurations ? (
-            <li className="flex items-center gap-2">
-              <Clock className="size-4 shrink-0" />
-              <span>{formatDuration(activeDuration)}</span>
-            </li>
-          ) : null}
+          <LazyMotion features={domAnimation}>
+            <AnimatePresence mode="wait" initial={false}>
+              {/* ── Reschedule mode ── */}
+              {rescheduleBooking ? (
+                <m.div
+                  key={selectedSlot ? 'reschedule-new' : 'reschedule-former'}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.25, ease: [0, 0, 0.2, 1] }}
+                  className="space-y-3"
+                >
+                  {/* Former time — always visible in reschedule mode */}
+                  <li className="flex items-start gap-2">
+                    <CalendarDays className="mt-0.5 size-4 shrink-0 text-neutral-600" />
+                    <div>
+                      <p className="mb-0.5 text-xs text-neutral-500">Former time</p>
+                      <p className="text-neutral-500 line-through">
+                        {formatBookingDate(rescheduleBooking.start_time, timezone)}
+                      </p>
+                      <p className="text-neutral-500 line-through">
+                        {formatBookingTimeRange(
+                          rescheduleBooking.start_time,
+                          rescheduleBooking.end_time,
+                          timezone,
+                        )}
+                      </p>
+                    </div>
+                  </li>
+                  {/* New time — visible once a slot is picked */}
+                  {selectedSlot && (
+                    <li className="flex items-start gap-2">
+                      <CalendarDays className="mt-0.5 size-4 shrink-0 text-neutral-500" />
+                      <div>
+                        <p className="font-medium text-white">
+                          {formatBookingDate(selectedSlot.startTime, timezone)}
+                        </p>
+                        <p className="text-neutral-400">
+                          {formatBookingTimeRange(
+                            selectedSlot.startTime,
+                            selectedSlot.endTime,
+                            timezone,
+                          )}
+                        </p>
+                      </div>
+                    </li>
+                  )}
+                  <li className="flex items-center gap-2">
+                    <Clock className="size-4 shrink-0 text-neutral-500" />
+                    <span>{formatDuration(activeDuration)}</span>
+                  </li>
+                </m.div>
+              ) : /* ── Normal booking mode ── */
+              selectedSlot ? (
+                <m.div
+                  key="slot-info"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.25, ease: [0, 0, 0.2, 1] }}
+                  className="space-y-3"
+                >
+                  <li className="flex items-center gap-2">
+                    <CalendarDays className="size-4 shrink-0 text-neutral-500" />
+                    <span>{formatBookingDate(selectedSlot.startTime, timezone)}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Clock className="size-4 shrink-0 text-neutral-500" />
+                    <span>
+                      {formatBookingTimeRange(
+                        selectedSlot.startTime,
+                        selectedSlot.endTime,
+                        timezone,
+                      )}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Clock className="size-4 shrink-0 text-neutral-500" />
+                    <span>{formatDuration(activeDuration)}</span>
+                  </li>
+                </m.div>
+              ) : !hasMultipleDurations ? (
+                <m.li
+                  key="duration"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-2"
+                >
+                  <Clock className="size-4 shrink-0" />
+                  <span>{formatDuration(activeDuration)}</span>
+                </m.li>
+              ) : null}
+            </AnimatePresence>
+          </LazyMotion>
 
           <li className="flex items-center gap-2">
             <Video className="size-4 shrink-0" />
@@ -153,6 +227,7 @@ export function EventInfoPanel({
 
           <li className="flex items-center gap-2">
             <Globe className="size-4 shrink-0" />
+
             {onTimezoneChange ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

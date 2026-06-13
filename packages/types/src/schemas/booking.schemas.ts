@@ -10,6 +10,7 @@ export const createBookingSchema = z.object({
     guest_email: z.string().email('Invalid email address'),
     guest_notes: z.string().optional().nullable(),
     timezone: z.string(), // Client's timezone for email rendering
+    reschedule_from_uid: z.string().uuid().optional(),
   }),
 });
 

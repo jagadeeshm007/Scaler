@@ -19,7 +19,12 @@ import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useWeekSlots } from '@/hooks/queries/use-week-slots';
-import { formatColumnDayHeader, formatHourLabel, formatTimeSlot, formatWeekRange } from '@/lib/format';
+import {
+  formatColumnDayHeader,
+  formatHourLabel,
+  formatTimeSlot,
+  formatWeekRange,
+} from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { BookingLayout } from '@/components/booking-page/booking-view-switcher';
 import type { PublicEventType, Slot } from '@/types';
@@ -124,12 +129,18 @@ export function WeekView({
           <ToggleGroup
             type="single"
             value={fmt}
-            onValueChange={(v) => { if (v) void setFmt(v as '12h' | '24h'); }}
+            onValueChange={(v) => {
+              if (v) void setFmt(v as '12h' | '24h');
+            }}
             variant="outline"
             size="sm"
           >
-            <ToggleGroupItem value="12h" aria-label="12h">12h</ToggleGroupItem>
-            <ToggleGroupItem value="24h" aria-label="24h">24h</ToggleGroupItem>
+            <ToggleGroupItem value="12h" aria-label="12h">
+              12h
+            </ToggleGroupItem>
+            <ToggleGroupItem value="24h" aria-label="24h">
+              24h
+            </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>

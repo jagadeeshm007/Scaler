@@ -38,7 +38,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
+    ...(idempotencyKey ? { 'X-Idempotency-Key': idempotencyKey } : {}),
     ...customHeaders,
   };
 
