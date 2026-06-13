@@ -15,6 +15,7 @@ import {
 import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { EventTypeActiveToggle } from '@/components/event-types/event-type-active-toggle';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -30,7 +31,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { Switch } from '@/components/ui/switch';
 import {
   useCreateEventType,
   useDeleteEventType,
@@ -109,6 +109,7 @@ export function EventTypeActions({
         slug: slugify(`${fullEventType.slug}-copy`),
         description: fullEventType.description,
         duration_mins: fullEventType.duration_mins,
+        duration_options: fullEventType.duration_options,
         location_type: fullEventType.location_type,
         location_details: fullEventType.location_details,
         is_hidden: fullEventType.is_hidden,
@@ -139,7 +140,7 @@ export function EventTypeActions({
           type="button"
           aria-label="Event type actions"
           onClick={() => setMenuOpen(true)}
-          className="flex size-9 items-center justify-center rounded-md border border-neutral-800 bg-neutral-950 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
+          className="flex size-9 items-center justify-center rounded-lg border border-neutral-700/70 bg-[#141414] text-neutral-500 transition-colors hover:bg-neutral-800/80 hover:text-neutral-200"
         >
           <MoreHorizontal className="size-4" />
         </button>
@@ -176,7 +177,7 @@ export function EventTypeActions({
               <MobileSheetItem icon={Copy} label="Duplicate" onClick={handleDuplicate} />
               <div className="flex items-center justify-between rounded-lg px-2 py-3">
                 <span className="text-sm text-white">Hide from profile</span>
-                <Switch
+                <EventTypeActiveToggle
                   checked={fullEventType.is_hidden}
                   onCheckedChange={(checked) =>
                     updateMutation.mutate({ id: eventTypeId, data: { is_hidden: checked } })
@@ -218,9 +219,9 @@ export function EventTypeActions({
           <button
             type="button"
             aria-label="Event type actions"
-            className="flex size-8 items-center justify-center rounded-md border border-neutral-800 bg-neutral-950 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
+            className="flex h-9 w-9 items-center justify-center text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
           >
-            <MoreHorizontal className="size-4" />
+            <MoreHorizontal className="size-[15px] stroke-[1.75]" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

@@ -4,11 +4,15 @@ import { Clock, EyeOff, ExternalLink, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { EventTypeActions } from '@/components/event-types/event-type-actions';
-import { Switch } from '@/components/ui/switch';
+import { EventTypeActiveToggle } from '@/components/event-types/event-type-active-toggle';
+import {
+  EventTypeActionGroup,
+  EventTypeActionGroupButton,
+  EventTypeBadge,
+} from '@/components/event-types/event-type-ui';
 import { useUpdateEventType } from '@/hooks/mutations/use-event-type-mutations';
-import { formatDuration } from '@/lib/format';
+import { formatDuration, getEventTypeDurations } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
-import { cn } from '@/lib/utils';
 import type { EventType } from '@/types';
 
 interface EventTypeCardProps {
@@ -16,35 +20,10 @@ interface EventTypeCardProps {
   username: string;
 }
 
-function IconActionButton({
-  label,
-  onClick,
-  children,
-  className,
-}: {
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className={cn(
-        'flex size-8 items-center justify-center rounded-md border border-neutral-800 bg-neutral-950 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white',
-        className,
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
 export function EventTypeCard({ eventType, username }: EventTypeCardProps) {
   const updateMutation = useUpdateEventType();
   const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}${ROUTES.publicBooking(username, eventType.slug)}`;
+  const durations = getEventTypeDurations(eventType);
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(publicUrl);
@@ -52,10 +31,9 @@ export function EventTypeCard({ eventType, username }: EventTypeCardProps) {
   };
 
   return (
-    <div className="border-b border-neutral-800 px-4 py-4 last:border-b-0 md:px-6 md:py-5">
+    <div className="border-b border-neutral-800/60 px-4 py-4 last:border-b-0 md:px-6 md:py-4">
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
-          {/* Title + slug inline on desktop */}
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             <span className="text-[15px] font-semibold text-white md:text-base">
               {eventType.title}
@@ -65,46 +43,52 @@ export function EventTypeCard({ eventType, username }: EventTypeCardProps) {
             </span>
           </div>
 
-          {/* Badges */}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-950 px-2 py-0.5 text-xs text-neutral-400">
-              <Clock className="size-3" />
-              {formatDuration(eventType.duration_mins)}
-            </span>
+            {durations.map((mins) => (
+              <EventTypeBadge key={mins}>
+                <Clock className="size-3" />
+                {formatDuration(mins)}
+              </EventTypeBadge>
+            ))}
             {eventType.is_hidden && (
-              <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-500">
+              <EventTypeBadge variant="hidden">
                 <EyeOff className="size-3" />
                 Hidden
-              </span>
+              </EventTypeBadge>
             )}
           </div>
         </div>
 
-        {/* Desktop actions */}
-        <div className="hidden shrink-0 items-center gap-1.5 md:flex">
-          <Switch
+        {/* Desktop: toggle + grouped actions */}
+        <div className="hidden shrink-0 items-center gap-2.5 md:flex">
+          <EventTypeActiveToggle
             checked={eventType.is_active}
+            disabled={updateMutation.isPending}
             onCheckedChange={(checked) =>
               updateMutation.mutate({ id: eventType.id, data: { is_active: checked } })
             }
-            className="h-5 w-9 border-neutral-700 data-[state=checked]:bg-neutral-500 data-[state=unchecked]:bg-neutral-800 [&_[data-slot=switch-thumb]]:size-4 [&_[data-slot=switch-thumb]]:data-[state=checked]:bg-white [&_[data-slot=switch-thumb]]:data-[state=unchecked]:bg-neutral-500"
           />
-          <IconActionButton label="Open booking page" onClick={() => window.open(publicUrl, '_blank')}>
-            <ExternalLink className="size-4" />
-          </IconActionButton>
-          <IconActionButton label="Copy link" onClick={() => void copyLink()}>
-            <Link2 className="size-4" />
-          </IconActionButton>
-          <EventTypeActions
-            eventTypeId={eventType.id}
-            slug={eventType.slug}
-            username={username}
-            eventType={eventType}
-            variant="desktop"
-          />
+
+          <EventTypeActionGroup>
+            <EventTypeActionGroupButton
+              label="Open booking page"
+              onClick={() => window.open(publicUrl, '_blank')}
+            >
+              <ExternalLink className="size-[15px] stroke-[1.75]" />
+            </EventTypeActionGroupButton>
+            <EventTypeActionGroupButton label="Copy link" onClick={() => void copyLink()}>
+              <Link2 className="size-[15px] stroke-[1.75]" />
+            </EventTypeActionGroupButton>
+            <EventTypeActions
+              eventTypeId={eventType.id}
+              slug={eventType.slug}
+              username={username}
+              eventType={eventType}
+              variant="desktop"
+            />
+          </EventTypeActionGroup>
         </div>
 
-        {/* Mobile: ellipsis only */}
         <div className="md:hidden">
           <EventTypeActions
             eventTypeId={eventType.id}

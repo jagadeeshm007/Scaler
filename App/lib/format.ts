@@ -8,6 +8,16 @@ export function formatDuration(mins: number): string {
   return remainder > 0 ? `${hours}h ${remainder}m` : `${hours}h`;
 }
 
+export function getEventTypeDurations(eventType: {
+  duration_mins: number;
+  duration_options?: number[];
+}): number[] {
+  if (eventType.duration_options?.length) {
+    return [...eventType.duration_options].sort((a, b) => a - b);
+  }
+  return [eventType.duration_mins];
+}
+
 export function formatTimeSlot(iso: string, timezone: string, use24h = false): string {
   const pattern = use24h ? 'HH:mm' : 'h:mmaaa';
   return formatInTimeZone(parseISO(iso), timezone, pattern).toLowerCase();

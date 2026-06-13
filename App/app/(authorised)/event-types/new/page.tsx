@@ -1,7 +1,7 @@
 'use client';
 
-import { EventTypeForm } from '@/components/event-types/event-type-form';
+import { CreateEventTypeForm } from '@/components/event-types/create-event-type-form';
 
 export default function NewEventTypePage() {
-  return <EventTypeForm mode="create" />;
+  return <CreateEventTypeForm />;
 }

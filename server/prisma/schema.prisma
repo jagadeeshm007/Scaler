@@ -34,6 +34,7 @@ model EventType {
   slug             String
   description      String?
   duration_mins    Int
+  duration_options Int[]   @default([])
   is_active        Boolean @default(true)
   is_hidden        Boolean @default(false)
   location_type    String

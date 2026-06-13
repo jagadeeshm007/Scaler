@@ -9,6 +9,7 @@ export const createEventTypeSchema = z.object({
       .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
     description: z.string().optional().nullable(),
     duration_mins: z.number().int().positive('Duration must be positive'),
+    duration_options: z.array(z.number().int().positive()).optional(),
     location_type: z.string(),
     location_details: z.string().optional().nullable(),
     requires_confirmation: z.boolean().optional(),

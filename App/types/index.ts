@@ -46,6 +46,7 @@ export interface EventType {
   slug: string;
   description: string | null;
   duration_mins: number;
+  duration_options?: number[];
   is_active: boolean;
   is_hidden: boolean;
   location_type: string;

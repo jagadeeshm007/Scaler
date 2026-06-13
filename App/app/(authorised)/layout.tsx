@@ -24,11 +24,13 @@ export default function AuthorisedLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex min-h-screen bg-neutral-950">
+      {/* md–lg: collapsed icon rail · lg+: full sidebar · <md: hidden */}
       <Sidebar className="hidden shrink-0 md:flex" />
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        {/* Mobile only (< md) */}
         <MobileHeader />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-neutral-950 p-3 md:p-4 lg:p-5">{children}</main>
         <MobileBottomNav />
       </div>
     </div>
