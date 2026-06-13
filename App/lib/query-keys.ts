@@ -3,8 +3,7 @@ export const queryKeys = {
     all: () => ['event-types'] as const,
     list: () => ['event-types', 'list'] as const,
     byId: (id: string) => ['event-types', id] as const,
-    public: (username: string, slug: string) =>
-      ['event-types', 'public', username, slug] as const,
+    public: (username: string, slug: string) => ['event-types', 'public', username, slug] as const,
   },
   bookings: {
     all: () => ['bookings'] as const,

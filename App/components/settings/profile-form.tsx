@@ -84,11 +84,7 @@ export function ProfileForm({ user: userProp }: ProfileFormProps) {
             <FormItem>
               <FormLabel>Timezone</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Asia/Kolkata"
-                  disabled={updateProfile.isPending}
-                  {...field}
-                />
+                <Input placeholder="Asia/Kolkata" disabled={updateProfile.isPending} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

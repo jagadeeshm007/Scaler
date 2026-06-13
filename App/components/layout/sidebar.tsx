@@ -1,24 +1,11 @@
 'use client';
 
-import {
-  Calendar,
-  Clock,
-  ExternalLink,
-  Grid3x3,
-  Link2,
-  Search,
-  Settings,
-} from 'lucide-react';
+import { Calendar, Clock, ExternalLink, Grid3x3, Link2, Search, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { TransitionLink } from '@/components/layout/transition-link';
 import { AvatarFallback } from '@/components/shared/avatar-fallback';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
@@ -66,10 +53,7 @@ function NavItem({
               : 'text-neutral-500 hover:bg-neutral-800/50 hover:text-neutral-200',
           )}
         >
-          <Icon
-            className="size-[18px] shrink-0"
-            strokeWidth={active ? 2.25 : 1.75}
-          />
+          <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.25 : 1.75} />
           <span className="hidden lg:inline">{label}</span>
         </TransitionLink>
       </TooltipTrigger>
@@ -131,7 +115,11 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
                 <Search className="size-4" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right" sideOffset={8} className="border-neutral-700 bg-neutral-900 text-xs text-neutral-200">
+            <TooltipContent
+              side="right"
+              sideOffset={8}
+              className="border-neutral-700 bg-neutral-900 text-xs text-neutral-200"
+            >
               Search
             </TooltipContent>
           </Tooltip>

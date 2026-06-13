@@ -8,7 +8,9 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-5xl px-6 py-8">
       <div className="mb-8">
         <h1 className="text-xl font-semibold text-white">Settings</h1>
-        <p className="mt-1 text-sm text-neutral-400">Manage your account settings and preferences</p>
+        <p className="mt-1 text-sm text-neutral-400">
+          Manage your account settings and preferences
+        </p>
       </div>
 
       <div className="space-y-8">

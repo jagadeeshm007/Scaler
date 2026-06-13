@@ -10,17 +10,14 @@ export function filterBookingsByTab(bookings: Booking[], tab: BookingStatusTab):
     case 'upcoming':
       return bookings.filter(
         (b) =>
-          (b.status === 'CONFIRMED' || b.status === 'PENDING') &&
-          !isPast(parseISO(b.end_time)),
+          (b.status === 'CONFIRMED' || b.status === 'PENDING') && !isPast(parseISO(b.end_time)),
       );
     case 'unconfirmed':
       return bookings.filter((b) => b.status === 'PENDING' && !isPast(parseISO(b.end_time)));
     case 'recurring':
       return [];
     case 'past':
-      return bookings.filter(
-        (b) => b.status !== 'CANCELLED' && isPast(parseISO(b.end_time)),
-      );
+      return bookings.filter((b) => b.status !== 'CANCELLED' && isPast(parseISO(b.end_time)));
     case 'cancelled':
       return bookings.filter((b) => b.status === 'CANCELLED');
     default:

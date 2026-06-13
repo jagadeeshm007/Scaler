@@ -72,11 +72,7 @@ export function CancelBookingDialog({ booking, open, onOpenChange }: CancelBooki
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Keep booking
           </Button>
-          <Button
-            variant="destructive"
-            onClick={handleCancel}
-            disabled={cancelBooking.isPending}
-          >
+          <Button variant="destructive" onClick={handleCancel} disabled={cancelBooking.isPending}>
             {cancelBooking.isPending ? 'Cancelling...' : 'Cancel booking'}
           </Button>
         </DialogFooter>

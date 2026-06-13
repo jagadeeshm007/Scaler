@@ -58,13 +58,18 @@ export class IntegrationService {
     }
 
     const state = sign(
-      { userId, appSlug, nonce: crypto.randomBytes(16).toString('hex') } satisfies OAuthStatePayload,
+      {
+        userId,
+        appSlug,
+        nonce: crypto.randomBytes(16).toString('hex'),
+      } satisfies OAuthStatePayload,
       env.JWT_ACCESS_SECRET,
       { expiresIn: '10m' },
     );
 
     const clientId = app.client_id_encrypted ? decrypt(app.client_id_encrypted) : '';
-    const redirectUri = app.redirect_uri ?? `${env.APP_BASE_URL}/api/v1/integrations/${appSlug}/callback`;
+    const redirectUri =
+      app.redirect_uri ?? `${env.APP_BASE_URL}/api/v1/integrations/${appSlug}/callback`;
 
     let authUrl = '';
     if (appSlug === 'google') {
@@ -94,11 +99,19 @@ export class IntegrationService {
     try {
       statePayload = verify(state, env.JWT_ACCESS_SECRET) as OAuthStatePayload;
     } catch {
-      throw new AppError('Invalid or expired OAuth state', HTTP_STATUS.BAD_REQUEST, ERROR_CODE.VALIDATION_ERROR);
+      throw new AppError(
+        'Invalid or expired OAuth state',
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODE.VALIDATION_ERROR,
+      );
     }
 
     if (statePayload.appSlug !== appSlug) {
-      throw new AppError('OAuth state mismatch', HTTP_STATUS.BAD_REQUEST, ERROR_CODE.VALIDATION_ERROR);
+      throw new AppError(
+        'OAuth state mismatch',
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODE.VALIDATION_ERROR,
+      );
     }
 
     const app = await prisma.app.findUnique({
@@ -111,13 +124,18 @@ export class IntegrationService {
 
     const clientId = app.client_id_encrypted ? decrypt(app.client_id_encrypted) : '';
     const clientSecret = app.client_secret_encrypted ? decrypt(app.client_secret_encrypted) : '';
-    const redirectUri = app.redirect_uri ?? `${env.APP_BASE_URL}/api/v1/integrations/${appSlug}/callback`;
+    const redirectUri =
+      app.redirect_uri ?? `${env.APP_BASE_URL}/api/v1/integrations/${appSlug}/callback`;
 
-    const tokens = await this.exchangeAuthorizationCode(appSlug, code, clientId, clientSecret, redirectUri);
+    const tokens = await this.exchangeAuthorizationCode(
+      appSlug,
+      code,
+      clientId,
+      clientSecret,
+      redirectUri,
+    );
 
-    const expiresAt = tokens.expires_in
-      ? new Date(Date.now() + tokens.expires_in * 1000)
-      : null;
+    const expiresAt = tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : null;
 
     await prisma.credential.upsert({
       where: {

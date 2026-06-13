@@ -11,13 +11,8 @@ import type { Booking, CreateBookingInput } from '@/types';
 export function useCreateBooking() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      data,
-      idempotencyKey,
-    }: {
-      data: CreateBookingInput;
-      idempotencyKey: string;
-    }) => api.post<Booking>(ENDPOINTS.bookings.create, data, { idempotencyKey }),
+    mutationFn: ({ data, idempotencyKey }: { data: CreateBookingInput; idempotencyKey: string }) =>
+      api.post<Booking>(ENDPOINTS.bookings.create, data, { idempotencyKey }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.all() });
       toast.success('Booking confirmed');
@@ -29,15 +24,7 @@ export function useCreateBooking() {
 export function useCancelBooking() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      reason,
-      timezone,
-    }: {
-      id: string;
-      reason?: string;
-      timezone: string;
-    }) =>
+    mutationFn: ({ id, reason, timezone }: { id: string; reason?: string; timezone: string }) =>
       api.patch<Booking>(
         `${ENDPOINTS.bookings.status(id)}?timezone=${encodeURIComponent(timezone)}`,
         { status: 'CANCELLED', cancellation_reason: reason ?? null },

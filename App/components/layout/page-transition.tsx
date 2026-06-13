@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  LazyMotion,
-  domAnimation,
-  m,
-  useReducedMotion,
-  type HTMLMotionProps,
-} from 'motion/react';
+import { LazyMotion, domAnimation, m, useReducedMotion, type HTMLMotionProps } from 'motion/react';
 
 import { cn } from '@/lib/utils';
 
@@ -32,11 +26,7 @@ export function PageTransition({
         initial={reducedMotion ? false : (initial ?? { opacity: 0, y: 8 })}
         animate={reducedMotion ? undefined : (animate ?? { opacity: 1, y: 0 })}
         exit={reducedMotion ? undefined : exit}
-        transition={
-          reducedMotion
-            ? undefined
-            : (transition ?? { duration: 0.2, ease: 'easeOut' })
-        }
+        transition={reducedMotion ? undefined : (transition ?? { duration: 0.2, ease: 'easeOut' })}
         {...props}
       >
         {children}

@@ -28,9 +28,7 @@ export function IntegrationList() {
   if (isLoading) return <IntegrationSkeleton />;
 
   if (isError) {
-    return (
-      <p className="py-12 text-center text-sm text-red-500">Failed to load integrations</p>
-    );
+    return <p className="py-12 text-center text-sm text-red-500">Failed to load integrations</p>;
   }
 
   if (!integrations?.length) {

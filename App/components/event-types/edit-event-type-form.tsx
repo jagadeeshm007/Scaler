@@ -46,10 +46,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  useDeleteEventType,
-  useUpdateEventType,
-} from '@/hooks/mutations/use-event-type-mutations';
+import { useDeleteEventType, useUpdateEventType } from '@/hooks/mutations/use-event-type-mutations';
 import { formatDuration } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
@@ -99,13 +96,9 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
   const updateMutation = useUpdateEventType();
   const deleteMutation = useDeleteEventType();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [allowMultiple, setAllowMultiple] = useState(
-    (eventType.duration_options?.length ?? 0) > 1,
-  );
+  const [allowMultiple, setAllowMultiple] = useState((eventType.duration_options?.length ?? 0) > 1);
   const [selectedDurations, setSelectedDurations] = useState<number[]>(
-    eventType.duration_options?.length
-      ? eventType.duration_options
-      : [eventType.duration_mins],
+    eventType.duration_options?.length ? eventType.duration_options : [eventType.duration_mins],
   );
 
   const form = useForm<UpdateEventTypeInput>({
@@ -178,7 +171,9 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
       {/* Header bar */}
       <div className="flex items-center justify-between gap-4 border-b border-neutral-800 px-4 py-3 md:px-6">
-        <h1 className="truncate text-lg font-semibold text-white">{watchedTitle || eventType.title}</h1>
+        <h1 className="truncate text-lg font-semibold text-white">
+          {watchedTitle || eventType.title}
+        </h1>
         <div className="flex shrink-0 items-center gap-3">
           <div className="hidden items-center gap-2 sm:flex">
             <span className="text-sm text-neutral-400">Hidden</span>
@@ -234,21 +229,21 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                 const active = 'active' in item ? item.active : false;
                 const disabled = 'disabled' in item ? item.disabled : false;
                 return (
-                <button
-                  key={id}
-                  type="button"
-                  disabled={disabled}
-                  className={cn(
-                    'flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors',
-                    active
-                      ? 'bg-neutral-800 text-white'
-                      : 'text-neutral-500 hover:bg-neutral-800/40 hover:text-neutral-300',
-                    disabled && 'cursor-not-allowed opacity-40',
-                  )}
-                >
-                  <Icon className="size-4" />
-                  {label}
-                </button>
+                  <button
+                    key={id}
+                    type="button"
+                    disabled={disabled}
+                    className={cn(
+                      'flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors',
+                      active
+                        ? 'bg-neutral-800 text-white'
+                        : 'text-neutral-500 hover:bg-neutral-800/40 hover:text-neutral-300',
+                      disabled && 'cursor-not-allowed opacity-40',
+                    )}
+                  >
+                    <Icon className="size-4" />
+                    {label}
+                  </button>
                 );
               })}
             </div>
@@ -434,10 +429,14 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
 
         {/* Preview panel */}
         <aside className="hidden w-80 shrink-0 overflow-y-auto border-l border-neutral-800 bg-neutral-900/50 p-4 xl:block">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-600">Preview</p>
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-600">
+            Preview
+          </p>
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
             <p className="text-sm font-medium text-white">{user?.full_name ?? 'Host'}</p>
-            <h2 className="mt-3 text-lg font-semibold text-white">{watchedTitle || 'Event title'}</h2>
+            <h2 className="mt-3 text-lg font-semibold text-white">
+              {watchedTitle || 'Event title'}
+            </h2>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {previewDurations.map((mins) => (
                 <span

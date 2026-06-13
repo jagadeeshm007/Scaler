@@ -32,12 +32,27 @@ export default function LoginPage() {
     <Card className="border-neutral-800 bg-neutral-900 p-6">
       <h1 className="text-xl font-semibold">Login</h1>
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <input placeholder="Email" type="email" className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm" {...form.register('email')} />
-        <input placeholder="Password" type="password" className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm" {...form.register('password')} />
-        <Button type="submit" className="w-full">Login</Button>
+        <input
+          placeholder="Email"
+          type="email"
+          className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm"
+          {...form.register('email')}
+        />
+        <input
+          placeholder="Password"
+          type="password"
+          className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm"
+          {...form.register('password')}
+        />
+        <Button type="submit" className="w-full">
+          Login
+        </Button>
       </form>
       <p className="mt-4 text-center text-sm text-muted-foreground">
-        No account? <Link href={ROUTES.signup} className="text-white underline">Sign up</Link>
+        No account?{' '}
+        <Link href={ROUTES.signup} className="text-white underline">
+          Sign up
+        </Link>
       </p>
     </Card>
   );

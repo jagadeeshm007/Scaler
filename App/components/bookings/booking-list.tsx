@@ -50,10 +50,7 @@ export function BookingList() {
   const [cancelTarget, setCancelTarget] = useState<Booking | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
 
-  const filtered = useMemo(
-    () => filterBookingsByTab(bookings ?? [], status),
-    [bookings, status],
-  );
+  const filtered = useMemo(() => filterBookingsByTab(bookings ?? [], status), [bookings, status]);
 
   if (isLoading) return <BookingSkeleton />;
 
@@ -110,11 +107,7 @@ export function BookingList() {
         onOpenChange={setDetailOpen}
       />
 
-      <CancelBookingDialog
-        booking={cancelTarget}
-        open={cancelOpen}
-        onOpenChange={setCancelOpen}
-      />
+      <CancelBookingDialog booking={cancelTarget} open={cancelOpen} onOpenChange={setCancelOpen} />
     </>
   );
 }

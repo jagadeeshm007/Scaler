@@ -4,7 +4,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { app } from '../../src/app';
 import { prisma } from '../../src/lib/prisma';
 import { HTTP_STATUS } from '../../src/config/constants';
-import { MOCK_EVENT_TYPE_ID, MOCK_USER_ID, validBookingPayload, IDEMPOTENCY_HEADER } from '../helpers/test-utils';
+import {
+  MOCK_EVENT_TYPE_ID,
+  MOCK_USER_ID,
+  validBookingPayload,
+  IDEMPOTENCY_HEADER,
+} from '../helpers/test-utils';
 
 describe('Concurrency Integration Tests', () => {
   beforeEach(() => {

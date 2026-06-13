@@ -49,7 +49,10 @@ async function handleBookingCreated(payload: BookingCreatedPayload): Promise<voi
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
       const serviceName = index === 0 ? 'EmailService' : 'CalendarService';
-      logger.error({ err: result.reason }, `[JobQueue] ${serviceName} failed for booking ${booking.id}`);
+      logger.error(
+        { err: result.reason },
+        `[JobQueue] ${serviceName} failed for booking ${booking.id}`,
+      );
     }
   });
 }

@@ -20,11 +20,15 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
         <CheckCircle2 className="mx-auto size-12 text-green-500" />
       </m.div>
       <h1 className="mt-4 text-xl font-semibold text-white">This meeting is scheduled</h1>
-      <p className="mt-2 text-sm text-muted-foreground">We sent an email with a calendar invitation.</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        We sent an email with a calendar invitation.
+      </p>
       <div className="mt-8 space-y-4 text-left text-sm">
         <div>
           <p className="text-muted-foreground">What</p>
-          <p className="text-white">{booking.event_type.title} · {formatDuration(booking.event_type.duration_mins)}</p>
+          <p className="text-white">
+            {booking.event_type.title} · {formatDuration(booking.event_type.duration_mins)}
+          </p>
         </div>
         <div>
           <p className="text-muted-foreground">When</p>
@@ -35,12 +39,16 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
         </div>
         <div>
           <p className="text-muted-foreground">Who</p>
-          <p className="text-white">{booking.guest_name} · {booking.guest_email}</p>
+          <p className="text-white">
+            {booking.guest_name} · {booking.guest_email}
+          </p>
         </div>
         {booking.meeting_url && (
           <div>
             <p className="text-muted-foreground">Where</p>
-            <a href={booking.meeting_url} className="text-blue-500 hover:underline">{booking.meeting_url}</a>
+            <a href={booking.meeting_url} className="text-blue-500 hover:underline">
+              {booking.meeting_url}
+            </a>
           </div>
         )}
       </div>

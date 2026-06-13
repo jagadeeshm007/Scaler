@@ -20,12 +20,7 @@ export function MobileHeader({ className }: MobileHeaderProps) {
   };
 
   return (
-    <header
-      className={cn(
-        'flex h-14 items-center justify-between px-4 md:hidden',
-        className,
-      )}
-    >
+    <header className={cn('flex h-14 items-center justify-between px-4 md:hidden', className)}>
       <span className="text-lg font-bold tracking-tight text-white">Scaler</span>
       <div className="flex items-center gap-3">
         <button

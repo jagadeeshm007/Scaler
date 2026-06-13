@@ -66,9 +66,11 @@ export function EventTypeBadge({
       className={cn(
         'inline-flex items-center gap-1 px-1.5 py-0.5 text-xs',
         /* duration chips — small box-rounded */
-        variant === 'default' && 'rounded-md border border-neutral-800 bg-neutral-950 text-neutral-400',
+        variant === 'default' &&
+          'rounded-md border border-neutral-800 bg-neutral-950 text-neutral-400',
         /* hidden chip — slightly wider box-rounded, amber */
-        variant === 'hidden' && 'rounded-md border border-amber-500/40 bg-amber-500/10 font-medium text-amber-500',
+        variant === 'hidden' &&
+          'rounded-md border border-amber-500/40 bg-amber-500/10 font-medium text-amber-500',
         className,
       )}
     >

@@ -10,26 +10,31 @@
 ### Core Framework
 
 **`next@15.x`**
+
 - App Router, React Server Components, streaming, View Transitions API
 - Replaces nothing — this IS the framework
 - Used for: routing, server components, image optimization, font optimization
 
 **`typescript@5.x`** (strict mode)
+
 - `strict: true`, `noUncheckedIndexedAccess: true`
 - No `any`, no `@ts-ignore`
 
 **`react@19.x`** + **`react-dom@19.x`**
+
 - Required peer dep for Next.js 15
 - `useTransition` for loading states during navigation
 
 ### Styling
 
 **`tailwindcss@4.x`** + **`@tailwindcss/postcss@4.x`**
+
 - CSS-first configuration via `@theme { }` in `globals.css` — no `tailwind.config.js`
 - `@import "tailwindcss"` in globals.css
 - Replaces all CSS modules, styled-components, inline styles
 
 **`shadcn/ui`** (via CLI: `npx shadcn@latest init`)
+
 - Components managed by CLI, live in `components/ui/`, never edited manually
 - Style: `new-york`, base color: `neutral`
 - Exact components to install (see Section 13)
@@ -37,16 +42,19 @@
 ### State Management
 
 **`@tanstack/react-query@5.x`**
+
 - All server state (API data): fetching, caching, background refetch, optimistic updates
 - `@tanstack/react-query-devtools` in development
 - Replaces: SWR, Redux Toolkit Query, manual `useEffect` fetching
 
 **`zustand@5.x`**
+
 - All client UI state: auth token (in memory), sidebar open/close, theme
 - Replaces: React Context for global state, Redux for non-server state
 - No persistence except theme preference
 
 **`nuqs@2.x`**
+
 - URL search param state: booking filters, pagination, date selection on booking page
 - `NuqsAdapter` wraps root layout
 - Replaces: manual `useSearchParams` + `router.replace` boilerplate
@@ -54,24 +62,29 @@
 ### Forms
 
 **`react-hook-form@7.x`** + **`@hookform/resolvers@3.x`**
+
 - All forms: uncontrolled inputs, performance, validation
 - Every form uses `zodResolver`
 
 **`zod`** — consumed from `@scaler/types` workspace package
+
 - Schemas shared with backend. Import from `@scaler/types` not from `zod` directly for form schemas
 - Replaces all manual validation logic
 
 ### Date / Time
 
 **`date-fns@4.x`**
+
 - All date arithmetic, formatting, comparison
 - Replaces: `moment.js` (banned), `dayjs`, native Date manipulation
 
 **`date-fns-tz@3.x`**
+
 - Timezone conversion (UTC to user timezone for display)
 - `toZonedTime`, `formatInTimeZone` for all time display
 
 **`react-day-picker@9.x`**
+
 - Calendar widget in booking page and availability date override picker
 - Consumed indirectly via shadcn `Calendar` component (shadcn wraps react-day-picker v9)
 - Styled via `classNames` prop with Tailwind utilities
@@ -79,38 +92,46 @@
 ### Animations
 
 **`motion@11.x`** (formerly framer-motion, same library, new package name)
+
 - Component-level animations: Dialog open/close, Sheet slide-in, booking form slide-in, time slot stagger
 - Use `m.*` components inside `LazyMotion` with `domAnimation` feature set for minimal bundle size
 - Replaces: CSS keyframes for complex multi-step animations
 
 **CSS View Transitions API** (via `experimental.viewTransition: true` in `next.config.ts`)
+
 - Page-level route transitions: crossfade between dashboard pages
 - Zero JavaScript cost, all browsers supported in 2026
 - Replaces: Framer Motion `AnimatePresence` for page transitions (which is complex in App Router)
 
 **Tailwind `transition-*` utilities**
+
 - Hover states, simple show/hide, color transitions
 - Replaces: Framer Motion for anything that can be done with CSS
 
 ### UI Utilities
 
 **`lucide-react@latest`**
+
 - All icons. Never use emoji as icons, never use other icon libraries alongside
 - Tree-shaken: import individual icons only
 
 **`next/font`** (built-in)
+
 - Inter font via `next/font/google`. Zero layout shift, self-hosted
 
 **`sonner@2.x`**
+
 - Toast notifications (success, error, loading states)
 - `<Toaster />` in root layout
 
 **`next-themes@0.4.x`**
+
 - System/Light/Dark theme switching
 - `ThemeProvider` in root layout, `dark` class on `<html>`
 - Persists to `localStorage`
 
 **`clsx@2.x`** + **`tailwind-merge@3.x`** (installed by shadcn as `cn` utility)
+
 - Conditional class merging. Always use `cn()` from `lib/utils.ts`
 
 ---
@@ -310,22 +331,22 @@ App/
 
 ## 3. Routing Architecture
 
-| Route | Type | Auth | Data fetched | Suspense | Error.tsx |
-|---|---|---|---|---|---|
-| `/login` | CC | No | none | No | No |
-| `/signup` | CC | No | none | No | No |
-| `/event-types` | SC | Yes | event types list | `<EventTypeList>` | Yes |
-| `/event-types/new` | CC | Yes | none (form only) | No | No |
-| `/event-types/[id]/edit` | SC | Yes | event type by id | `<EventTypeForm>` | Yes |
-| `/bookings` | SC | Yes | bookings (paginated) | `<BookingList>` | Yes |
-| `/availability` | SC | Yes | schedules list | `<ScheduleList>` | Yes |
-| `/availability/[id]` | SC | Yes | schedule by id | `<ScheduleEditor>` | Yes |
-| `/apps` | SC | Yes | integrations list | `<IntegrationList>` | Yes |
-| `/settings` | SC | Yes | none (static grid) | No | No |
-| `/settings/profile` | SC | Yes | user/me | `<ProfileForm>` | Yes |
-| `/settings/general` | SC | Yes | user/me | `<GeneralSettingsForm>` | Yes |
-| `/[username]/[slug]` | SC | No | event type (public) | `<CalendarPicker>`, `<TimeSlotList>` | Yes |
-| `/[username]/[slug]/confirmed` | SC | No | booking by id | `<BookingConfirmedCard>` | Yes |
+| Route                          | Type | Auth | Data fetched         | Suspense                             | Error.tsx |
+| ------------------------------ | ---- | ---- | -------------------- | ------------------------------------ | --------- |
+| `/login`                       | CC   | No   | none                 | No                                   | No        |
+| `/signup`                      | CC   | No   | none                 | No                                   | No        |
+| `/event-types`                 | SC   | Yes  | event types list     | `<EventTypeList>`                    | Yes       |
+| `/event-types/new`             | CC   | Yes  | none (form only)     | No                                   | No        |
+| `/event-types/[id]/edit`       | SC   | Yes  | event type by id     | `<EventTypeForm>`                    | Yes       |
+| `/bookings`                    | SC   | Yes  | bookings (paginated) | `<BookingList>`                      | Yes       |
+| `/availability`                | SC   | Yes  | schedules list       | `<ScheduleList>`                     | Yes       |
+| `/availability/[id]`           | SC   | Yes  | schedule by id       | `<ScheduleEditor>`                   | Yes       |
+| `/apps`                        | SC   | Yes  | integrations list    | `<IntegrationList>`                  | Yes       |
+| `/settings`                    | SC   | Yes  | none (static grid)   | No                                   | No        |
+| `/settings/profile`            | SC   | Yes  | user/me              | `<ProfileForm>`                      | Yes       |
+| `/settings/general`            | SC   | Yes  | user/me              | `<GeneralSettingsForm>`              | Yes       |
+| `/[username]/[slug]`           | SC   | No   | event type (public)  | `<CalendarPicker>`, `<TimeSlotList>` | Yes       |
+| `/[username]/[slug]/confirmed` | SC   | No   | booking by id        | `<BookingConfirmedCard>`             | Yes       |
 
 **Route conflict**: The `[username]/[slug]` catch-all at root level and `(authorised)` route groups coexist because Next.js resolves route groups first. Named routes (`/bookings`, `/event-types`, etc.) match before dynamic segments.
 
@@ -340,6 +361,7 @@ App/
 Pages where initial data is critical for SEO or first paint:
 
 **`/event-types/page.tsx`** (SC)
+
 ```typescript
 const queryClient = getQueryClient();
 await queryClient.prefetchQuery(queryKeys.eventTypes.list());
@@ -381,13 +403,13 @@ The SC/CC boundary: `page.tsx` passes `eventType` and `host` as props to the `<C
 
 ### Optimistic Updates
 
-| Mutation | Optimistic action | Rollback trigger |
-|---|---|---|
-| Toggle event type `is_hidden` | `setQueryData` to flip boolean | `onError` |
-| Toggle event type `is_active` | `setQueryData` to flip boolean | `onError` |
-| Cancel booking | `setQueryData` to set status `CANCELLED` | `onError` |
-| Update profile fields | `setQueryData` with new values | `onError` |
-| Delete event type | `setQueryData` to filter out item | `onError` |
+| Mutation                      | Optimistic action                        | Rollback trigger |
+| ----------------------------- | ---------------------------------------- | ---------------- |
+| Toggle event type `is_hidden` | `setQueryData` to flip boolean           | `onError`        |
+| Toggle event type `is_active` | `setQueryData` to flip boolean           | `onError`        |
+| Cancel booking                | `setQueryData` to set status `CANCELLED` | `onError`        |
+| Update profile fields         | `setQueryData` with new values           | `onError`        |
+| Delete event type             | `setQueryData` to filter out item        | `onError`        |
 
 ---
 
@@ -399,7 +421,13 @@ The SC/CC boundary: `page.tsx` passes `eventType` and `host` as props to the `<C
 
 ```typescript
 interface AuthState {
-  user: { id: string; email: string; username: string; full_name: string; avatar_url: string | null } | null;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    full_name: string;
+    avatar_url: string | null;
+  } | null;
   accessToken: string | null;
   isAuthenticated: boolean;
 }
@@ -433,25 +461,25 @@ interface UIActions {
 
 ### URL state (nuqs)
 
-| State | URL param | Parser | Used in |
-|---|---|---|---|
-| Booking filter tab | `?status=upcoming` | `parseAsStringLiteral(['upcoming','unconfirmed','recurring','past','cancelled'])` | BookingFilters, BookingList |
-| Booking page number | `?page=1` | `parseAsInteger.withDefault(1)` | BookingList |
-| Selected booking date | `?date=2026-06-24` | `parseAsString` | CalendarPicker → TimeSlotList |
-| Event types search | `?q=` | `parseAsString.withDefault('')` | EventTypeList (if search implemented) |
+| State                 | URL param          | Parser                                                                            | Used in                               |
+| --------------------- | ------------------ | --------------------------------------------------------------------------------- | ------------------------------------- |
+| Booking filter tab    | `?status=upcoming` | `parseAsStringLiteral(['upcoming','unconfirmed','recurring','past','cancelled'])` | BookingFilters, BookingList           |
+| Booking page number   | `?page=1`          | `parseAsInteger.withDefault(1)`                                                   | BookingList                           |
+| Selected booking date | `?date=2026-06-24` | `parseAsString`                                                                   | CalendarPicker → TimeSlotList         |
+| Event types search    | `?q=`              | `parseAsString.withDefault('')`                                                   | EventTypeList (if search implemented) |
 
 ### TanStack Query cache lifetime
 
-| Query | Stale time | Refetch on window focus |
-|---|---|---|
-| Event types list | 30s | Yes |
-| Single event type | 60s | Yes |
-| Bookings list | 0s (always fresh) | Yes |
-| Available slots | 30s | No (avoid interrupting booking flow) |
-| Public event type | 5min | No (public page, SSR cached) |
-| Schedules list | 30s | Yes |
-| Integrations | 60s | No |
-| User profile | 60s | Yes |
+| Query             | Stale time        | Refetch on window focus              |
+| ----------------- | ----------------- | ------------------------------------ |
+| Event types list  | 30s               | Yes                                  |
+| Single event type | 60s               | Yes                                  |
+| Bookings list     | 0s (always fresh) | Yes                                  |
+| Available slots   | 30s               | No (avoid interrupting booking flow) |
+| Public event type | 5min              | No (public page, SSR cached)         |
+| Schedules list    | 30s               | Yes                                  |
+| Integrations      | 60s               | No                                   |
+| User profile      | 60s               | Yes                                  |
 
 ---
 
@@ -460,6 +488,7 @@ interface UIActions {
 ### Server vs Client split (enforced)
 
 A component is a **Server Component** unless it requires one of:
+
 - `useState`, `useReducer`, `useContext`, `useEffect`
 - Browser APIs (`window`, `document`, `navigator`, `Intl`)
 - Event listeners on interactive elements (`onClick`, `onChange`)
@@ -472,45 +501,46 @@ Everything else: Server Component.
 
 ### SC/CC annotations for key components
 
-| Component | Type | Reason |
-|---|---|---|
-| `page.tsx` (all routes) | SC | Data prefetch, no interaction |
-| `loading.tsx` (all routes) | SC | Static markup only |
-| `error.tsx` (all routes) | CC | `useEffect` for error reporting, `reset()` callback |
-| `providers.tsx` | CC | QueryClientProvider, NuqsAdapter, ThemeProvider |
-| `sidebar.tsx` | CC | Zustand for sidebar state, `usePathname` for active item |
-| `mobile-header.tsx` | CC | Hamburger button state |
-| `mobile-bottom-nav.tsx` | CC | `usePathname` for active item |
-| `event-type-list.tsx` | CC | `useEventTypes` query |
-| `event-type-card.tsx` | CC | Toggle mutation, action menu state |
-| `event-type-form.tsx` | CC | React Hook Form, create/update mutation |
-| `add-event-type-dialog.tsx` | CC | Dialog state, form, mutation |
-| `booking-list.tsx` | CC | `useBookings` with nuqs filter params |
-| `booking-card.tsx` | CC | Action menu state, detail panel trigger |
-| `booking-filters.tsx` | CC | `useQueryState` for tab selection |
-| `booking-detail-panel.tsx` | CC | Sheet open/close state |
-| `cancel-booking-dialog.tsx` | CC | Form state, cancel mutation |
-| `schedule-list.tsx` | CC | `useAvailability` query |
-| `schedule-editor.tsx` | CC | Complex local state, update mutation |
-| `day-row.tsx` | CC | Toggle and time input state |
-| `date-override-picker.tsx` | CC | Calendar open state, react-day-picker |
-| `timezone-selector.tsx` | CC | Combobox state |
-| `event-info-panel.tsx` | SC | Pure display, data passed as props |
-| `calendar-picker.tsx` | CC | nuqs date param, react-day-picker |
-| `time-slot-list.tsx` | CC | `useSlots` query |
-| `booking-form.tsx` | CC | React Hook Form, create booking mutation |
-| `booking-confirmed.tsx` | CC | Add-to-calendar buttons, clipboard |
-| `integration-list.tsx` | CC | Category tabs state |
-| `integration-card.tsx` | CC | Connect/disconnect mutations |
-| `profile-form.tsx` | CC | React Hook Form, update mutation |
-| `settings-nav.tsx` | CC | `usePathname` for active item |
-| `empty-state.tsx` | SC | Pure display |
-| `page-header.tsx` | SC | Pure display |
-| `async-boundary.tsx` | CC | ErrorBoundary is class component, needs `reset` |
+| Component                   | Type | Reason                                                   |
+| --------------------------- | ---- | -------------------------------------------------------- |
+| `page.tsx` (all routes)     | SC   | Data prefetch, no interaction                            |
+| `loading.tsx` (all routes)  | SC   | Static markup only                                       |
+| `error.tsx` (all routes)    | CC   | `useEffect` for error reporting, `reset()` callback      |
+| `providers.tsx`             | CC   | QueryClientProvider, NuqsAdapter, ThemeProvider          |
+| `sidebar.tsx`               | CC   | Zustand for sidebar state, `usePathname` for active item |
+| `mobile-header.tsx`         | CC   | Hamburger button state                                   |
+| `mobile-bottom-nav.tsx`     | CC   | `usePathname` for active item                            |
+| `event-type-list.tsx`       | CC   | `useEventTypes` query                                    |
+| `event-type-card.tsx`       | CC   | Toggle mutation, action menu state                       |
+| `event-type-form.tsx`       | CC   | React Hook Form, create/update mutation                  |
+| `add-event-type-dialog.tsx` | CC   | Dialog state, form, mutation                             |
+| `booking-list.tsx`          | CC   | `useBookings` with nuqs filter params                    |
+| `booking-card.tsx`          | CC   | Action menu state, detail panel trigger                  |
+| `booking-filters.tsx`       | CC   | `useQueryState` for tab selection                        |
+| `booking-detail-panel.tsx`  | CC   | Sheet open/close state                                   |
+| `cancel-booking-dialog.tsx` | CC   | Form state, cancel mutation                              |
+| `schedule-list.tsx`         | CC   | `useAvailability` query                                  |
+| `schedule-editor.tsx`       | CC   | Complex local state, update mutation                     |
+| `day-row.tsx`               | CC   | Toggle and time input state                              |
+| `date-override-picker.tsx`  | CC   | Calendar open state, react-day-picker                    |
+| `timezone-selector.tsx`     | CC   | Combobox state                                           |
+| `event-info-panel.tsx`      | SC   | Pure display, data passed as props                       |
+| `calendar-picker.tsx`       | CC   | nuqs date param, react-day-picker                        |
+| `time-slot-list.tsx`        | CC   | `useSlots` query                                         |
+| `booking-form.tsx`          | CC   | React Hook Form, create booking mutation                 |
+| `booking-confirmed.tsx`     | CC   | Add-to-calendar buttons, clipboard                       |
+| `integration-list.tsx`      | CC   | Category tabs state                                      |
+| `integration-card.tsx`      | CC   | Connect/disconnect mutations                             |
+| `profile-form.tsx`          | CC   | React Hook Form, update mutation                         |
+| `settings-nav.tsx`          | CC   | `usePathname` for active item                            |
+| `empty-state.tsx`           | SC   | Pure display                                             |
+| `page-header.tsx`           | SC   | Pure display                                             |
+| `async-boundary.tsx`        | CC   | ErrorBoundary is class component, needs `reset`          |
 
 ### No God Components — enforced splits
 
 **EventTypesPage flow:**
+
 ```
 page.tsx (SC) → prefetches → HydrationBoundary → EventTypeList (CC)
 EventTypeList → renders → EventTypeCard (CC) × N
@@ -518,6 +548,7 @@ EventTypeCard → renders → EventTypeActions (CC) for action menu
 ```
 
 **BookingPage flow:**
+
 ```
 page.tsx (SC) → fetches event type → passes as props to:
   └── EventInfoPanel (SC) — pure display
@@ -527,6 +558,7 @@ page.tsx (SC) → fetches event type → passes as props to:
 ```
 
 **AvailabilityEditor flow:**
+
 ```
 page.tsx (SC) → prefetches schedule → HydrationBoundary → ScheduleEditor (CC)
 ScheduleEditor → renders → DayRow (CC) × 7 → TimeRangePicker (CC)
@@ -558,15 +590,14 @@ export function AsyncBoundary({
 }) {
   return (
     <ErrorBoundary fallback={fallback ?? <ComponentError />}>
-      <Suspense fallback={skeleton}>
-        {children}
-      </Suspense>
+      <Suspense fallback={skeleton}>{children}</Suspense>
     </ErrorBoundary>
   );
 }
 ```
 
 Usage pattern:
+
 ```tsx
 <AsyncBoundary skeleton={<SlotSkeleton />}>
   <TimeSlotList eventTypeId={eventType.id} />
@@ -591,6 +622,7 @@ class ApiClient {
 ```
 
 Implementation rules:
+
 - Base URL: `process.env.NEXT_PUBLIC_API_URL` (e.g., `http://localhost:4000/api/v1`)
 - All methods return `Promise<T>` — unwrap from `{ success, data, message }` envelope
 - On non-2xx: parse error body, throw `ApiError extends Error` with `status` and `code`
@@ -604,43 +636,43 @@ Implementation rules:
 ```typescript
 export const ENDPOINTS = {
   auth: {
-    register:  '/auth/register',
-    login:     '/auth/login',
-    bypass:    '/auth/bypass',
-    refresh:   '/auth/refresh',
-    logout:    '/auth/logout',
+    register: '/auth/register',
+    login: '/auth/login',
+    bypass: '/auth/bypass',
+    refresh: '/auth/refresh',
+    logout: '/auth/logout',
   },
   users: {
     me: '/users/me',
   },
   eventTypes: {
-    list:   '/event-types',
+    list: '/event-types',
     create: '/event-types',
-    byId:   (id: string) => `/event-types/${id}`,
+    byId: (id: string) => `/event-types/${id}`,
     update: (id: string) => `/event-types/${id}`,
     delete: (id: string) => `/event-types/${id}`,
     public: (username: string, slug: string) => `/public/${username}/${slug}`,
     publicList: (username: string) => `/public/${username}/event-types`,
   },
   availability: {
-    list:   '/availability',
+    list: '/availability',
     create: '/availability',
-    byId:   (id: string) => `/availability/${id}`,
+    byId: (id: string) => `/availability/${id}`,
     update: (id: string) => `/availability/${id}`,
     delete: (id: string) => `/availability/${id}`,
   },
   slots: '/slots',
   bookings: {
-    list:   '/bookings',
+    list: '/bookings',
     create: '/bookings',
-    byId:   (id: string) => `/bookings/${id}`,
+    byId: (id: string) => `/bookings/${id}`,
     status: (id: string) => `/bookings/${id}/status`,
   },
   integrations: {
-    list:     '/integrations',
-    connect:  (slug: string) => `/integrations/${slug}/connect`,
+    list: '/integrations',
+    connect: (slug: string) => `/integrations/${slug}/connect`,
     callback: (slug: string) => `/integrations/${slug}/callback`,
-    delete:   (slug: string) => `/integrations/${slug}`,
+    delete: (slug: string) => `/integrations/${slug}`,
   },
 } as const;
 ```
@@ -650,27 +682,27 @@ export const ENDPOINTS = {
 ```typescript
 export const queryKeys = {
   eventTypes: {
-    all:    () => ['event-types'] as const,
-    list:   () => ['event-types', 'list'] as const,
-    byId:   (id: string) => ['event-types', id] as const,
+    all: () => ['event-types'] as const,
+    list: () => ['event-types', 'list'] as const,
+    byId: (id: string) => ['event-types', id] as const,
     public: (username: string, slug: string) => ['event-types', 'public', username, slug] as const,
   },
   bookings: {
-    all:    () => ['bookings'] as const,
-    list:   (filters: Record<string, unknown>) => ['bookings', 'list', filters] as const,
-    byId:   (id: string) => ['bookings', id] as const,
+    all: () => ['bookings'] as const,
+    list: (filters: Record<string, unknown>) => ['bookings', 'list', filters] as const,
+    byId: (id: string) => ['bookings', id] as const,
   },
   availability: {
-    all:    () => ['availability'] as const,
-    list:   () => ['availability', 'list'] as const,
-    byId:   (id: string) => ['availability', id] as const,
+    all: () => ['availability'] as const,
+    list: () => ['availability', 'list'] as const,
+    byId: (id: string) => ['availability', id] as const,
   },
   slots: {
     byDate: (eventTypeId: string, date: string, timezone: string) =>
       ['slots', eventTypeId, date, timezone] as const,
   },
   integrations: {
-    all:  () => ['integrations'] as const,
+    all: () => ['integrations'] as const,
     list: () => ['integrations', 'list'] as const,
   },
   user: {
@@ -686,6 +718,7 @@ export const queryKeys = {
 All forms use: `react-hook-form` + `zodResolver` + schemas from `@scaler/types`.
 
 **Standard form pattern:**
+
 ```typescript
 'use client';
 import { useForm } from 'react-hook-form';
@@ -703,16 +736,16 @@ export function EventTypeForm() {
 
 ### Forms to build
 
-| Form | Zod schema | Special behaviour |
-|---|---|---|
-| `LoginForm` | `loginSchema.shape.body` | Auto-login via bypass on mount in (authorised) layout |
-| `RegisterForm` | `registerSchema.shape.body` | Confirm password field (local schema extension only) |
-| `EventTypeForm` | `createEventTypeSchema.shape.body` | Slug auto-generated from title with 500ms debounce |
-| `EventTypeForm` (edit) | `updateEventTypeSchema.shape.body` | Populated from existing event type |
-| `CreateScheduleForm` | `createScheduleSchema.shape.body` | 7 day rows managed as field array |
-| `UpdateScheduleForm` | `updateScheduleSchema.shape.body` | Day rows + date overrides as field arrays |
-| `BookingForm` | `createBookingSchema.shape.body` | timezone auto-detected via `useTimezone` hook |
-| `ProfileForm` | `updateUserSchema.shape.body` | Avatar URL set via upload (future: base64 or S3 URL) |
+| Form                   | Zod schema                         | Special behaviour                                     |
+| ---------------------- | ---------------------------------- | ----------------------------------------------------- |
+| `LoginForm`            | `loginSchema.shape.body`           | Auto-login via bypass on mount in (authorised) layout |
+| `RegisterForm`         | `registerSchema.shape.body`        | Confirm password field (local schema extension only)  |
+| `EventTypeForm`        | `createEventTypeSchema.shape.body` | Slug auto-generated from title with 500ms debounce    |
+| `EventTypeForm` (edit) | `updateEventTypeSchema.shape.body` | Populated from existing event type                    |
+| `CreateScheduleForm`   | `createScheduleSchema.shape.body`  | 7 day rows managed as field array                     |
+| `UpdateScheduleForm`   | `updateScheduleSchema.shape.body`  | Day rows + date overrides as field arrays             |
+| `BookingForm`          | `createBookingSchema.shape.body`   | timezone auto-detected via `useTimezone` hook         |
+| `ProfileForm`          | `updateUserSchema.shape.body`      | Avatar URL set via upload (future: base64 or S3 URL)  |
 
 ### EventTypeForm slug field behaviour
 
@@ -810,11 +843,15 @@ page.tsx (SC)
 ### Page transitions (CSS View Transitions API — zero JS cost)
 
 In `next.config.ts`:
+
 ```typescript
-experimental: { viewTransition: true }
+experimental: {
+  viewTransition: true;
+}
 ```
 
 Sidebar nav links use a `TransitionLink` component:
+
 ```tsx
 // components/layout/transition-link.tsx (CC)
 'use client';
@@ -828,32 +865,56 @@ export function TransitionLink({ href, children }: { href: string; children: Rea
       startTransition(() => router.push(href));
     });
   };
-  return <Link href={href} onClick={onClick} data-pending={isPending}>{children}</Link>;
+  return (
+    <Link href={href} onClick={onClick} data-pending={isPending}>
+      {children}
+    </Link>
+  );
 }
 ```
 
 CSS in `globals.css`:
+
 ```css
-::view-transition-old(root) { animation: 120ms ease-in fade-out; }
-::view-transition-new(root) { animation: 160ms ease-out fade-in; }
-@keyframes fade-out { from { opacity: 1 } to { opacity: 0 } }
-@keyframes fade-in  { from { opacity: 0 } to { opacity: 1 } }
+::view-transition-old(root) {
+  animation: 120ms ease-in fade-out;
+}
+::view-transition-new(root) {
+  animation: 160ms ease-out fade-in;
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 ```
 
 ### Component animations (motion library)
 
-| Element | Animation | Spec |
-|---|---|---|
-| Dialog/Modal open | Scale + fade | `scale: 0.95→1, opacity: 0→1, 150ms ease-out` |
-| Dialog/Modal close | Scale + fade | `scale: 1→0.95, opacity: 1→0, 120ms ease-in` |
-| Sheet (mobile sidebar) | Slide from left | `x: -100%→0, 200ms ease-out` |
-| Booking form appear | Slide from right | `x: 20→0, opacity: 0→1, 200ms ease-out` |
-| Time slot list | Stagger children | `opacity: 0→1, y: 4→0, 150ms, stagger: 30ms` |
-| Booking success checkmark | SVG path draw | `pathLength: 0→1, 600ms ease-in-out` |
-| Toast (sonner) | Built-in — do not override | — |
-| Dropdown menu | Framer `AnimatePresence` not needed — shadcn handles via Radix | — |
+| Element                   | Animation                                                      | Spec                                          |
+| ------------------------- | -------------------------------------------------------------- | --------------------------------------------- |
+| Dialog/Modal open         | Scale + fade                                                   | `scale: 0.95→1, opacity: 0→1, 150ms ease-out` |
+| Dialog/Modal close        | Scale + fade                                                   | `scale: 1→0.95, opacity: 1→0, 120ms ease-in`  |
+| Sheet (mobile sidebar)    | Slide from left                                                | `x: -100%→0, 200ms ease-out`                  |
+| Booking form appear       | Slide from right                                               | `x: 20→0, opacity: 0→1, 200ms ease-out`       |
+| Time slot list            | Stagger children                                               | `opacity: 0→1, y: 4→0, 150ms, stagger: 30ms`  |
+| Booking success checkmark | SVG path draw                                                  | `pathLength: 0→1, 600ms ease-in-out`          |
+| Toast (sonner)            | Built-in — do not override                                     | —                                             |
+| Dropdown menu             | Framer `AnimatePresence` not needed — shadcn handles via Radix | —                                             |
 
 ### Do NOT use motion for:
+
 - Hover state color changes (Tailwind `transition-colors duration-150`)
 - Simple conditional show/hide (conditional rendering + Tailwind)
 - Skeleton shimmer (CSS `animate-pulse`)
@@ -861,6 +922,7 @@ CSS in `globals.css`:
 - Nav item active state changes
 
 ### Respect reduced motion:
+
 ```typescript
 // Always check in motion components
 import { useReducedMotion } from 'motion/react';
@@ -874,32 +936,31 @@ const variants = reduced ? {} : { initial: ..., animate: ..., exit: ... };
 
 ### Breakpoints
 
-| Name | Min-width | Tailwind prefix |
-|---|---|---|
-| mobile | 0px | (default, no prefix) |
-| sm | 640px | `sm:` |
-| md | 768px | `md:` |
-| lg | 1024px | `lg:` |
-| xl | 1280px | `xl:` |
+| Name   | Min-width | Tailwind prefix      |
+| ------ | --------- | -------------------- |
+| mobile | 0px       | (default, no prefix) |
+| sm     | 640px     | `sm:`                |
+| md     | 768px     | `md:`                |
+| lg     | 1024px    | `lg:`                |
+| xl     | 1280px    | `xl:`                |
 
 ### Sidebar behaviour
 
-| Viewport | Behaviour | Implementation |
-|---|---|---|
-| Desktop (`lg:`) | Persistent, always visible, `w-64` (256px) | CSS `flex-shrink-0` |
-| Tablet (`md:`) | Persistent, icon-only `w-16` (64px) | `hidden lg:block` → icon-only variant |
-| Mobile (`< md`) | Hidden, opens as `<Sheet side="left">` on hamburger | `ui.store.sidebarOpen` |
+| Viewport        | Behaviour                                           | Implementation                        |
+| --------------- | --------------------------------------------------- | ------------------------------------- |
+| Desktop (`lg:`) | Persistent, always visible, `w-64` (256px)          | CSS `flex-shrink-0`                   |
+| Tablet (`md:`)  | Persistent, icon-only `w-16` (64px)                 | `hidden lg:block` → icon-only variant |
+| Mobile (`< md`) | Hidden, opens as `<Sheet side="left">` on hamburger | `ui.store.sidebarOpen`                |
 
 The layout structure:
+
 ```tsx
 // (authorised)/layout.tsx
 <div className="flex min-h-screen bg-neutral-950">
-  <Sidebar className="hidden md:flex" />          {/* desktop */}
-  <MobileHeader className="md:hidden" />           {/* mobile top bar */}
-  <main className="flex-1 overflow-y-auto">
-    {children}
-  </main>
-  <MobileBottomNav className="md:hidden" />        {/* mobile bottom bar */}
+  <Sidebar className="hidden md:flex" /> {/* desktop */}
+  <MobileHeader className="md:hidden" /> {/* mobile top bar */}
+  <main className="flex-1 overflow-y-auto">{children}</main>
+  <MobileBottomNav className="md:hidden" /> {/* mobile bottom bar */}
 </div>
 ```
 
@@ -915,18 +976,18 @@ The layout structure:
 
 ### Event types page
 
-| Viewport | Layout |
-|---|---|
-| Desktop | Full-width list (NOT grid) — each item is a horizontal row |
-| Tablet | Same full-width list |
-| Mobile | Same list, but inline actions replaced by three-dot menu only |
+| Viewport | Layout                                                        |
+| -------- | ------------------------------------------------------------- |
+| Desktop  | Full-width list (NOT grid) — each item is a horizontal row    |
+| Tablet   | Same full-width list                                          |
+| Mobile   | Same list, but inline actions replaced by three-dot menu only |
 
 ### Bookings page
 
-| Viewport | Layout |
-|---|---|
-| Desktop | Table-like rows with date column (200px) + content + actions visible |
-| Mobile | Stacked card: title on top, date below, join button below, three-dot menu top-right |
+| Viewport | Layout                                                                              |
+| -------- | ----------------------------------------------------------------------------------- |
+| Desktop  | Table-like rows with date column (200px) + content + actions visible                |
+| Mobile   | Stacked card: title on top, date below, join button below, three-dot menu top-right |
 
 ---
 
@@ -1100,34 +1161,34 @@ npx shadcn@latest add sonner
 
 ### Component → Usage mapping
 
-| shadcn component | Used in |
-|---|---|
-| `button` | Every interactive action across all pages |
-| `input` | All text fields: title, slug, name, email, time inputs |
-| `label` | All form field labels |
-| `badge` | DurationBadge, HiddenBadge, StatusBadge, HostBadge, DefaultBadge |
-| `card` | EventTypeList container, SettingsCard, BookingConfirmed card |
-| `separator` | Dropdown menu dividers, section dividers |
-| `skeleton` | All loading states in loading.tsx files |
-| `avatar` | User avatar in sidebar, BookingDetailPanel, BookingConfirmedCard |
-| `tooltip` | Action button tooltips (copy link, external link icons) |
-| `tabs` | BookingFilters (Upcoming/Past/etc), AvailabilityList (My/Team) |
-| `sheet` | Mobile sidebar overlay, BookingDetailPanel on mobile |
-| `scroll-area` | TimeSlotList (scrollable), Mobile sidebar |
-| `dialog` | AddEventTypeDialog, ConfirmDialog, CancelBookingDialog |
-| `dropdown-menu` | EventTypeActions, BookingActionMenu, ScheduleCard actions |
-| `popover` | DateOverridePicker calendar, TimezoneSelector |
-| `command` | TimezoneSelector search, GlobalCommandSearch |
-| `switch` | DayAvailabilityRow toggle, EventTypeCard active toggle |
-| `checkbox` | BookingForm (add guests checkbox) |
-| `select` | Rows-per-page, status filter, time format, language |
-| `toggle-group` | 12h/24h toggle on time slot list |
-| `form` | All forms (wraps React Hook Form context) |
-| `textarea` | BookingForm notes, CancelBookingDialog reason, EventTypeForm description |
-| `radio-group` | AppearanceSettings theme selection |
-| `calendar` | DateOverridePicker (availability), CalendarPicker (booking page) |
-| `table` | (future: bookings table view) |
-| `sonner` | All success/error toast notifications |
+| shadcn component | Used in                                                                  |
+| ---------------- | ------------------------------------------------------------------------ |
+| `button`         | Every interactive action across all pages                                |
+| `input`          | All text fields: title, slug, name, email, time inputs                   |
+| `label`          | All form field labels                                                    |
+| `badge`          | DurationBadge, HiddenBadge, StatusBadge, HostBadge, DefaultBadge         |
+| `card`           | EventTypeList container, SettingsCard, BookingConfirmed card             |
+| `separator`      | Dropdown menu dividers, section dividers                                 |
+| `skeleton`       | All loading states in loading.tsx files                                  |
+| `avatar`         | User avatar in sidebar, BookingDetailPanel, BookingConfirmedCard         |
+| `tooltip`        | Action button tooltips (copy link, external link icons)                  |
+| `tabs`           | BookingFilters (Upcoming/Past/etc), AvailabilityList (My/Team)           |
+| `sheet`          | Mobile sidebar overlay, BookingDetailPanel on mobile                     |
+| `scroll-area`    | TimeSlotList (scrollable), Mobile sidebar                                |
+| `dialog`         | AddEventTypeDialog, ConfirmDialog, CancelBookingDialog                   |
+| `dropdown-menu`  | EventTypeActions, BookingActionMenu, ScheduleCard actions                |
+| `popover`        | DateOverridePicker calendar, TimezoneSelector                            |
+| `command`        | TimezoneSelector search, GlobalCommandSearch                             |
+| `switch`         | DayAvailabilityRow toggle, EventTypeCard active toggle                   |
+| `checkbox`       | BookingForm (add guests checkbox)                                        |
+| `select`         | Rows-per-page, status filter, time format, language                      |
+| `toggle-group`   | 12h/24h toggle on time slot list                                         |
+| `form`           | All forms (wraps React Hook Form context)                                |
+| `textarea`       | BookingForm notes, CancelBookingDialog reason, EventTypeForm description |
+| `radio-group`    | AppearanceSettings theme selection                                       |
+| `calendar`       | DateOverridePicker (availability), CalendarPicker (booking page)         |
+| `table`          | (future: bookings table view)                                            |
+| `sonner`         | All success/error toast notifications                                    |
 
 ---
 
@@ -1156,6 +1217,7 @@ Note: `NEXT_PUBLIC_*` vars are exposed to the browser. No secrets here. The back
 Before marking any page as done, verify every item:
 
 ### Layout Stability (CLS = 0)
+
 - [ ] All images use `next/image` with explicit `width` and `height`
 - [ ] All skeleton placeholders match exact dimensions of loaded content
 - [ ] Font loaded via `next/font` — zero FOUT/FOIT
@@ -1163,6 +1225,7 @@ Before marking any page as done, verify every item:
 - [ ] Sidebar has explicit `w-64` — never shrinks
 
 ### Bundle Size
+
 - [ ] Run `next build` and check "First Load JS" per route
 - [ ] Target: dashboard pages < 100kb First Load JS
 - [ ] Target: public booking page < 80kb First Load JS
@@ -1171,18 +1234,21 @@ Before marking any page as done, verify every item:
 - [ ] motion: use `LazyMotion` + `domAnimation` feature (18kb instead of 90kb for full motion)
 
 ### Server Components
+
 - [ ] All `page.tsx` files are Server Components (no `'use client'` at top)
 - [ ] No TanStack Query hooks in Server Components
 - [ ] No Zustand store reads in Server Components
 - [ ] Dynamic imports for heavy CC components: `dynamic(() => import('./schedule-editor'), { ssr: false })`
 
 ### API Performance
+
 - [ ] No `useEffect` that fetches data directly — always use `useQuery`
 - [ ] Bookings list uses `useInfiniteQuery` for pagination
 - [ ] Prefetch queries in Server Components for dashboard pages
 - [ ] Slot fetching: `staleTime: 30_000`, `refetchOnWindowFocus: false`
 
 ### Accessibility
+
 - [ ] All form fields have associated `<label>` via `htmlFor`
 - [ ] All icon-only buttons have `aria-label`
 - [ ] Focus ring visible: `ring-2 ring-blue-500 ring-offset-2 ring-offset-neutral-900`
@@ -1190,6 +1256,7 @@ Before marking any page as done, verify every item:
 - [ ] Keyboard navigation works for: sidebar nav, dropdown menus, calendar, time slots
 
 ### Lighthouse (public booking page target)
+
 - [ ] Performance > 90
 - [ ] LCP < 2.5s (target < 2.0s)
 - [ ] FID / INP < 100ms
@@ -1201,38 +1268,39 @@ Before marking any page as done, verify every item:
 
 Base URL: `http://localhost:4000/api/v1`
 
-| Method | Path | Auth | Body / Query | Notes |
-|---|---|---|---|---|
-| POST | `/auth/bypass` | No | `{}` | Returns user + tokens for seeded default user |
-| POST | `/auth/register` | No | `{ email, password, username, full_name, timezone? }` | |
-| POST | `/auth/login` | No | `{ email, password }` | |
-| POST | `/auth/refresh` | No (cookie) | — | refresh token in httpOnly cookie |
-| POST | `/auth/logout` | Yes | — | |
-| GET | `/users/me` | Yes | — | Returns current user |
-| PATCH | `/users/me` | Yes | `{ full_name?, timezone?, avatar_url? }` | |
-| GET | `/event-types` | Yes | — | All event types for authenticated user |
-| POST | `/event-types` | Yes | `CreateEventTypeInput` | |
-| GET | `/event-types/:id` | Yes | — | |
-| PATCH | `/event-types/:id` | Yes | `UpdateEventTypeInput` | |
-| DELETE | `/event-types/:id` | Yes | — | |
-| GET | `/availability` | Yes | — | All schedules for user |
-| POST | `/availability` | Yes | `CreateScheduleInput` | |
-| GET | `/availability/:id` | Yes | — | |
-| PUT | `/availability/:id` | Yes | `UpdateScheduleInput` | Replaces entire schedule |
-| DELETE | `/availability/:id` | Yes | — | |
-| POST | `/bookings` | No | `CreateBookingInput` | Requires `Idempotency-Key` header |
-| GET | `/bookings` | Yes | `?status=` | Filter by booking status |
-| GET | `/bookings/:id` | Yes | — | |
-| PATCH | `/bookings/:id/status` | Yes | `{ status, cancellation_reason? }` | Also requires `?timezone=` query param |
-| GET | `/integrations` | Yes | — | All integrations with connection status |
-| GET | `/integrations/:slug/connect` | Yes | — | Returns OAuth redirect URL |
-| DELETE | `/integrations/:slug` | Yes | — | Disconnect integration |
-| GET | `/public/:username/event-types` | No | — | Public event types for a user |
-| GET | `/public/:username/:slug` | No | — | Single event type details + host info |
-| GET | `/slots` | No | `?eventTypeId=&date=YYYY-MM-DD&timezone=` | Available time slots |
-| GET | `/health` | No | — | Health check |
+| Method | Path                            | Auth        | Body / Query                                          | Notes                                         |
+| ------ | ------------------------------- | ----------- | ----------------------------------------------------- | --------------------------------------------- |
+| POST   | `/auth/bypass`                  | No          | `{}`                                                  | Returns user + tokens for seeded default user |
+| POST   | `/auth/register`                | No          | `{ email, password, username, full_name, timezone? }` |                                               |
+| POST   | `/auth/login`                   | No          | `{ email, password }`                                 |                                               |
+| POST   | `/auth/refresh`                 | No (cookie) | —                                                     | refresh token in httpOnly cookie              |
+| POST   | `/auth/logout`                  | Yes         | —                                                     |                                               |
+| GET    | `/users/me`                     | Yes         | —                                                     | Returns current user                          |
+| PATCH  | `/users/me`                     | Yes         | `{ full_name?, timezone?, avatar_url? }`              |                                               |
+| GET    | `/event-types`                  | Yes         | —                                                     | All event types for authenticated user        |
+| POST   | `/event-types`                  | Yes         | `CreateEventTypeInput`                                |                                               |
+| GET    | `/event-types/:id`              | Yes         | —                                                     |                                               |
+| PATCH  | `/event-types/:id`              | Yes         | `UpdateEventTypeInput`                                |                                               |
+| DELETE | `/event-types/:id`              | Yes         | —                                                     |                                               |
+| GET    | `/availability`                 | Yes         | —                                                     | All schedules for user                        |
+| POST   | `/availability`                 | Yes         | `CreateScheduleInput`                                 |                                               |
+| GET    | `/availability/:id`             | Yes         | —                                                     |                                               |
+| PUT    | `/availability/:id`             | Yes         | `UpdateScheduleInput`                                 | Replaces entire schedule                      |
+| DELETE | `/availability/:id`             | Yes         | —                                                     |                                               |
+| POST   | `/bookings`                     | No          | `CreateBookingInput`                                  | Requires `Idempotency-Key` header             |
+| GET    | `/bookings`                     | Yes         | `?status=`                                            | Filter by booking status                      |
+| GET    | `/bookings/:id`                 | Yes         | —                                                     |                                               |
+| PATCH  | `/bookings/:id/status`          | Yes         | `{ status, cancellation_reason? }`                    | Also requires `?timezone=` query param        |
+| GET    | `/integrations`                 | Yes         | —                                                     | All integrations with connection status       |
+| GET    | `/integrations/:slug/connect`   | Yes         | —                                                     | Returns OAuth redirect URL                    |
+| DELETE | `/integrations/:slug`           | Yes         | —                                                     | Disconnect integration                        |
+| GET    | `/public/:username/event-types` | No          | —                                                     | Public event types for a user                 |
+| GET    | `/public/:username/:slug`       | No          | —                                                     | Single event type details + host info         |
+| GET    | `/slots`                        | No          | `?eventTypeId=&date=YYYY-MM-DD&timezone=`             | Available time slots                          |
+| GET    | `/health`                       | No          | —                                                     | Health check                                  |
 
 **API response envelope**:
+
 ```typescript
 { success: true, message: string, data: T }
 // or on error:
@@ -1244,19 +1312,25 @@ Base URL: `http://localhost:4000/api/v1`
 ## Appendix B: Key Design Decisions
 
 ### Why View Transitions API instead of Framer Motion for page transitions
+
 In 2026, all major browsers support the View Transitions API. It produces smoother transitions than `AnimatePresence` in App Router because it's browser-native (no React component tree involvement). Framer Motion page transitions in App Router require the fragile `FrozenRouter` pattern. The View Transitions API is enabled with a single config flag and CSS.
 
 ### Why Zustand for auth (not cookies / localStorage)
+
 Access tokens are stored in Zustand memory only. This prevents XSS attacks from reading tokens via `localStorage`. The `httpOnly` refresh token cookie (set by the server) handles persistence across page reloads — the `(authorised)/layout.tsx` calls `POST /auth/bypass` on mount to hydrate the token.
 
 ### Why nuqs for URL state (not useState)
+
 Booking filter tabs (`?status=upcoming`) and date selection (`?date=2026-06-24`) stored in URL means: shareable links work, browser back button works, page refresh preserves state, server can read filter params for SSR.
 
 ### Why not use shadcn Sidebar component
+
 The Cal.com sidebar has very specific layout (logo + search + avatar in header, bottom links section, specific spacing). The shadcn Sidebar component is opinionated and would require more overriding than building custom with the same primitives.
 
 ### Why `PUT` (not `PATCH`) for availability schedule update
+
 The backend `PUT /availability/:id` replaces the entire schedule including all day availability rows and date overrides. The frontend `ScheduleEditor` always sends the complete updated schedule state.
 
 ### Why Idempotency-Key for booking creation
+
 The backend requires an `Idempotency-Key` header on `POST /bookings` to prevent double-booking from network retries. The frontend generates this via `crypto.randomUUID()` on form mount and reuses the same key for retries.

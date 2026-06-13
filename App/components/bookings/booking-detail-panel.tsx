@@ -52,7 +52,7 @@ export function BookingDetailPanel({
 
   const locationLabel =
     booking.event_type.location_type === 'in_person'
-      ? booking.event_type.location_details ?? 'In person'
+      ? (booking.event_type.location_details ?? 'In person')
       : booking.event_type.location_type.replace(/_/g, ' ');
 
   return (

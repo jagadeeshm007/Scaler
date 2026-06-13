@@ -23,9 +23,7 @@ export function EventTypeList() {
     if (!query.trim()) return data;
     const q = query.toLowerCase();
     return data.filter(
-      (et) =>
-        et.title.toLowerCase().includes(q) ||
-        et.slug.toLowerCase().includes(q),
+      (et) => et.title.toLowerCase().includes(q) || et.slug.toLowerCase().includes(q),
     );
   }, [data, query]);
 

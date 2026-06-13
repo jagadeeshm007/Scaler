@@ -24,12 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   useCreateEventType,
   useDeleteEventType,
@@ -164,8 +159,16 @@ export function EventTypeActions({
                   setMenuOpen(false);
                 }}
               />
-              <MobileSheetItem icon={Copy} label="Copy link to event" onClick={() => void copyLink()} />
-              <MobileSheetItem icon={CalendarSearch} label="Troubleshoot" onClick={() => setMenuOpen(false)} />
+              <MobileSheetItem
+                icon={Copy}
+                label="Copy link to event"
+                onClick={() => void copyLink()}
+              />
+              <MobileSheetItem
+                icon={CalendarSearch}
+                label="Troubleshoot"
+                onClick={() => setMenuOpen(false)}
+              />
               <MobileSheetItem
                 icon={Pencil}
                 label="Edit"

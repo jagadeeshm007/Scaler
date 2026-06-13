@@ -15,11 +15,9 @@ describe('IntegrationService', () => {
 
   describe('handleOAuthCallback', () => {
     it('should persist encrypted credentials for mock OAuth providers', async () => {
-      const state = sign(
-        { userId, appSlug: 'google', nonce: 'abc123' },
-        env.JWT_ACCESS_SECRET,
-        { expiresIn: '10m' },
-      );
+      const state = sign({ userId, appSlug: 'google', nonce: 'abc123' }, env.JWT_ACCESS_SECRET, {
+        expiresIn: '10m',
+      });
 
       vi.mocked(prisma.app.findUnique).mockResolvedValue({
         id: 'app-google',

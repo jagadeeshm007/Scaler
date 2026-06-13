@@ -50,7 +50,10 @@ export function DateOverridePicker({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className={cn('gap-2 border-neutral-800 bg-neutral-900', className)}>
+        <Button
+          variant="outline"
+          className={cn('gap-2 border-neutral-800 bg-neutral-900', className)}
+        >
           <CalendarIcon className="size-4" />
           Add date override
         </Button>

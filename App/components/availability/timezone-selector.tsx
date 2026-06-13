@@ -41,7 +41,10 @@ export function TimezoneSelector({ value, onChange, className }: TimezoneSelecto
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] border-neutral-800 bg-neutral-950 p-0" align="start">
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] border-neutral-800 bg-neutral-950 p-0"
+        align="start"
+      >
         <Command className="bg-neutral-950">
           <CommandInput placeholder="Search timezone..." />
           <CommandList>
@@ -56,7 +59,9 @@ export function TimezoneSelector({ value, onChange, className }: TimezoneSelecto
                     setOpen(false);
                   }}
                 >
-                  <Check className={cn('mr-2 size-4', value === tz ? 'opacity-100' : 'opacity-0')} />
+                  <Check
+                    className={cn('mr-2 size-4', value === tz ? 'opacity-100' : 'opacity-0')}
+                  />
                   {tz.replace(/_/g, ' ')}
                 </CommandItem>
               ))}

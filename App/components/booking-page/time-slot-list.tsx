@@ -31,7 +31,11 @@ export function TimeSlotList({ eventType, className }: TimeSlotListProps) {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const reducedMotion = useReducedMotion();
 
-  const { data: slots, isLoading, isError } = useSlots({
+  const {
+    data: slots,
+    isLoading,
+    isError,
+  } = useSlots({
     eventTypeId: eventType.id,
     date,
     timezone,

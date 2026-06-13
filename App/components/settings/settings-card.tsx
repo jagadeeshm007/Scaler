@@ -11,7 +11,13 @@ interface SettingsCardProps {
   className?: string;
 }
 
-export function SettingsCard({ href, icon: Icon, title, description, className }: SettingsCardProps) {
+export function SettingsCard({
+  href,
+  icon: Icon,
+  title,
+  description,
+  className,
+}: SettingsCardProps) {
   return (
     <Link
       href={href}

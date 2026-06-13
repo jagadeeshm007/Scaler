@@ -21,11 +21,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateBooking } from '@/hooks/mutations/use-booking-mutations';
-import {
-  formatBookingDate,
-  formatBookingTimeRange,
-  formatDuration,
-} from '@/lib/format';
+import { formatBookingDate, formatBookingTimeRange, formatDuration } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import type { CreateBookingInput, PublicEventType, Slot } from '@/types';
@@ -128,11 +124,7 @@ export function BookingForm({ eventType, slot, timezone, onBack, className }: Bo
                 <FormItem>
                   <FormLabel>Your name *</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="John Doe"
-                      disabled={createBooking.isPending}
-                      {...field}
-                    />
+                    <Input placeholder="John Doe" disabled={createBooking.isPending} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

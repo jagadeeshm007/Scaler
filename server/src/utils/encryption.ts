@@ -21,7 +21,10 @@ if (env.ENCRYPTION_KEY_PREVIOUS) {
   ENCRYPTION_KEYS.v0 = loadKey(env.ENCRYPTION_KEY_PREVIOUS, 'ENCRYPTION_KEY_PREVIOUS');
 }
 
-function encryptWithKey(text: string, key: Buffer): { iv: Buffer; authTag: Buffer; encrypted: string } {
+function encryptWithKey(
+  text: string,
+  key: Buffer,
+): { iv: Buffer; authTag: Buffer; encrypted: string } {
   const iv = crypto.randomBytes(IV_LENGTH);
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 
@@ -31,12 +34,7 @@ function encryptWithKey(text: string, key: Buffer): { iv: Buffer; authTag: Buffe
   return { iv, authTag: cipher.getAuthTag(), encrypted };
 }
 
-function decryptWithKey(
-  iv: Buffer,
-  authTag: Buffer,
-  encryptedText: string,
-  key: Buffer,
-): string {
+function decryptWithKey(iv: Buffer, authTag: Buffer, encryptedText: string, key: Buffer): string {
   const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
 

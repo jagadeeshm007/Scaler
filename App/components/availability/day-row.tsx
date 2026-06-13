@@ -35,7 +35,12 @@ export function DayRow({
   const isActive = ranges.some((r) => r.is_active);
 
   return (
-    <div className={cn('flex flex-col gap-3 border-b border-neutral-800 py-4 sm:flex-row sm:items-start', className)}>
+    <div
+      className={cn(
+        'flex flex-col gap-3 border-b border-neutral-800 py-4 sm:flex-row sm:items-start',
+        className,
+      )}
+    >
       <div className="flex w-full items-center gap-3 sm:w-36">
         <Switch checked={isActive} onCheckedChange={onToggle} />
         <span className="text-sm font-medium text-white">{DAY_NAMES[dayOfWeek]}</span>
