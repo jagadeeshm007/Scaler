@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "cd .. && pnpm install --frozen-lockfile",
+  "installCommand": "cd .. && pnpm install --frozen-lockfile --ignore-scripts",
   "buildCommand": "pnpm prisma:generate",
   "rewrites": [
     { "source": "/health", "destination": "/api" },
