@@ -20,7 +20,14 @@ export interface ApiResponse<T> {
 
 export interface ApiErrorBody {
   success: false;
-  error: string;
+  message: string;
+  error?:
+    | string
+    | {
+        code?: string;
+        errors?: Array<{ field?: string; message: string }>;
+        details?: unknown;
+      };
   details?: string;
   code?: string;
 }

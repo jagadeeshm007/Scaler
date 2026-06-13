@@ -20,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateBooking } from '@/hooks/mutations/use-booking-mutations';
+import { getErrorMessage } from '@/lib/api';
 import { formatBookingDate, formatBookingTimeRange } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
@@ -94,7 +95,7 @@ export function BookingForm({
         `${ROUTES.bookingConfirmed(eventType.user.username, eventType.slug)}?uid=${booking.uid}`,
       );
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Failed to create booking');
+      setSubmitError(getErrorMessage(error, 'Failed to create booking'));
     }
   };
 

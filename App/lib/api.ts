@@ -22,10 +22,36 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
   idempotencyKey?: string;
 }
 
+function extractApiErrorMessage(body: ApiErrorBody): string {
+  if (body.message) return body.message;
+
+  if (typeof body.error === 'string') return body.error;
+
+  if (body.error && typeof body.error === 'object') {
+    const firstFieldError = body.error.errors?.[0]?.message;
+    if (firstFieldError) return firstFieldError;
+  }
+
+  return 'Request failed';
+}
+
+function extractApiErrorCode(body: ApiErrorBody): string | undefined {
+  if (typeof body.error === 'object' && body.error?.code) return body.error.code;
+  return body.code;
+}
+
+/** Normalize unknown thrown values into a user-facing string. */
+export function getErrorMessage(error: unknown, fallback = 'Something went wrong'): string {
+  if (error instanceof ApiError) return error.message;
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string') return error;
+  return fallback;
+}
+
 async function parseError(response: Response): Promise<ApiError> {
   try {
     const body = (await response.json()) as ApiErrorBody;
-    return new ApiError(body.error ?? 'Request failed', response.status, body.code);
+    return new ApiError(extractApiErrorMessage(body), response.status, extractApiErrorCode(body));
   } catch {
     return new ApiError(response.statusText || 'Request failed', response.status);
   }
