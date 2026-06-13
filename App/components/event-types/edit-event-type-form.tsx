@@ -8,7 +8,6 @@ import {
   Clock,
   Code2,
   ExternalLink,
-  Link2,
   Palette,
   RefreshCw,
   Shield,
@@ -25,6 +24,7 @@ import {
   EventTypeActionGroup,
   EventTypeActionGroupButton,
   EventTypeBadge,
+  EventTypeLinkIcon,
 } from '@/components/event-types/event-type-ui';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { Button } from '@/components/ui/button';
@@ -190,7 +190,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
               <ExternalLink className="size-[15px] stroke-[1.75]" />
             </EventTypeActionGroupButton>
             <EventTypeActionGroupButton label="Copy link" onClick={() => void copyLink()}>
-              <Link2 className="size-[15px] stroke-[1.75]" />
+              <EventTypeLinkIcon className="size-[15px] stroke-[1.75]" />
             </EventTypeActionGroupButton>
             <EventTypeActionGroupButton
               label="Embed"

@@ -1,7 +1,9 @@
 'use client';
 
-import { Calendar, Clock, ExternalLink, Grid3x3, Link2, Search, Settings } from 'lucide-react';
+import { Calendar, Clock, ExternalLink, Grid3x3, Search, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+
+import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
 
 import { TransitionLink } from '@/components/layout/transition-link';
 import { AvatarFallback } from '@/components/shared/avatar-fallback';
@@ -11,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 
 const navItems = [
-  { href: ROUTES.eventTypes, label: 'Event types', icon: Link2 },
+  { href: ROUTES.eventTypes, label: 'Event types', icon: EventTypeLinkIcon },
   { href: ROUTES.bookings, label: 'Bookings', icon: Calendar },
   { href: ROUTES.availability, label: 'Availability', icon: Clock },
   { href: ROUTES.apps, label: 'Apps', icon: Grid3x3 },
@@ -85,11 +87,11 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
       >
         {/* ── Header ── */}
         <div className="mb-4 flex flex-col items-center gap-3 px-1.5 lg:mb-5 lg:flex-row lg:items-center lg:justify-between lg:px-1">
-          {/* Logo — "Scaler" text on lg, "Cal" text chip on md */}
+          {/* Logo — "Scaler" on lg, "SA" chip on md */}
           <span className="hidden text-base font-bold tracking-tight text-white lg:inline">
             Scaler
           </span>
-          <span className="text-sm font-bold text-white lg:hidden">Cal</span>
+          <span className="text-sm font-bold text-white lg:hidden">SA</span>
 
           {/* Avatar — always visible */}
           {user ? (

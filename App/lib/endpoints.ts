@@ -15,6 +15,7 @@ export const ENDPOINTS = {
     byId: (id: string) => `/event-types/${id}`,
     update: (id: string) => `/event-types/${id}`,
     delete: (id: string) => `/event-types/${id}`,
+    reorder: '/event-types/reorder',
     public: (username: string, slug: string) => `/public/${username}/${slug}`,
     publicList: (username: string) => `/public/${username}/event-types`,
   },

@@ -1,7 +1,44 @@
 'use client';
 
+import { Link2 } from 'lucide-react';
+
 import { SURFACE } from '@/components/shared/page-section';
 import { cn } from '@/lib/utils';
+
+/** Cal.com-style 2×3 dot drag handle */
+export function EventTypeDragHandleIcon({ className }: { className?: string }) {
+  return (
+    <span className={cn('inline-grid grid-cols-2 gap-[3px]', className)} aria-hidden>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <span key={i} className="size-[3px] rounded-full bg-current" />
+      ))}
+    </span>
+  );
+}
+
+/** Dotted drop slot shown while dragging */
+export function EventTypeListRowPlaceholder({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        'rounded-lg border border-dashed border-neutral-600 bg-neutral-900',
+        className,
+      )}
+      aria-hidden
+    />
+  );
+}
+
+/** Cal.com-style link icon — rotated 45° */
+export function EventTypeLinkIcon({
+  className,
+  strokeWidth,
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) {
+  return <Link2 className={cn('-rotate-45', className)} strokeWidth={strokeWidth} />;
+}
 
 /* ── Action button group ── */
 export function EventTypeActionGroup({
@@ -74,7 +111,7 @@ export function EventTypeBadge({
           ),
         /* hidden chip — horizontal label */
         variant === 'hidden' &&
-          'inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-xs font-medium text-amber-500',
+          'inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-1.5 py-0.5 text-xs font-medium text-amber-500',
         className,
       )}
     >

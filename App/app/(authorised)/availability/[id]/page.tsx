@@ -1,21 +1,19 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+'use client';
+
+import { use } from 'react';
 
 import { ScheduleEditor } from '@/components/availability/schedule-editor';
-import { getQueryClient } from '@/lib/query-client';
 
 interface AvailabilityEditPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function AvailabilityEditPage({ params }: AvailabilityEditPageProps) {
-  const { id } = await params;
-  const queryClient = getQueryClient();
+export default function AvailabilityEditPage({ params }: AvailabilityEditPageProps) {
+  const { id } = use(params);
 
   return (
     <main className="px-4 py-8 sm:px-6">
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <ScheduleEditor scheduleId={id} />
-      </HydrationBoundary>
+      <ScheduleEditor scheduleId={id} />
     </main>
   );
 }

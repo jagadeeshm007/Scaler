@@ -54,6 +54,7 @@ export interface EventType {
   requires_confirmation: boolean;
   buffer_before_mins: number;
   buffer_after_mins: number;
+  position: number;
   created_at: string;
   updated_at: string;
 }

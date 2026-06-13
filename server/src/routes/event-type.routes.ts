@@ -1,4 +1,4 @@
-import { createEventTypeSchema, updateEventTypeSchema } from '@scaler/types';
+import { createEventTypeSchema, reorderEventTypesSchema, updateEventTypeSchema } from '@scaler/types';
 import { Router } from 'express';
 
 import { EventTypeController } from '../controllers/event-type.controller';
@@ -11,6 +11,7 @@ const router = Router();
 router.use(requireAuth);
 
 router.get('/', EventTypeController.getEventTypes);
+router.patch('/reorder', validate(reorderEventTypesSchema), EventTypeController.reorderEventTypes);
 router.post('/', validate(createEventTypeSchema), EventTypeController.createEventType);
 router.get('/:id', EventTypeController.getEventTypeById);
 router.patch('/:id', validate(updateEventTypeSchema), EventTypeController.updateEventType);

@@ -9,6 +9,7 @@ interface AuthState {
   accessToken: string | null;
   isAuthenticated: boolean;
   isHydrating: boolean;
+  hasHydrated: boolean;
 }
 
 interface AuthActions {
@@ -16,6 +17,7 @@ interface AuthActions {
   setToken: (token: string) => void;
   logout: () => void;
   hydrate: () => Promise<void>;
+  retryHydrate: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
@@ -23,16 +25,30 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   accessToken: null,
   isAuthenticated: false,
   isHydrating: false,
+  hasHydrated: false,
 
   setAuth: (user, token) =>
-    set({ user, accessToken: token, isAuthenticated: true, isHydrating: false }),
+    set({
+      user,
+      accessToken: token,
+      isAuthenticated: true,
+      isHydrating: false,
+      hasHydrated: true,
+    }),
 
   setToken: (token) => set({ accessToken: token }),
 
-  logout: () => set({ user: null, accessToken: null, isAuthenticated: false, isHydrating: false }),
+  logout: () =>
+    set({
+      user: null,
+      accessToken: null,
+      isAuthenticated: false,
+      isHydrating: false,
+      hasHydrated: true,
+    }),
 
   hydrate: async () => {
-    if (get().isAuthenticated || get().isHydrating) return;
+    if (get().hasHydrated || get().isHydrating) return;
     set({ isHydrating: true });
     try {
       const data = await api.post<AuthPayload>(ENDPOINTS.auth.bypass, {});
@@ -41,9 +57,15 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         accessToken: data.accessToken,
         isAuthenticated: true,
         isHydrating: false,
+        hasHydrated: true,
       });
     } catch {
-      set({ isHydrating: false });
+      set({ isHydrating: false, hasHydrated: true });
     }
+  },
+
+  retryHydrate: async () => {
+    set({ hasHydrated: false, isHydrating: false });
+    await get().hydrate();
   },
 }));

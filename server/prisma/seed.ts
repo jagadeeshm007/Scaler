@@ -48,7 +48,7 @@ async function main() {
   // 3. Pre-seed event types
   await prisma.eventType.upsert({
     where: { user_id_slug: { user_id: demoUser.id, slug: 'testing' } },
-    update: { is_hidden: true, is_active: false, duration_mins: 30 },
+    update: { is_hidden: true, is_active: false, duration_mins: 30, position: 0 },
     create: {
       user_id: demoUser.id,
       title: 'testing',
@@ -58,12 +58,13 @@ async function main() {
       location_type: 'CAL_VIDEO',
       is_hidden: true,
       is_active: false,
+      position: 0,
     },
   });
 
   await prisma.eventType.upsert({
     where: { user_id_slug: { user_id: demoUser.id, slug: '15min' } },
-    update: { duration_options: [15, 30, 60] },
+    update: { duration_options: [15, 30, 60], position: 1 },
     create: {
       user_id: demoUser.id,
       title: '15 min meeting',
@@ -71,24 +72,26 @@ async function main() {
       duration_mins: 15,
       duration_options: [15, 30, 60],
       location_type: 'GOOGLE_MEET',
+      position: 1,
     },
   });
 
   await prisma.eventType.upsert({
     where: { user_id_slug: { user_id: demoUser.id, slug: '30min' } },
-    update: {},
+    update: { position: 2 },
     create: {
       user_id: demoUser.id,
       title: '30 min meeting',
       slug: '30min',
       duration_mins: 30,
       location_type: 'ZOOM',
+      position: 2,
     },
   });
 
   await prisma.eventType.upsert({
     where: { user_id_slug: { user_id: demoUser.id, slug: 'secret' } },
-    update: { is_hidden: true, is_active: false },
+    update: { is_hidden: true, is_active: false, position: 3 },
     create: {
       user_id: demoUser.id,
       title: 'Secret meeting',
@@ -97,6 +100,7 @@ async function main() {
       location_type: 'GOOGLE_MEET',
       is_hidden: true,
       is_active: false,
+      position: 3,
     },
   });
 

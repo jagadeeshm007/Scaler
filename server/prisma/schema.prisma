@@ -39,6 +39,7 @@ model EventType {
   is_hidden        Boolean @default(false)
   location_type    String
   location_details String? // Optional link or address
+  position         Int     @default(0)
 
   // Booking policies
   requires_confirmation Boolean @default(false)

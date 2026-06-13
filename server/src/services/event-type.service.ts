@@ -7,7 +7,7 @@ export class EventTypeService {
   static async getEventTypes(userId: string): Promise<unknown> {
     return prisma.eventType.findMany({
       where: { user_id: userId, deleted_at: null },
-      orderBy: { created_at: 'desc' },
+      orderBy: [{ position: 'asc' }, { created_at: 'desc' }],
     });
   }
 
@@ -41,10 +41,18 @@ export class EventTypeService {
       );
     }
 
+    const last = await prisma.eventType.findFirst({
+      where: { user_id: userId, deleted_at: null },
+      orderBy: { position: 'desc' },
+      select: { position: true },
+    });
+    const position = (last?.position ?? -1) + 1;
+
     return prisma.eventType.create({
       data: {
         ...data,
         user_id: userId,
+        position,
       },
     });
   }
@@ -89,5 +97,40 @@ export class EventTypeService {
       where: { id },
       data: { deleted_at: new Date(), is_active: false },
     });
+  }
+
+  static async reorderEventTypes(userId: string, ids: string[]): Promise<unknown> {
+    const eventTypes = await prisma.eventType.findMany({
+      where: { user_id: userId, deleted_at: null },
+      select: { id: true },
+    });
+
+    const ownedIds = new Set(eventTypes.map((et) => et.id));
+    const uniqueIds = [...new Set(ids)];
+
+    if (uniqueIds.length !== eventTypes.length) {
+      throw new AppError(
+        'Reorder payload must include every event type exactly once',
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODE.VALIDATION_ERROR,
+      );
+    }
+
+    for (const id of uniqueIds) {
+      if (!ownedIds.has(id)) {
+        throw new AppError('Invalid event type id', HTTP_STATUS.BAD_REQUEST, ERROR_CODE.VALIDATION_ERROR);
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      for (const [index, id] of uniqueIds.entries()) {
+        await tx.eventType.update({
+          where: { id },
+          data: { position: index },
+        });
+      }
+    });
+
+    return this.getEventTypes(userId);
   }
 }

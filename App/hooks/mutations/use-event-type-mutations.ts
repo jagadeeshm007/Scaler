@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/endpoints';
 import { queryKeys } from '@/lib/query-keys';
-import type { CreateEventTypeInput, EventType, UpdateEventTypeInput } from '@/types';
+import type { CreateEventTypeInput, EventType, ReorderEventTypesInput, UpdateEventTypeInput } from '@/types';
 
 export function useCreateEventType() {
   const queryClient = useQueryClient();
@@ -59,6 +59,37 @@ export function useDeleteEventType() {
       toast.error(err.message);
     },
     onSuccess: () => toast.success('Event type deleted'),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: queryKeys.eventTypes.all() }),
+  });
+}
+
+export function useReorderEventTypes() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ReorderEventTypesInput) =>
+      api.patch<EventType[]>(ENDPOINTS.eventTypes.reorder, data),
+    onMutate: async ({ ids }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.eventTypes.list() });
+      const previous = queryClient.getQueryData<EventType[]>(queryKeys.eventTypes.list());
+      queryClient.setQueryData<EventType[]>(queryKeys.eventTypes.list(), (old) => {
+        if (!old) return old;
+        const byId = new Map(old.map((et) => [et.id, et]));
+        return ids
+          .map((id, index) => {
+            const item = byId.get(id);
+            return item ? { ...item, position: index } : null;
+          })
+          .filter((item): item is EventType => item !== null);
+      });
+      return { previous };
+    },
+    onError: (err: Error, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(queryKeys.eventTypes.list(), ctx.previous);
+      toast.error(err.message);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKeys.eventTypes.list(), data);
+    },
     onSettled: () => void queryClient.invalidateQueries({ queryKey: queryKeys.eventTypes.all() }),
   });
 }

@@ -24,5 +24,12 @@ export const updateEventTypeSchema = z.object({
   body: createEventTypeSchema.shape.body.partial(),
 });
 
+export const reorderEventTypesSchema = z.object({
+  body: z.object({
+    ids: z.array(z.string().uuid()).min(1, 'At least one event type id is required'),
+  }),
+});
+
 export type CreateEventTypeInput = z.infer<typeof createEventTypeSchema>['body'];
 export type UpdateEventTypeInput = z.infer<typeof updateEventTypeSchema>['body'];
+export type ReorderEventTypesInput = z.infer<typeof reorderEventTypesSchema>['body'];

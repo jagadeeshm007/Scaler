@@ -1,14 +1,16 @@
 'use client';
 
-import { Calendar, Clock, Link2, MoreHorizontal, Plus } from 'lucide-react';
+import { Calendar, Clock, MoreHorizontal, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
 
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 const items = [
-  { href: ROUTES.eventTypes, icon: Link2, label: 'Event types' },
+  { href: ROUTES.eventTypes, icon: EventTypeLinkIcon, label: 'Event types' },
   { href: ROUTES.bookings, icon: Calendar, label: 'Bookings' },
   { href: ROUTES.availability, icon: Clock, label: 'Availability' },
   { href: ROUTES.settings, icon: MoreHorizontal, label: 'More' },

@@ -1,11 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Link2, Plus, Search, ShieldCheck, X } from 'lucide-react';
+import { Plus, Search, ShieldCheck, X } from 'lucide-react';
 import Link from 'next/link';
 
 import { EventTypeCard } from '@/components/event-types/event-type-card';
+import { EventTypeSortableList } from '@/components/event-types/event-type-sortable-list';
 import { EventTypeSearch } from '@/components/event-types/event-type-search';
+import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
 import { PageSection, SURFACE } from '@/components/shared/page-section';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,6 +18,7 @@ import { useAuthStore } from '@/store/auth.store';
 
 export function EventTypeList() {
   const [query, setQuery] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const { data, isLoading } = useEventTypes();
   const user = useAuthStore((s) => s.user);
   const username = user?.username ?? process.env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
@@ -94,9 +97,10 @@ export function EventTypeList() {
       {/* Inner list card — content height only; outer card fills the rest */}
       <div
         className={cn(
-          'mx-4 mb-4 shrink-0 overflow-hidden rounded-xl border md:mx-6 md:mb-6',
+          'mx-4 mb-4 shrink-0 rounded-xl border transition-colors duration-200 md:mx-6 md:mb-6',
+          isDragging ? 'overflow-visible p-2' : 'overflow-hidden',
           SURFACE.innerList,
-          SURFACE.sectionBorder,
+          isDragging ? 'border-transparent' : SURFACE.sectionBorder,
         )}
       >
         {isEmpty ? (
@@ -105,7 +109,7 @@ export function EventTypeList() {
               {hasQuery ? (
                 <ShieldCheck className="size-4 text-neutral-500" />
               ) : (
-                <Link2 className="size-4 text-neutral-500" />
+                <EventTypeLinkIcon className="size-4 text-neutral-500" />
               )}
             </div>
             <h3 className="text-sm font-semibold text-white">
@@ -125,10 +129,18 @@ export function EventTypeList() {
               </Button>
             )}
           </div>
+        ) : hasQuery ? (
+          <div className="divide-y divide-neutral-800">
+            {filtered.map((eventType) => (
+              <EventTypeCard key={eventType.id} eventType={eventType} username={username} />
+            ))}
+          </div>
         ) : (
-          filtered.map((eventType) => (
-            <EventTypeCard key={eventType.id} eventType={eventType} username={username} />
-          ))
+          <EventTypeSortableList
+            items={filtered}
+            username={username}
+            onDragStateChange={setIsDragging}
+          />
         )}
       </div>
     </PageSection>
