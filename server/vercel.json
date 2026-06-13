@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "pnpm -w install --frozen-lockfile",
+  "installCommand": "cd .. && pnpm install --frozen-lockfile",
   "buildCommand": "pnpm prisma:generate",
   "rewrites": [
     { "source": "/health", "destination": "/api" },
@@ -12,12 +12,6 @@
       "memory": 1024
     }
   },
-  "crons": [
-    {
-      "path": "/api/cron/process-jobs",
-      "schedule": "*/5 * * * *"
-    }
-  ],
   "git": {
     "deploymentEnabled": false
   }
