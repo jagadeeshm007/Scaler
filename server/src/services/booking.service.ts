@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import type { Booking, EventType, User } from '@prisma/client';
 import type { CreateBookingInput, UpdateBookingStatusInput } from '@scaler/types';
 import { ERROR_CODE, HTTP_STATUS, BOOKING_STATUS } from '../config/constants';
@@ -81,7 +83,8 @@ export class BookingService {
         meetingUrl = 'https://meet.google.com/mock-url';
       }
       if (eventType.location_type === 'ZOOM') {
-        meetingUrl = 'https://zoom.us/j/mock-id';
+        const meetingId = crypto.randomBytes(4).readUInt32BE(0).toString().padStart(10, '0');
+        meetingUrl = `https://zoom.us/j/${meetingId}`;
       }
 
       // Create booking record

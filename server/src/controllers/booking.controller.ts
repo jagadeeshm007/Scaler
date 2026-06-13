@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
+import { storeIdempotentResponse, type IdempotentRequest } from '../middleware/idempotency';
 import { BookingService } from '../services/booking.service';
 import { ApiResponse } from '../utils/api-response';
 import { AppError } from '../utils/app-error';
@@ -21,9 +22,25 @@ export class BookingController {
     return ApiResponse.success(res, 'Booking retrieved successfully', booking);
   });
 
-  static createBooking = asyncHandler(async (req: Request, res: Response) => {
+  static createBooking = asyncHandler(async (req: IdempotentRequest, res: Response) => {
     const booking = await BookingService.createBooking(req.body);
-    return ApiResponse.created(res, 'Booking created successfully', booking);
+
+    const payload = {
+      success: true,
+      message: 'Booking created successfully',
+      data: booking,
+    };
+
+    if (req.idempotencyKey && typeof res.locals.idempotencyRoute === 'string') {
+      await storeIdempotentResponse(
+        req.idempotencyKey,
+        res.locals.idempotencyRoute,
+        HTTP_STATUS.CREATED,
+        payload,
+      );
+    }
+
+    return res.status(HTTP_STATUS.CREATED).json(payload);
   });
 
   static updateBookingStatus = asyncHandler(async (req: Request, res: Response) => {

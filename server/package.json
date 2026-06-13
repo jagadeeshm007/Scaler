@@ -14,6 +14,7 @@
     "lint:report": "eslint src --ext .ts --format json -o reports/eslint.json",
     "test": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
+    "test:all": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
   "keywords": [],

@@ -34,16 +34,22 @@ export class IntegrationController {
   });
 
   static callback = asyncHandler(async (req: Request, res: Response) => {
-    // This would typically exchange the code for tokens, encrypt them, and save to Credential table.
-    // For this assignment, we'll return a mock success response.
-    const { code } = req.query;
+    const { code, state } = req.query;
+    const appSlug = req.params.slug as string;
 
-    if (!code) {
+    if (!code || typeof code !== 'string') {
       res.status(HTTP_STATUS.BAD_REQUEST).send('Missing code parameter');
       return;
     }
 
+    if (!state || typeof state !== 'string') {
+      res.status(HTTP_STATUS.BAD_REQUEST).send('Missing state parameter');
+      return;
+    }
+
+    await IntegrationService.handleOAuthCallback(appSlug, code, state);
+
     await Promise.resolve();
-    res.redirect(`${env.CLIENT_URL}/settings/integrations?success=true`);
+    res.redirect(`${env.CLIENT_URL}/settings/integrations?success=true&provider=${appSlug}`);
   });
 }

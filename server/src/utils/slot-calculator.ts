@@ -1,3 +1,5 @@
+import { formatInTimeZone } from 'date-fns-tz';
+
 import { isBefore, addMinutes, isAfter } from 'date-fns';
 
 import { BOOKING_STATUS } from '../config/constants';
@@ -6,8 +8,11 @@ import { AvailabilityService } from '../services/availability.service';
 import { DateUtils } from './date';
 
 export interface Slot {
-  startTime: string; // ISO string UTC
-  endTime: string; // ISO string UTC
+  startTime: string; // UTC ISO
+  endTime: string; // UTC ISO
+  localStartTime: string; // ISO-like string in requestedTimeZone
+  localEndTime: string;
+  timezone: string;
   available: boolean;
 }
 
@@ -107,6 +112,7 @@ export class SlotCalculator {
     eventType,
     availability,
     bookings,
+    requestedTimeZone,
   }: {
     dateStr: string;
     eventType: {
@@ -143,10 +149,17 @@ export class SlotCalculator {
     );
 
     const nowPlus10Mins = addMinutes(new Date(), 10);
+    const dayStartUTC = DateUtils.getStartOfDayUTC(dateStr, requestedTimeZone);
+    const dayEndUTC = DateUtils.getEndOfDayUTC(dateStr, requestedTimeZone);
     const validSlots: Slot[] = [];
 
     for (const slot of candidateSlots) {
       if (isBefore(slot.start, nowPlus10Mins)) {
+        continue;
+      }
+
+      // Only include slots that fall on the requester's chosen calendar day
+      if (isBefore(slot.start, dayStartUTC) || isAfter(slot.end, dayEndUTC)) {
         continue;
       }
 
@@ -161,6 +174,9 @@ export class SlotCalculator {
         validSlots.push({
           startTime: slot.start.toISOString(),
           endTime: slot.end.toISOString(),
+          localStartTime: formatInTimeZone(slot.start, requestedTimeZone, "yyyy-MM-dd'T'HH:mm:ss"),
+          localEndTime: formatInTimeZone(slot.end, requestedTimeZone, "yyyy-MM-dd'T'HH:mm:ss"),
+          timezone: requestedTimeZone,
           available: true,
         });
       }

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { ERROR_CODE, HTTP_STATUS } from '../../../src/config/constants';
@@ -9,10 +9,8 @@ import { TokenService } from '../../../src/services/token.service';
 import { AppError } from '../../../src/utils/app-error';
 
 vi.mock('jsonwebtoken', () => ({
-  default: {
-    sign: vi.fn(),
-    verify: vi.fn(),
-  },
+  sign: vi.fn(),
+  verify: vi.fn(),
 }));
 
 describe('TokenService', () => {
@@ -25,11 +23,11 @@ describe('TokenService', () => {
   describe('generateAccessToken', () => {
     it('should generate a valid access token', () => {
       const mockToken = 'mock-access-token';
-      vi.mocked(jwt.sign).mockReturnValue(mockToken as any);
+      vi.mocked(sign).mockReturnValue(mockToken as never);
 
       const result = TokenService.generateAccessToken(mockPayload);
 
-      expect(jwt.sign).toHaveBeenCalledWith(mockPayload, env.JWT_ACCESS_SECRET, {
+      expect(sign).toHaveBeenCalledWith(mockPayload, env.JWT_ACCESS_SECRET, {
         expiresIn: String(env.JWT_ACCESS_EXPIRES_IN),
       });
       expect(result).toBe(mockToken);
@@ -39,9 +37,8 @@ describe('TokenService', () => {
   describe('generateRefreshToken', () => {
     it('should generate a refresh token and store its hash in the database', async () => {
       const mockToken = 'mock-refresh-token';
-      vi.mocked(jwt.sign).mockReturnValue(mockToken as any);
+      vi.mocked(sign).mockReturnValue(mockToken as never);
 
-      // We expect prisma.refreshToken.create to resolve successfully
       vi.mocked(prisma.refreshToken.create).mockResolvedValue({
         id: 'token-1',
         token_hash: 'hashed',
@@ -54,7 +51,7 @@ describe('TokenService', () => {
 
       const result = await TokenService.generateRefreshToken(mockPayload);
 
-      expect(jwt.sign).toHaveBeenCalledWith(mockPayload, env.JWT_REFRESH_SECRET, {
+      expect(sign).toHaveBeenCalledWith(mockPayload, env.JWT_REFRESH_SECRET, {
         expiresIn: String(env.JWT_REFRESH_EXPIRES_IN),
       });
 
@@ -72,10 +69,9 @@ describe('TokenService', () => {
     const oldTokenHash = crypto.createHash('sha256').update(oldToken).digest('hex');
 
     it('should issue new tokens if old refresh token is valid and not revoked', async () => {
-      vi.mocked(jwt.verify).mockReturnValue(mockPayload as any);
-      vi.mocked(jwt.sign).mockReturnValue('new-token' as any);
+      vi.mocked(verify).mockReturnValue(mockPayload as never);
+      vi.mocked(sign).mockReturnValue('new-token' as never);
 
-      // Mock the stored token as valid
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
 
@@ -89,12 +85,12 @@ describe('TokenService', () => {
         updated_at: new Date(),
       });
 
-      vi.mocked(prisma.refreshToken.update).mockResolvedValue({} as any);
-      vi.mocked(prisma.refreshToken.create).mockResolvedValue({} as any);
+      vi.mocked(prisma.refreshToken.update).mockResolvedValue({} as never);
+      vi.mocked(prisma.refreshToken.create).mockResolvedValue({} as never);
 
       const result = await TokenService.rotateTokens(oldToken);
 
-      expect(jwt.verify).toHaveBeenCalledWith(oldToken, env.JWT_REFRESH_SECRET);
+      expect(verify).toHaveBeenCalledWith(oldToken, env.JWT_REFRESH_SECRET);
       expect(prisma.refreshToken.findUnique).toHaveBeenCalledWith({
         where: { token_hash: oldTokenHash },
       });
@@ -108,7 +104,7 @@ describe('TokenService', () => {
     });
 
     it('should throw AppError if refresh token is expired in database', async () => {
-      vi.mocked(jwt.verify).mockReturnValue(mockPayload as any);
+      vi.mocked(verify).mockReturnValue(mockPayload as never);
 
       const pastDate = new Date();
       pastDate.setDate(pastDate.getDate() - 1);
@@ -133,7 +129,7 @@ describe('TokenService', () => {
     });
 
     it('should throw AppError if refresh token is revoked', async () => {
-      vi.mocked(jwt.verify).mockReturnValue(mockPayload as any);
+      vi.mocked(verify).mockReturnValue(mockPayload as never);
 
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
@@ -148,6 +144,8 @@ describe('TokenService', () => {
         updated_at: new Date(),
       });
 
+      vi.mocked(prisma.refreshToken.updateMany).mockResolvedValue({ count: 1 });
+
       await expect(TokenService.rotateTokens(oldToken)).rejects.toThrow(
         new AppError(
           'Token reuse detected. All sessions have been revoked for security.',
@@ -158,7 +156,7 @@ describe('TokenService', () => {
     });
 
     it('should catch jwt.verify errors and throw generic unauthorized', async () => {
-      vi.mocked(jwt.verify).mockImplementation(() => {
+      vi.mocked(verify).mockImplementation(() => {
         throw new Error('JWT Signature Invalid');
       });
 

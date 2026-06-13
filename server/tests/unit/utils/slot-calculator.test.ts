@@ -124,11 +124,16 @@ describe('SlotCalculator', () => {
     const expectedStart = addMinutes(baseDate, 90); // 09:00 + 90m = 10:30
     const expectedEnd = addMinutes(baseDate, 120); // 10:30 + 30m = 11:00
 
-    expect(slots[0]).toEqual({
-      startTime: expectedStart.toISOString(),
-      endTime: expectedEnd.toISOString(),
-      available: true,
-    });
+    expect(slots[0]).toEqual(
+      expect.objectContaining({
+        startTime: expectedStart.toISOString(),
+        endTime: expectedEnd.toISOString(),
+        timezone: mockTimeZone,
+        available: true,
+      }),
+    );
+    expect(slots[0].localStartTime).toBeDefined();
+    expect(slots[0].localEndTime).toBeDefined();
 
     vi.useRealTimers();
   });

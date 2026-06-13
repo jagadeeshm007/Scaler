@@ -1,12 +1,13 @@
 import { app } from './app';
 import { env } from './config/env';
-import { initEventBus } from './lib/event-bus';
+import { initEventBus, startBackgroundJobWorker } from './lib/event-bus';
 import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
 
 const { PORT } = env;
 
 initEventBus();
+const jobWorker = startBackgroundJobWorker();
 
 const server = app.listen(PORT, () => {
   logger.info(`Server running in ${env.NODE_ENV} mode on port ${String(PORT)}`);
@@ -15,6 +16,7 @@ const server = app.listen(PORT, () => {
 // Graceful Shutdown
 const shutdown = (signal: string): void => {
   logger.info(`Received ${signal}. Shutting down gracefully...`);
+  clearInterval(jobWorker);
   server.close(() => {
     logger.info('HTTP server closed.');
     void prisma.$disconnect().then(() => {

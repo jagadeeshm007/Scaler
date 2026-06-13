@@ -28,6 +28,7 @@ const envSchema = z.object({
   SMTP_FROM: z.string().optional(),
 
   ENCRYPTION_KEY: z.string().length(64), // 32 bytes hex encoded = 64 chars
+  ENCRYPTION_KEY_PREVIOUS: z.string().length(64).optional(), // prior key during rotation window
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

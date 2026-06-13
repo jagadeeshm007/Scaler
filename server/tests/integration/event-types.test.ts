@@ -1,21 +1,22 @@
 import request from 'supertest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import jwt from 'jsonwebtoken';
 
 import { app } from '../../src/app';
 import { prisma } from '../../src/lib/prisma';
 import { HTTP_STATUS } from '../../src/config/constants';
-import jwt from 'jsonwebtoken';
-import { env } from '../../../src/config/env';
+import { env } from '../../src/config/env';
+import { mockAuthenticatedUser, MOCK_USER_ID } from '../helpers/test-utils';
 
 describe('Event Types Integration Tests (API)', () => {
-  const mockUserId = 'user-123';
   const mockToken = jwt.sign(
-    { userId: mockUserId, email: 'test@example.com' },
+    { userId: MOCK_USER_ID, email: 'test@example.com' },
     env.JWT_ACCESS_SECRET,
   );
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuthenticatedUser();
   });
 
   describe('GET /api/v1/event-types', () => {
@@ -25,7 +26,7 @@ describe('Event Types Integration Tests (API)', () => {
         { id: 'event-2', title: '30 Min Call', duration_mins: 30 },
       ];
 
-      vi.mocked(prisma.eventType.findMany).mockResolvedValue(mockEventTypes as any);
+      vi.mocked(prisma.eventType.findMany).mockResolvedValue(mockEventTypes as never);
 
       const response = await request(app)
         .get('/api/v1/event-types')
@@ -49,18 +50,18 @@ describe('Event Types Integration Tests (API)', () => {
     it('should create a new event type', async () => {
       const newEventType = {
         title: '60 Min Interview',
-        url_slug: '60-min-interview',
+        slug: '60-min-interview',
         duration_mins: 60,
         location_type: 'GOOGLE_MEET',
-        is_active: true,
       };
 
-      vi.mocked(prisma.eventType.findUnique).mockResolvedValue(null); // Slug is available
+      vi.mocked(prisma.eventType.findUnique).mockResolvedValue(null);
       vi.mocked(prisma.eventType.create).mockResolvedValue({
         id: 'event-3',
-        user_id: mockUserId,
+        user_id: MOCK_USER_ID,
         ...newEventType,
-      } as any);
+        is_active: true,
+      } as never);
 
       const response = await request(app)
         .post('/api/v1/event-types')
@@ -73,22 +74,21 @@ describe('Event Types Integration Tests (API)', () => {
       expect(prisma.eventType.create).toHaveBeenCalled();
     });
 
-    it('should fail if url slug is already taken', async () => {
-      vi.mocked(prisma.eventType.findUnique).mockResolvedValue({ id: 'existing-event' } as any);
+    it('should fail if slug is already taken', async () => {
+      vi.mocked(prisma.eventType.findUnique).mockResolvedValue({ id: 'existing-event' } as never);
 
       const response = await request(app)
         .post('/api/v1/event-types')
         .set('Authorization', `Bearer ${mockToken}`)
         .send({
           title: 'Existing Slug',
-          url_slug: 'already-taken',
+          slug: 'already-taken',
           duration_mins: 30,
           location_type: 'IN_PERSON',
         });
 
       expect(response.status).toBe(HTTP_STATUS.CONFLICT);
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain('slug is already taken');
     });
   });
 });

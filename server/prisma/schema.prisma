@@ -206,3 +206,32 @@ model FailedJob {
   
   @@map("failed_jobs")
 }
+
+model BackgroundJob {
+  id           String   @id @default(uuid())
+  type         String   // BOOKING_CREATED, BOOKING_CANCELLED, etc.
+  payload      Json
+  status       String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  attempts     Int      @default(0)
+  max_attempts Int      @default(5)
+  next_run_at  DateTime @default(now())
+  error        String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([status, next_run_at])
+  @@map("background_jobs")
+}
+
+model IdempotencyKey {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  route       String
+  status_code Int
+  response    Json
+  expires_at  DateTime
+  created_at  DateTime @default(now())
+
+  @@index([expires_at])
+  @@map("idempotency_keys")
+}

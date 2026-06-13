@@ -73,6 +73,17 @@ describe('BookingService', () => {
       });
     });
 
+    it('should throw AppError when event type is not found', async () => {
+      vi.mocked(prisma.eventType.findUnique).mockResolvedValue(null);
+
+      await expect(
+        BookingService.createBooking({
+          ...mockInput,
+          host_id: 'user-1',
+        } as Parameters<typeof BookingService.createBooking>[0]),
+      ).rejects.toThrow(AppError);
+    });
+
     it('should throw AppError if double-booking detected', async () => {
       vi.mocked(prisma.eventType.findUnique).mockResolvedValue({
         id: 'event-1',

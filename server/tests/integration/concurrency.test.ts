@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { app } from '../../src/app';
 import { prisma } from '../../src/lib/prisma';
 import { HTTP_STATUS } from '../../src/config/constants';
+import { MOCK_EVENT_TYPE_ID, MOCK_USER_ID, validBookingPayload, IDEMPOTENCY_HEADER } from '../helpers/test-utils';
 
 describe('Concurrency Integration Tests', () => {
   beforeEach(() => {
@@ -12,22 +13,19 @@ describe('Concurrency Integration Tests', () => {
 
   describe('POST /api/v1/bookings Double Booking Race Condition', () => {
     it('should handle concurrent booking requests and reject one', async () => {
-      // Mock Event Type
       vi.mocked(prisma.eventType.findUnique).mockResolvedValue({
-        id: 'event-1',
+        id: MOCK_EVENT_TYPE_ID,
         title: 'Interview',
-        user_id: 'user-123',
+        user_id: MOCK_USER_ID,
         is_active: true,
-      } as any);
+        deleted_at: null,
+        requires_confirmation: false,
+        location_type: 'IN_PERSON',
+      } as never);
 
-      // Simulate a race condition in the transaction:
-      // We will maintain state in our mock to simulate the first request locking/creating
-      // and the second request failing the overlap check.
       let bookingsCount = 0;
 
       vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
-        // If bookingsCount > 0, it means another transaction "committed" first
-        // So we mock the overlap query to return an existing booking
         if (bookingsCount > 0) {
           vi.mocked(prisma.$queryRaw).mockResolvedValue([{ id: 'existing-booking' }]);
         } else {
@@ -36,35 +34,29 @@ describe('Concurrency Integration Tests', () => {
         }
 
         vi.mocked(prisma.booking.create).mockResolvedValue({
-          id: `booking-${bookingsCount}`,
-        } as any);
+          id: `booking-${String(bookingsCount)}`,
+          status: 'CONFIRMED',
+          event_type: {},
+          host: {},
+        } as never);
 
         return callback(prisma);
       });
 
-      const reqBody = {
-        eventTypeId: 'event-1',
-        guestName: 'Guest',
-        guestEmail: 'guest@example.com',
-        startTime: '2026-06-15T10:00:00Z',
-        endTime: '2026-06-15T10:30:00Z',
-        timezone: 'America/New_York',
-      };
+      vi.mocked(prisma.idempotencyKey.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.idempotencyKey.upsert).mockResolvedValue({} as never);
 
-      // Fire two requests concurrently
       const [res1, res2] = await Promise.all([
-        request(app).post('/api/v1/bookings').send(reqBody),
-        request(app).post('/api/v1/bookings').send(reqBody),
+        request(app).post('/api/v1/bookings').set(IDEMPOTENCY_HEADER).send(validBookingPayload),
+        request(app)
+          .post('/api/v1/bookings')
+          .set('X-Idempotency-Key', 'test-idempotency-key-002')
+          .send(validBookingPayload),
       ]);
 
-      // One should succeed, one should fail with conflict
       const statuses = [res1.status, res2.status].sort();
 
-      // Expected: One 201 Created, One 409 Conflict (Double booking throws AppError mapped to conflict or 400 depending on generic handler)
       expect(statuses).toContain(HTTP_STATUS.CREATED);
-
-      // The second request fails with whatever status code AppError for double booking uses
-      // In booking.controller/service it throws an AppError which is usually 400 or 409.
       expect(statuses.some((s) => s >= 400)).toBe(true);
     });
   });

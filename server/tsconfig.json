@@ -11,5 +11,8 @@
       "@scaler/types": ["../packages/types/src"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "ts-node": {
+    "files": true
+  }
 }

@@ -1,10 +1,23 @@
+import { compare, hash } from 'bcrypt';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { AuthService } from '../../../src/services/auth.service';
 import { prisma } from '../../../src/lib/prisma';
-import bcrypt from 'bcrypt';
 import { AppError } from '../../../src/utils/app-error';
 
-// The prisma mock is automatically injected via setup.ts
+vi.mock('bcrypt', () => ({
+  hash: vi.fn(),
+  compare: vi.fn(),
+}));
+
+vi.mock('jsonwebtoken', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('jsonwebtoken')>();
+  return {
+    ...actual,
+    sign: vi.fn(actual.sign),
+    verify: vi.fn(actual.verify),
+  };
+});
 
 describe('AuthService', () => {
   beforeEach(() => {
@@ -13,8 +26,8 @@ describe('AuthService', () => {
 
   describe('register()', () => {
     it('should create user with hashed password when email is unique', async () => {
-      prisma.user.findUnique.mockResolvedValue(null); // Neither email nor username exists
-      vi.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-pw' as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+      vi.mocked(hash).mockResolvedValue('hashed-pw' as never);
 
       const mockUser = {
         id: '123',
@@ -24,9 +37,10 @@ describe('AuthService', () => {
         password_hash: 'hashed-pw',
         timezone: 'UTC',
         deleted_at: null,
-      } as any;
+      };
 
-      prisma.user.create.mockResolvedValue(mockUser);
+      vi.mocked(prisma.user.create).mockResolvedValue(mockUser as never);
+      vi.mocked(prisma.refreshToken.create).mockResolvedValue({} as never);
 
       const result = await AuthService.register({
         email: 'test@example.com',
@@ -42,7 +56,10 @@ describe('AuthService', () => {
     });
 
     it('should throw CONFLICT AppError when email already exists', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: '123', email: 'test@example.com' } as any);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: '123',
+        email: 'test@example.com',
+      } as never);
 
       await expect(
         AuthService.register({
@@ -55,9 +72,9 @@ describe('AuthService', () => {
     });
 
     it('should throw CONFLICT AppError when username already exists', async () => {
-      prisma.user.findUnique
-        .mockResolvedValueOnce(null) // email check passes
-        .mockResolvedValueOnce({ id: '123', username: 'testuser' } as any); // username check fails
+      vi.mocked(prisma.user.findUnique)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: '123', username: 'testuser' } as never);
 
       await expect(
         AuthService.register({
@@ -77,10 +94,11 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password_hash: 'hashed-pw',
         deleted_at: null,
-      } as any;
+      };
 
-      prisma.user.findUnique.mockResolvedValue(mockUser);
-      vi.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
+      vi.mocked(compare).mockResolvedValue(true as never);
+      vi.mocked(prisma.refreshToken.create).mockResolvedValue({} as never);
 
       const result = await AuthService.login({
         email: 'test@example.com',
@@ -97,10 +115,10 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password_hash: 'hashed-pw',
         deleted_at: null,
-      } as any;
+      };
 
-      prisma.user.findUnique.mockResolvedValue(mockUser);
-      vi.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
+      vi.mocked(compare).mockResolvedValue(false as never);
 
       await expect(
         AuthService.login({
