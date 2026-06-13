@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "cd .. && pnpm install --frozen-lockfile --ignore-scripts",
-  "buildCommand": "pnpm prisma:generate",
+  "buildCommand": "pnpm --filter @scaler/types build && pnpm prisma:generate",
   "rewrites": [
     { "source": "/health", "destination": "/api" },
     { "source": "/api/v1/(.*)", "destination": "/api" }
