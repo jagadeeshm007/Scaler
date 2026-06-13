@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { LazyMotion, domAnimation, m, useReducedMotion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -44,7 +43,6 @@ interface BookingFormProps {
 
 export function BookingForm({ eventType, slot, timezone, onBack, className }: BookingFormProps) {
   const router = useRouter();
-  const reducedMotion = useReducedMotion();
   const idempotencyKeyRef = useRef(crypto.randomUUID());
   const [submitError, setSubmitError] = useState<string | null>(null);
   const createBooking = useCreateBooking();
@@ -86,13 +84,7 @@ export function BookingForm({ eventType, slot, timezone, onBack, className }: Bo
   };
 
   return (
-    <LazyMotion features={domAnimation}>
-      <m.section
-        initial={reducedMotion ? false : { opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.2 }}
-        className={cn('flex w-full flex-col lg:w-[280px]', className)}
-      >
+    <section className={cn('flex w-full flex-col', className)}>
         <div className="border-b border-neutral-800 px-4 py-3">
           <Button
             variant="ghost"
@@ -177,7 +169,6 @@ export function BookingForm({ eventType, slot, timezone, onBack, className }: Bo
             </Button>
           </form>
         </Form>
-      </m.section>
-    </LazyMotion>
+    </section>
   );
 }

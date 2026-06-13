@@ -18,7 +18,9 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 
-  CLIENT_URL: z.string().url().default('http://localhost:3000'),
+  // Comma-separated list of allowed frontend origins, e.g.:
+  // "https://scaler-app.vercel.app,https://scaler-app-git-main-user.vercel.app"
+  CLIENT_URL: z.string().default('http://localhost:3000'),
   APP_BASE_URL: z.string().url().default('http://localhost:4000'),
 
   SMTP_HOST: z.string().optional(),

@@ -3,6 +3,8 @@
 import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
+import { cn } from '@/lib/utils';
+
 import { BookingFormDialog } from '@/components/booking-page/booking-form-dialog';
 import { BookingViewSwitcher } from '@/components/booking-page/booking-view-switcher';
 import { ColumnView } from '@/components/booking-page/column-view';
@@ -48,7 +50,10 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-6">
         {layout === 'month' ? (
           /* Centered card for month view */
-          <div className="w-full overflow-hidden lg:max-w-6xl lg:rounded-2xl lg:border lg:border-neutral-800">
+          <div className={cn(
+            'w-full overflow-hidden lg:rounded-2xl lg:border lg:border-neutral-800 transition-[max-width] duration-300 ease-in-out',
+            selectedSlot ? 'lg:max-w-2xl' : 'lg:max-w-6xl',
+          )}>
             <div className="flex flex-col lg:flex-row">
               <EventInfoPanel
                 eventType={eventType}

@@ -24,12 +24,33 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// Build the allowed-origins list from the comma-separated CLIENT_URL env var.
+// Supports multiple Vercel deployment URLs in production.
+const allowedOrigins = env.CLIENT_URL.split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 // Middleware
 app.use(helmet());
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: (origin, callback) => {
+      const isNoOrigin = !origin;
+      const isExactMatch = origin !== undefined && allowedOrigins.includes(origin);
+      const isVercelPreview =
+        env.NODE_ENV === 'production' &&
+        origin !== undefined &&
+        /^https:\/\/[\w-]+\.vercel\.app$/.test(origin);
+
+      if (isNoOrigin || isExactMatch || isVercelPreview) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin '${origin}' is not allowed`));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Idempotency-Key'],
   }),
 );
 app.use(compression());
