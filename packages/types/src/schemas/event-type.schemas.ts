@@ -15,6 +15,7 @@ export const createEventTypeSchema = z.object({
     buffer_before_mins: z.number().int().min(0).optional(),
     buffer_after_mins: z.number().int().min(0).optional(),
     is_hidden: z.boolean().optional(),
+    is_active: z.boolean().optional(),
   }),
 });
 

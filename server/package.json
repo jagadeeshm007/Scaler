@@ -11,6 +11,8 @@
     "lint:strict": "eslint src --ext .ts --max-warnings 0",
     "lint:fix": "eslint src --ext .ts --fix",
     "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate",
+    "prisma:generate": "prisma generate",
     "lint:report": "eslint src --ext .ts --format json -o reports/eslint.json",
     "test": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",

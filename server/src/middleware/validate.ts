@@ -15,20 +15,27 @@ export const validate = (schema: ZodObject<import('zod').ZodRawShape>) => {
       });
 
       // Update request properties safely for Express 5 getters
-      req.body = parsed.body;
-
-      // Object.assign to avoid 'Cannot set property query... which has only a getter'
-      for (const key of Object.keys(req.query)) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Express 5 query is getter-backed; keys must be cleared before assign
-        delete req.query[key as keyof typeof req.query];
+      if (parsed.body !== undefined) {
+        req.body = parsed.body;
       }
-      Object.assign(req.query, parsed.query || {});
 
-      for (const key of Object.keys(req.params)) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Express 5 params is getter-backed; keys must be cleared before assign
-        delete req.params[key];
+      // Only replace query/params when the schema defines them — otherwise Express
+      // route params (e.g. :id) would be wiped and PATCH/PUT handlers receive undefined ids.
+      if (parsed.query !== undefined) {
+        for (const key of Object.keys(req.query)) {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Express 5 query is getter-backed; keys must be cleared before assign
+          delete req.query[key as keyof typeof req.query];
+        }
+        Object.assign(req.query, parsed.query);
       }
-      Object.assign(req.params, parsed.params || {});
+
+      if (parsed.params !== undefined) {
+        for (const key of Object.keys(req.params)) {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Express 5 params is getter-backed; keys must be cleared before assign
+          delete req.params[key];
+        }
+        Object.assign(req.params, parsed.params);
+      }
 
       next();
     } catch (error) {

@@ -48,3 +48,4 @@ process.on('unhandledRejection', (reason) => {
   logger.fatal({ err: reason }, 'Unhandled Rejection');
   shutdown('unhandledRejection');
 });
+1

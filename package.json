@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev:backend": "cd server && pnpm dev",
-    "dev:frontend": "cd client && pnpm dev",
+    "dev:frontend": "cd App && pnpm dev",
     "lint": "eslint .",
     "format": "prettier --write .",
     "prepare": "husky"

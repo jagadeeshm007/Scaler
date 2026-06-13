@@ -7,6 +7,8 @@ A full-stack scheduling/booking web application that replicates Cal.com's design
 A highly robust, production-ready scheduling platform. Features dynamic availability rules, robust timezone handling, double-booking prevention, and full integration with external calendars (Google, Outlook) and conferencing tools (Google Meet, Zoom, MS Teams).
 
 > 📄 **See the detailed [Backend Implementation Plan](file:///home/jagadeesh/Desktop/task/Scaler/docs/backend-implementation-plan.md) for architectural specifics.**
+> 🎨 **See the detailed [Frontend Implementation Plan](file:///home/jagadeesh/Desktop/task/Scaler/docs/frontend-implementation-plan.md) for all frontend decisions.**
+> 🎨 **See the [Design Tokens](file:///home/jagadeesh/Desktop/task/Scaler/docs/design-tokens.md) for the complete color palette, typography, and component inventory.**
 
 ## 2. Monorepo Structure
 
@@ -88,8 +90,15 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 - [x] Phase 6: Integrations Module
 - [x] Phase 7: User/Profile Module
 - [x] Phase 8: Database Seed
-- [ ] Phase 8.5: Backend Audit & Testing
+- [x] Phase 8.5: Backend Audit & Testing
 - [ ] Phase 9: Frontend Implementation
+  - [ ] Phase 9.0: App scaffold (Next.js 15 init, Tailwind v4, shadcn/ui, env)
+  - [ ] Phase 9.1: Foundation (lib/api.ts, stores, query client, layout)
+  - [ ] Phase 9.2: Event Types module
+  - [ ] Phase 9.3: Bookings module
+  - [ ] Phase 9.4: Availability module
+  - [ ] Phase 9.5: Public Booking Page (most critical)
+  - [ ] Phase 9.6: Settings & Integrations
 
 ## 9. Known Constraints & Assumptions
 

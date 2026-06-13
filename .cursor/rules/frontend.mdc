@@ -527,3 +527,108 @@ Text (secondary):       #6b7280 / gray-500
 - **Tabs**: shadcn `Tabs`, underline variant, text-muted for inactive, text-white for active
 - **Search input**: full-width in toolbar, search icon prefix, `bg-neutral-800` input
 - **Time inputs**: small inline inputs (`w-24`), `HH:MM am/pm` format, neutral-800 bg
+
+## Page Transitions
+
+Use the **CSS View Transitions API** (not Framer Motion) for page-level route transitions:
+
+```typescript
+// next.config.ts
+experimental: { viewTransition: true }
+```
+
+```css
+/* globals.css */
+::view-transition-old(root) { animation: 120ms ease-in fade-out; }
+::view-transition-new(root) { animation: 160ms ease-out fade-in; }
+```
+
+Use a `TransitionLink` component (`components/layout/transition-link.tsx`) that wraps `document.startViewTransition()` around `router.push()`. All sidebar navigation links use `TransitionLink` instead of plain `<Link>`.
+
+**Reason**: View Transitions API is browser-native in 2026, zero JS cost, and avoids the fragile `FrozenRouter` workaround required for Framer Motion in App Router.
+
+**Framer Motion (`motion` package)** is still used for component-level animations (dialogs, sheets, time slot stagger, booking form slide-in). Never use it for page transitions.
+
+## nuqs URL State
+
+Use `nuqs@2.x` for all state that should be in the URL:
+
+```typescript
+// Wrap root layout:
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
+// app/providers.tsx: <NuqsAdapter>{children}</NuqsAdapter>
+
+// In CC:
+import { useQueryState, parseAsStringLiteral } from 'nuqs';
+const [status, setStatus] = useQueryState(
+  'status',
+  parseAsStringLiteral(['upcoming', 'past', 'cancelled']).withDefault('upcoming')
+);
+```
+
+URL state to use nuqs for: booking filter tab, booking page number, selected date on booking page, event types search query.
+
+## Auth Bypass Pattern
+
+The `(authorised)/layout.tsx` must call `POST /auth/bypass` on first render to auto-login as the seeded default user. This satisfies the "No Login Required" assignment requirement.
+
+```typescript
+// (authorised)/layout.tsx (CC)
+'use client';
+const { hydrate, isAuthenticated } = useAuthStore();
+useEffect(() => { if (!isAuthenticated) void hydrate(); }, []);
+```
+
+`hydrate()` in `auth.store.ts` calls `POST /auth/bypass`, stores the returned access token in Zustand memory, and sets `isAuthenticated: true`.
+
+## TanStack Query + Server Components
+
+For Server Component data prefetching pattern (required on all dashboard pages):
+
+```typescript
+// page.tsx (SC)
+import { getQueryClient } from '@/lib/query-client';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
+
+export default async function Page() {
+  const queryClient = getQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.eventTypes.list(),
+    queryFn: () => serverFetchEventTypes(),
+  });
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <EventTypeList />
+    </HydrationBoundary>
+  );
+}
+```
+
+`getQueryClient()` returns a **new** QueryClient on server (per-request), and the **existing singleton** on browser (via module-level variable). This prevents data leaking between users on the server.
+
+## Idempotency Key for Booking Creation
+
+`POST /bookings` requires an `Idempotency-Key` header to prevent double-booking from network retries.
+
+```typescript
+// In BookingForm component:
+const idempotencyKey = useRef(crypto.randomUUID()); // generated once on mount
+// Pass to mutation:
+useCreateBooking({ idempotencyKey: idempotencyKey.current })
+// In use-create-booking.ts:
+headers: { 'Idempotency-Key': idempotencyKey }
+```
+
+Do NOT generate a new UUID on each submit — generate it once on form mount and reuse for retries.
+
+## Booking Status Update
+
+`PATCH /bookings/:id/status` requires `?timezone=` query parameter (the host's timezone for email rendering).
+
+```typescript
+// In use-cancel-booking.ts:
+api.patch(ENDPOINTS.bookings.status(id) + `?timezone=${encodeURIComponent(timezone)}`, body)
+```
+
+Always pass the user's current timezone from `useTimezone()` hook.
