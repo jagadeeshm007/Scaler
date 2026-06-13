@@ -1,17 +1,17 @@
+import type { CreateEventTypeInput, UpdateEventTypeInput } from '@scaler/types';
+import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
-import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
-import { CreateEventTypeInput, UpdateEventTypeInput } from '@scaler/types';
 
 export class EventTypeService {
-  static async getEventTypes(userId: string) {
+  static async getEventTypes(userId: string): Promise<unknown> {
     return prisma.eventType.findMany({
       where: { user_id: userId, deleted_at: null },
       orderBy: { created_at: 'desc' },
     });
   }
 
-  static async getEventTypeById(userId: string, id: string) {
+  static async getEventTypeById(userId: string, id: string): Promise<unknown> {
     const eventType = await prisma.eventType.findUnique({
       where: { id },
     });
@@ -23,7 +23,7 @@ export class EventTypeService {
     return eventType;
   }
 
-  static async createEventType(userId: string, data: CreateEventTypeInput) {
+  static async createEventType(userId: string, data: CreateEventTypeInput): Promise<unknown> {
     const existing = await prisma.eventType.findUnique({
       where: {
         user_id_slug: {
@@ -49,7 +49,11 @@ export class EventTypeService {
     });
   }
 
-  static async updateEventType(userId: string, id: string, data: UpdateEventTypeInput) {
+  static async updateEventType(
+    userId: string,
+    id: string,
+    data: UpdateEventTypeInput,
+  ): Promise<unknown> {
     // Ensure it exists and belongs to user
     await this.getEventTypeById(userId, id);
 
@@ -78,7 +82,7 @@ export class EventTypeService {
     });
   }
 
-  static async deleteEventType(userId: string, id: string) {
+  static async deleteEventType(userId: string, id: string): Promise<unknown> {
     await this.getEventTypeById(userId, id);
 
     return prisma.eventType.update({

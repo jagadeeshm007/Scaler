@@ -1,30 +1,35 @@
-import { Request, Response } from 'express';
-import { asyncHandler } from '../utils/async-handler';
-import { ApiResponse } from '../utils/api-response';
+import type { Request, Response } from 'express';
 import { EventTypeService } from '../services/event-type.service';
+import { ApiResponse } from '../utils/api-response';
+import { asyncHandler } from '../utils/async-handler';
 
 export class EventTypeController {
   static getEventTypes = asyncHandler(async (req: Request, res: Response) => {
-    const eventTypes = await EventTypeService.getEventTypes(req.user!.id);
+    const eventTypes = await EventTypeService.getEventTypes(
+      (req.user as { id: string; email: string }).id,
+    );
     return ApiResponse.success(res, 'Event types retrieved successfully', eventTypes);
   });
 
   static getEventTypeById = asyncHandler(async (req: Request, res: Response) => {
     const eventType = await EventTypeService.getEventTypeById(
-      req.user!.id,
+      (req.user as { id: string; email: string }).id,
       req.params.id as string,
     );
     return ApiResponse.success(res, 'Event type retrieved successfully', eventType);
   });
 
   static createEventType = asyncHandler(async (req: Request, res: Response) => {
-    const eventType = await EventTypeService.createEventType(req.user!.id, req.body);
+    const eventType = await EventTypeService.createEventType(
+      (req.user as { id: string; email: string }).id,
+      req.body,
+    );
     return ApiResponse.created(res, 'Event type created successfully', eventType);
   });
 
   static updateEventType = asyncHandler(async (req: Request, res: Response) => {
     const eventType = await EventTypeService.updateEventType(
-      req.user!.id,
+      (req.user as { id: string; email: string }).id,
       req.params.id as string,
       req.body,
     );
@@ -32,7 +37,10 @@ export class EventTypeController {
   });
 
   static deleteEventType = asyncHandler(async (req: Request, res: Response) => {
-    await EventTypeService.deleteEventType(req.user!.id, req.params.id as string);
+    await EventTypeService.deleteEventType(
+      (req.user as { id: string; email: string }).id,
+      req.params.id as string,
+    );
     return ApiResponse.success(res, 'Event type deleted successfully');
   });
 }

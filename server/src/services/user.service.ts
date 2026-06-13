@@ -1,10 +1,10 @@
+import type { UpdateUserInput } from '@scaler/types';
+import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
-import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
-import { UpdateUserInput } from '@scaler/types';
 
 export class UserService {
-  static async getCurrentUser(userId: string) {
+  static async getCurrentUser(userId: string): Promise<unknown> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -13,17 +13,19 @@ export class UserService {
       throw new AppError('User not found', HTTP_STATUS.NOT_FOUND, ERROR_CODE.NOT_FOUND);
     }
 
-    const { password_hash, ...safeUser } = user;
+    const safeUser = { ...user };
+    delete (safeUser as { password_hash?: string }).password_hash;
     return safeUser;
   }
 
-  static async updateUser(userId: string, data: UpdateUserInput) {
+  static async updateUser(userId: string, data: UpdateUserInput): Promise<unknown> {
     const user = await prisma.user.update({
       where: { id: userId },
       data,
     });
 
-    const { password_hash, ...safeUser } = user;
+    const safeUser = { ...user };
+    delete (safeUser as { password_hash?: string }).password_hash;
     return safeUser;
   }
 }

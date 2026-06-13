@@ -1,11 +1,21 @@
 import { prisma } from '../lib/prisma';
-import { ScheduleService } from './schedule.service';
+
+export interface DailyAvailability {
+  is_available: boolean;
+  start_time: string | null;
+  end_time: string | null;
+  timezone: string;
+}
 
 export class AvailabilityService {
   /**
    * Helper for the slot calculator: returns the exact availability rules for a specific date
    */
-  static async getAvailabilityForDate(userId: string, date: Date, scheduleId?: string) {
+  static async getAvailabilityForDate(
+    userId: string,
+    date: Date,
+    scheduleId?: string,
+  ): Promise<DailyAvailability | null> {
     let schedule;
 
     if (scheduleId) {

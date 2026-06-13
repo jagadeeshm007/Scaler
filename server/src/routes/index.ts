@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import authRoutes from './auth.routes';
-import userRoutes from './user.routes';
-import eventTypeRoutes from './event-type.routes';
-import availabilityRoutes from './availability.routes';
-import publicRoutes from './public.routes';
-import integrationRoutes from './integration.routes';
-import bookingRoutes from './booking.routes';
+
+import { authRoutes as authRoutes } from './auth.routes';
+import { availabilityRoutes as availabilityRoutes } from './availability.routes';
+import { bookingRoutes as bookingRoutes } from './booking.routes';
+import { event_typeRoutes as eventTypeRoutes } from './event-type.routes';
+import { healthRoutes } from './health.routes';
+import { integrationRoutes as integrationRoutes } from './integration.routes';
+import { publicRoutes as publicRoutes } from './public.routes';
+import { userRoutes as userRoutes } from './user.routes';
 
 const router = Router();
 
@@ -26,8 +28,6 @@ router.use('/public', publicRoutes);
 router.use('/', publicRoutes);
 
 // Health check endpoint
-router.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+router.use('/health', healthRoutes);
 
-export default router;
+export { router as apiRoutes };

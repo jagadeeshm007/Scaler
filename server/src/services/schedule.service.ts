@@ -1,10 +1,16 @@
+import type { Schedule, ScheduleAvailability, DateOverride } from '@prisma/client';
+import type { CreateScheduleInput, UpdateScheduleInput } from '@scaler/types';
+import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
-import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
-import { CreateScheduleInput, UpdateScheduleInput } from '@scaler/types';
+
+export type ScheduleWithRelations = Schedule & {
+  availability: ScheduleAvailability[];
+  overrides: DateOverride[];
+};
 
 export class ScheduleService {
-  static async getSchedules(userId: string) {
+  static async getSchedules(userId: string): Promise<ScheduleWithRelations[]> {
     return prisma.schedule.findMany({
       where: { user_id: userId },
       include: {
@@ -15,7 +21,7 @@ export class ScheduleService {
     });
   }
 
-  static async getScheduleById(userId: string, id: string) {
+  static async getScheduleById(userId: string, id: string): Promise<ScheduleWithRelations> {
     const schedule = await prisma.schedule.findUnique({
       where: { id },
       include: {
@@ -31,7 +37,10 @@ export class ScheduleService {
     return schedule;
   }
 
-  static async createSchedule(userId: string, data: CreateScheduleInput) {
+  static async createSchedule(
+    userId: string,
+    data: CreateScheduleInput,
+  ): Promise<ScheduleWithRelations> {
     // If this is meant to be default, unset other defaults
     if (data.is_default) {
       await prisma.schedule.updateMany({
@@ -59,11 +68,16 @@ export class ScheduleService {
       },
       include: {
         availability: true,
+        overrides: true,
       },
     });
   }
 
-  static async updateSchedule(userId: string, id: string, data: UpdateScheduleInput) {
+  static async updateSchedule(
+    userId: string,
+    id: string,
+    data: UpdateScheduleInput,
+  ): Promise<ScheduleWithRelations> {
     await this.getScheduleById(userId, id);
 
     if (data.is_default) {
@@ -75,7 +89,7 @@ export class ScheduleService {
 
     return prisma.$transaction(async (tx) => {
       // 1. Update basic schedule details
-      const schedule = await tx.schedule.update({
+      await tx.schedule.update({
         where: { id },
         data: {
           name: data.name,
@@ -128,7 +142,7 @@ export class ScheduleService {
     });
   }
 
-  static async deleteSchedule(userId: string, id: string) {
+  static async deleteSchedule(userId: string, id: string): Promise<void> {
     const schedule = await this.getScheduleById(userId, id);
 
     if (schedule.is_default) {

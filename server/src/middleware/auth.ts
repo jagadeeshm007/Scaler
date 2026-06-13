@@ -1,10 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { env } from '../config/env';
-import { AppError } from '../utils/app-error';
+import { TokenExpiredError, verify } from 'jsonwebtoken';
+
+import type { Request, Response, NextFunction } from 'express';
 import { HTTP_STATUS, ERROR_CODE, AUTH } from '../config/constants';
-import { asyncHandler } from '../utils/async-handler';
+import { env } from '../config/env';
 import { prisma } from '../lib/prisma';
+import { AppError } from '../utils/app-error';
+import { asyncHandler } from '../utils/async-handler';
 
 interface JwtPayload {
   userId: string;
@@ -21,7 +22,7 @@ export const requireAuth = asyncHandler(async (req: Request, res: Response, next
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as JwtPayload;
+    const decoded = verify(token, env.JWT_ACCESS_SECRET) as JwtPayload;
 
     // Verify user still exists
     const user = await prisma.user.findUnique({
@@ -44,7 +45,7 @@ export const requireAuth = asyncHandler(async (req: Request, res: Response, next
 
     next();
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
+    if (error instanceof TokenExpiredError) {
       throw new AppError('Token expired', HTTP_STATUS.UNAUTHORIZED, ERROR_CODE.UNAUTHORIZED);
     }
     throw new AppError('Invalid token', HTTP_STATUS.UNAUTHORIZED, ERROR_CODE.UNAUTHORIZED);

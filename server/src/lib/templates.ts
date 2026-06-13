@@ -1,4 +1,5 @@
 import Handlebars from 'handlebars';
+
 import { logger } from './logger';
 
 // Hardcoded simple templates instead of reading from file system to avoid fs dependencies and ensure reliability.
@@ -36,11 +37,14 @@ export const templates = {
   bookingCancelled: Handlebars.compile(BOOKING_CANCELLED_TEMPLATE),
 };
 
-export function compileTemplate(templateName: keyof typeof templates, data: any): string {
+export function compileTemplate(
+  templateName: keyof typeof templates,
+  data: Record<string, unknown>,
+): string {
   try {
     return templates[templateName](data);
   } catch (error) {
     logger.error({ err: error }, `Error compiling template ${templateName}`);
-    return `Fallback: Meeting details processed for ${data.bookerName}`;
+    return `Fallback: Meeting details processed for ${String(data.bookerName)}`;
   }
 }

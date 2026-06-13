@@ -1,27 +1,43 @@
-import { Request, Response } from 'express';
-import { asyncHandler } from '../utils/async-handler';
-import { ApiResponse } from '../utils/api-response';
+import ms from 'ms';
+
+import type { Request, Response } from 'express';
+import { HTTP_STATUS } from '../config/constants';
+import { env } from '../config/env';
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
-import { HTTP_STATUS } from '../config/constants';
-import ms from 'ms';
-import { env } from '../config/env';
+import { ApiResponse } from '../utils/api-response';
+import { asyncHandler } from '../utils/async-handler';
 
 export class AuthController {
   private static setRefreshTokenCookie(res: Response, refreshToken: string) {
     // Determine expiration in ms based on the configured JWT_REFRESH_EXPIRES_IN (e.g. '7d')
-    const maxAge = ms(env.JWT_REFRESH_EXPIRES_IN as any);
+    const maxAge = ms(String(env.JWT_REFRESH_EXPIRES_IN) as import('ms').StringValue);
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: maxAge as unknown as number,
+      maxAge: Number(maxAge),
     });
   }
 
+  static register = asyncHandler(async (req: Request, res: Response) => {
+    const { accessToken, refreshToken, user } = await AuthService.register(
+      req.body as Record<string, unknown> as Parameters<typeof AuthService.register>[0],
+    );
+
+    AuthController.setRefreshTokenCookie(res, refreshToken);
+
+    return ApiResponse.created(res, 'User registered successfully', {
+      accessToken,
+      user,
+    });
+  });
+
   static login = asyncHandler(async (req: Request, res: Response) => {
-    const { accessToken, refreshToken, user } = await AuthService.login(req.body);
+    const { accessToken, refreshToken, user } = await AuthService.login(
+      req.body as Record<string, unknown> as Parameters<typeof AuthService.register>[0],
+    );
 
     AuthController.setRefreshTokenCookie(res, refreshToken);
 
@@ -43,7 +59,7 @@ export class AuthController {
   });
 
   static refresh = asyncHandler(async (req: Request, res: Response) => {
-    const oldRefreshToken = req.cookies?.refresh_token;
+    const oldRefreshToken = req.cookies.refresh_token;
 
     if (!oldRefreshToken) {
       return ApiResponse.error(res, HTTP_STATUS.UNAUTHORIZED, 'No refresh token provided');

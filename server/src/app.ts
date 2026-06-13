@@ -1,29 +1,20 @@
-import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
+import crypto from 'crypto';
+
+import type { IncomingMessage } from 'http';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import pinoHttp from 'pino-http';
-import crypto from 'crypto';
+import cors from 'cors';
+import express, { json, urlencoded } from 'express';
+import helmet from 'helmet';
+import { pinoHttp } from 'pino-http';
+
+import type { Request, Response, NextFunction, RequestHandler } from 'express';
+import { HTTP_STATUS } from './config/constants';
 import { env } from './config/env';
 import { logger } from './lib/logger';
 import { errorHandler } from './middleware/error-handler';
-import { HTTP_STATUS } from './config/constants';
+import { apiRoutes } from './routes/index';
 import { ApiResponse } from './utils/api-response';
-import apiRoutes from './routes/index';
-
-// Request ID augmentation
-declare global {
-  namespace Express {
-    interface Request {
-      id: string;
-      user?: {
-        id: string;
-        email: string;
-      };
-    }
-  }
-}
 
 export const app = express();
 
@@ -42,19 +33,19 @@ app.use(
   }),
 );
 app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Request logging
 app.use(
   pinoHttp({
     logger,
-    genReqId: (req: any) => req.id,
+    genReqId: (req: IncomingMessage & { id?: string }) => req.id,
     autoLogging: {
       ignore: (req) => req.url === '/health',
     },
-  }),
+  }) as unknown as RequestHandler,
 );
 
 // Routes
@@ -66,7 +57,7 @@ app.get('/health', (req: Request, res: Response) => {
 app.use('/api/v1', apiRoutes);
 
 // 404 Handler
-app.use('*', (req: Request, res: Response) => {
+app.use((req: Request, res: Response) => {
   ApiResponse.error(res, HTTP_STATUS.NOT_FOUND, `Route ${req.method} ${req.originalUrl} not found`);
 });
 

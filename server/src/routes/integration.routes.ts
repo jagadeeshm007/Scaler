@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import { IntegrationController } from '../controllers/integration.controller';
 import { requireAuth } from '../middleware/auth';
 
@@ -13,4 +14,4 @@ router.get('/', IntegrationController.getIntegrations);
 router.get('/:slug/connect', IntegrationController.connect);
 router.delete('/:slug', IntegrationController.disconnect);
 
-export default router;
+export { router as integrationRoutes };

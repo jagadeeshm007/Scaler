@@ -1,4 +1,4 @@
-import { Booking, EventType, User } from '@prisma/client';
+import type { Booking, EventType, User } from '@prisma/client';
 import { sendEmail } from '../lib/mailer';
 import { compileTemplate } from '../lib/templates';
 import { DateUtils } from '../utils/date';
@@ -9,7 +9,10 @@ type BookingWithRelations = Booking & {
 };
 
 export class EmailService {
-  static async sendBookingConfirmation(booking: BookingWithRelations, timezone: string) {
+  static async sendBookingConfirmation(
+    booking: BookingWithRelations,
+    timezone: string,
+  ): Promise<void> {
     const startTimeLocal = DateUtils.formatToTimezoneTime(booking.start_time, timezone);
     const dateStr = booking.start_time.toISOString().split('T')[0];
 
@@ -41,7 +44,7 @@ export class EmailService {
     booking: BookingWithRelations,
     timezone: string,
     cancelledByHost: boolean,
-  ) {
+  ): Promise<void> {
     const startTimeLocal = DateUtils.formatToTimezoneTime(booking.start_time, timezone);
     const dateStr = booking.start_time.toISOString().split('T')[0];
 

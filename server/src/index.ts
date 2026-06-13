@@ -1,22 +1,26 @@
 import { app } from './app';
 import { env } from './config/env';
+import { initEventBus } from './lib/event-bus';
 import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
 
-const PORT = env.PORT;
+const { PORT } = env;
+
+initEventBus();
 
 const server = app.listen(PORT, () => {
-  logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);
+  logger.info(`Server running in ${env.NODE_ENV} mode on port ${String(PORT)}`);
 });
 
 // Graceful Shutdown
-const shutdown = async (signal: string) => {
+const shutdown = (signal: string): void => {
   logger.info(`Received ${signal}. Shutting down gracefully...`);
-  server.close(async () => {
+  server.close(() => {
     logger.info('HTTP server closed.');
-    await prisma.$disconnect();
-    logger.info('Prisma disconnected.');
-    process.exit(0);
+    void prisma.$disconnect().then(() => {
+      logger.info('Prisma disconnected.');
+      process.exit(0);
+    });
   });
 
   // Force close after 10 seconds
@@ -26,8 +30,12 @@ const shutdown = async (signal: string) => {
   }, 10000);
 };
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => {
+  shutdown('SIGTERM');
+});
+process.on('SIGINT', () => {
+  shutdown('SIGINT');
+});
 
 process.on('uncaughtException', (error) => {
   logger.fatal({ err: error }, 'Uncaught Exception');

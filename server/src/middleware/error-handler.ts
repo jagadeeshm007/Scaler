@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../utils/app-error';
-import { ApiResponse } from '../utils/api-response';
+import type { Request, Response, NextFunction } from 'express';
 import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
 import { logger } from '../lib/logger';
+import { ApiResponse } from '../utils/api-response';
+import { AppError } from '../utils/app-error';
 
 export const errorHandler = (
   err: Error,

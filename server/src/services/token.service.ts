@@ -1,9 +1,12 @@
-import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+
+import { sign, verify } from 'jsonwebtoken';
+
+import type { SignOptions } from 'jsonwebtoken';
+import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { env } from '../config/env';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
-import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 
 interface TokenPayload {
   userId: string;
@@ -15,8 +18,8 @@ export class TokenService {
    * Generates a short-lived access token
    */
   static generateAccessToken(payload: TokenPayload): string {
-    return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-      expiresIn: env.JWT_ACCESS_EXPIRES_IN as any,
+    return sign(payload, env.JWT_ACCESS_SECRET, {
+      expiresIn: String(env.JWT_ACCESS_EXPIRES_IN) as SignOptions['expiresIn'],
     });
   }
 
@@ -24,8 +27,8 @@ export class TokenService {
    * Generates a long-lived refresh token and stores its hash in the database
    */
   static async generateRefreshToken(payload: TokenPayload): Promise<string> {
-    const refreshToken = jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-      expiresIn: env.JWT_REFRESH_EXPIRES_IN as any,
+    const refreshToken = sign(payload, env.JWT_REFRESH_SECRET, {
+      expiresIn: String(env.JWT_REFRESH_EXPIRES_IN) as SignOptions['expiresIn'],
     });
 
     // Hash the token before saving to database for security
@@ -53,7 +56,7 @@ export class TokenService {
     oldRefreshToken: string,
   ): Promise<{ accessToken: string; newRefreshToken: string }> {
     try {
-      const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET) as TokenPayload;
+      const decoded = verify(oldRefreshToken, env.JWT_REFRESH_SECRET) as TokenPayload;
       const tokenHash = crypto.createHash('sha256').update(oldRefreshToken).digest('hex');
 
       // Check if the token exists and is not revoked
@@ -61,9 +64,25 @@ export class TokenService {
         where: { token_hash: tokenHash },
       });
 
-      if (!storedToken || storedToken.is_revoked || storedToken.expires_at < new Date()) {
+      if (!storedToken || storedToken.expires_at < new Date()) {
         throw new AppError(
           'Invalid or expired refresh token',
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_CODE.UNAUTHORIZED,
+        );
+      }
+
+      // TOKEN REUSE DETECTION
+      // If a token is already revoked but someone tries to use it, it means the token was likely stolen.
+      // We must immediately revoke all tokens for this user.
+      if (storedToken.is_revoked) {
+        await prisma.refreshToken.updateMany({
+          where: { user_id: storedToken.user_id, is_revoked: false },
+          data: { is_revoked: true },
+        });
+
+        throw new AppError(
+          'Token reuse detected. All sessions have been revoked for security.',
           HTTP_STATUS.UNAUTHORIZED,
           ERROR_CODE.UNAUTHORIZED,
         );
@@ -87,7 +106,9 @@ export class TokenService {
 
       return { accessToken: newAccessToken, newRefreshToken };
     } catch (error) {
-      if (error instanceof AppError) throw error;
+      if (error instanceof AppError) {
+        throw error;
+      }
       throw new AppError(
         'Invalid refresh token',
         HTTP_STATUS.UNAUTHORIZED,

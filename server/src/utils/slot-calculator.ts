@@ -1,8 +1,9 @@
-import { DateUtils } from './date';
-import { AvailabilityService } from '../services/availability.service';
-import { prisma } from '../lib/prisma';
-import { BOOKING_STATUS } from '../config/constants';
 import { isBefore, addMinutes, isAfter } from 'date-fns';
+
+import { BOOKING_STATUS } from '../config/constants';
+import { prisma } from '../lib/prisma';
+import { AvailabilityService } from '../services/availability.service';
+import { DateUtils } from './date';
 
 export interface Slot {
   startTime: string; // ISO string UTC
@@ -25,7 +26,7 @@ export class SlotCalculator {
       include: { user: { include: { schedules: { where: { is_default: true } } } } },
     });
 
-    if (!eventType || eventType.deleted_at || !eventType.is_active) {
+    if (!eventType || eventType.deleted_at !== null || !eventType.is_active) {
       return [];
     }
 
@@ -39,8 +40,6 @@ export class SlotCalculator {
     // 2. Fetch Availability for the requested date using the host's timezone as base
     // First, we need to know what "dateStr" means. It means the requester wants slots for "2026-06-15" in THEIR timezone.
     // So "2026-06-15T00:00:00" in requestedTimeZone is the start boundary.
-    const windowStartUTC = DateUtils.getStartOfDayUTC(dateStr, requestedTimeZone);
-    const windowEndUTC = DateUtils.getEndOfDayUTC(dateStr, requestedTimeZone);
 
     // Get the base availability rule for the host on the UTC date that corresponds to the start of the window
     // This is a slight simplification: technically a requester's single day might span two of the host's days.
@@ -54,12 +53,7 @@ export class SlotCalculator {
       defaultScheduleId,
     );
 
-    if (
-      !availability ||
-      !availability.is_available ||
-      !availability.start_time ||
-      !availability.end_time
-    ) {
+    if (!availability?.is_available || !availability.start_time || !availability.end_time) {
       return [];
     }
 
@@ -87,28 +81,79 @@ export class SlotCalculator {
     });
 
     // 5. Generate Candidate Slots
+    return this.calculatePureSlots({
+      dateStr,
+      eventType: {
+        duration_mins: eventType.duration_mins,
+        buffer_before_mins: eventType.buffer_before_mins,
+        buffer_after_mins: eventType.buffer_after_mins,
+      },
+      availability: {
+        start_time: availability.start_time,
+        end_time: availability.end_time,
+        timezone: availability.timezone,
+      },
+      bookings,
+      requestedTimeZone,
+    });
+  }
+
+  /**
+   * Pure function to calculate slots given the input constraints.
+   * This is entirely decoupled from Prisma or external services.
+   */
+  static calculatePureSlots({
+    dateStr,
+    eventType,
+    availability,
+    bookings,
+  }: {
+    dateStr: string;
+    eventType: {
+      duration_mins: number;
+      buffer_before_mins: number;
+      buffer_after_mins: number;
+    };
+    availability: {
+      start_time: string;
+      end_time: string;
+      timezone: string;
+    };
+    bookings: {
+      start_time: Date;
+      end_time: Date;
+    }[];
+    requestedTimeZone: string;
+  }): Slot[] {
+    const workStartUTC = DateUtils.parseTimeInTimezone(
+      dateStr,
+      availability.start_time,
+      availability.timezone,
+    );
+    const workEndUTC = DateUtils.parseTimeInTimezone(
+      dateStr,
+      availability.end_time,
+      availability.timezone,
+    );
+
     const candidateSlots = DateUtils.generateIntervals(
       workStartUTC,
       workEndUTC,
       eventType.duration_mins,
     );
 
-    // 6. Filter against bookings and buffers
     const nowPlus10Mins = addMinutes(new Date(), 10);
     const validSlots: Slot[] = [];
 
     for (const slot of candidateSlots) {
-      // Must be in the future (plus minimum notice)
       if (isBefore(slot.start, nowPlus10Mins)) {
         continue;
       }
 
-      // Check overlap with existing bookings (considering buffers)
       const isOverlapping = bookings.some((b) => {
         const blockedStart = addMinutes(b.start_time, -eventType.buffer_before_mins);
         const blockedEnd = addMinutes(b.end_time, eventType.buffer_after_mins);
 
-        // Overlap condition: slot.start < blockedEnd AND slot.end > blockedStart
         return isBefore(slot.start, blockedEnd) && isAfter(slot.end, blockedStart);
       });
 

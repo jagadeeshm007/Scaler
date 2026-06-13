@@ -1,18 +1,23 @@
-import { Request, Response } from 'express';
-import { asyncHandler } from '../utils/async-handler';
-import { ApiResponse } from '../utils/api-response';
-import { BookingService } from '../services/booking.service';
+import type { Request, Response } from 'express';
 import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
+import { BookingService } from '../services/booking.service';
+import { ApiResponse } from '../utils/api-response';
 import { AppError } from '../utils/app-error';
+import { asyncHandler } from '../utils/async-handler';
 
 export class BookingController {
   static getBookings = asyncHandler(async (req: Request, res: Response) => {
-    const bookings = await BookingService.getBookings(req.user!.id);
+    const bookings = await BookingService.getBookings(
+      (req.user as { id: string; email: string }).id,
+    );
     return ApiResponse.success(res, 'Bookings retrieved successfully', bookings);
   });
 
   static getBookingById = asyncHandler(async (req: Request, res: Response) => {
-    const booking = await BookingService.getBookingById(req.user!.id, req.params.id as string);
+    const booking = await BookingService.getBookingById(
+      (req.user as { id: string; email: string }).id,
+      req.params.id as string,
+    );
     return ApiResponse.success(res, 'Booking retrieved successfully', booking);
   });
 
@@ -33,7 +38,7 @@ export class BookingController {
     }
 
     const booking = await BookingService.updateBookingStatus(
-      req.user!.id,
+      (req.user as { id: string; email: string }).id,
       req.params.id as string,
       req.body,
       timezone as string,

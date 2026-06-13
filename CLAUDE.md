@@ -62,7 +62,7 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 - `project.mdc` — Global conventions, naming, error/date handling, constants.
 - `backend.mdc` — Layered architecture, Prisma rules, Express rules.
 - `frontend.mdc` — Next.js rules, strict UI/UX guidelines from reference screenshots.
-- `testing.mdc` — Arrange-Act-Assert, mocking boundaries, coverage targets.
+- `testing.mdc` — Arrange-Act-Assert, mocking boundaries, coverage targets (Vitest, Supertest).
 - `performance.mdc` — Query budgets, N+1 prevention, Core Web Vitals targets.
 - `git.mdc` — Conventional commits, branch strategy, husky hooks.
 
@@ -80,14 +80,15 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 ## 8. Implementation Status
 
 - [x] Phase 0: Project Memory & Rules Setup
-- [ ] Phase 1: Backend Foundation
-- [ ] Phase 2: Auth Module
-- [ ] Phase 3: Event Types Module
-- [ ] Phase 4: Availability Module
-- [ ] Phase 5: Booking Module
-- [ ] Phase 6: Integrations Module
-- [ ] Phase 7: User/Profile Module
-- [ ] Phase 8: Database Seed
+- [x] Phase 1: Backend Foundation
+- [x] Phase 2: Auth Module
+- [x] Phase 3: Event Types Module
+- [x] Phase 4: Availability Module
+- [x] Phase 5: Booking Module
+- [x] Phase 6: Integrations Module
+- [x] Phase 7: User/Profile Module
+- [x] Phase 8: Database Seed
+- [ ] Phase 8.5: Backend Audit & Testing
 - [ ] Phase 9: Frontend Implementation
 
 ## 9. Known Constraints & Assumptions

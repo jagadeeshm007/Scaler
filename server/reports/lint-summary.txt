@@ -1,0 +1,8 @@
+    184 @typescript-eslint/naming-convention
+      8 max-lines-per-function
+      8 @typescript-eslint/no-unsafe-argument
+      5 max-params
+      4 prefer-destructuring
+      4 @typescript-eslint/no-unsafe-assignment
+      3 @typescript-eslint/explicit-function-return-type
+      3 @typescript-eslint/consistent-type-imports

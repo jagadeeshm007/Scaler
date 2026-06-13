@@ -1,9 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
-import { ZodObject, ZodError } from 'zod';
-import { ApiResponse } from '../utils/api-response';
-import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
+import { ZodError } from 'zod';
 
-export const validate = (schema: ZodObject<any, any>) => {
+import type { Request, Response, NextFunction } from 'express';
+import type { ZodObject } from 'zod';
+import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
+import { ApiResponse } from '../utils/api-response';
+
+export const validate = (schema: ZodObject<import('zod').ZodRawShape>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = await schema.parseAsync({
@@ -12,15 +14,26 @@ export const validate = (schema: ZodObject<any, any>) => {
         params: req.params,
       });
 
-      // Update request properties with parsed (and potentially transformed) data
+      // Update request properties safely for Express 5 getters
       req.body = parsed.body;
-      req.query = parsed.query as any;
-      req.params = parsed.params as any;
+
+      // Object.assign to avoid 'Cannot set property query... which has only a getter'
+      for (const key of Object.keys(req.query)) {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Express 5 query is getter-backed; keys must be cleared before assign
+        delete req.query[key as keyof typeof req.query];
+      }
+      Object.assign(req.query, parsed.query || {});
+
+      for (const key of Object.keys(req.params)) {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Express 5 params is getter-backed; keys must be cleared before assign
+        delete req.params[key];
+      }
+      Object.assign(req.params, parsed.params || {});
 
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const formattedErrors = error.issues.map((e: any) => ({
+        const formattedErrors = error.issues.map((e: import('zod').ZodIssue) => ({
           field: e.path.join('.'),
           message: e.message,
         }));

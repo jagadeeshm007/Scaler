@@ -1,14 +1,15 @@
+import crypto from 'crypto';
+
+import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
-import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
-import { encrypt, decrypt } from '../utils/encryption';
-import crypto from 'crypto';
+import { decrypt } from '../utils/encryption';
 
 export class IntegrationService {
   /**
    * Get all available integrations and their connection status for a user
    */
-  static async getIntegrations(userId: string) {
+  static async getIntegrations(userId: string): Promise<unknown> {
     const apps = await prisma.app.findMany({
       where: { is_active: true },
     });
@@ -29,7 +30,10 @@ export class IntegrationService {
   /**
    * Generates OAuth redirect URL and state token
    */
-  static async connectIntegration(userId: string, appSlug: string) {
+  static async connectIntegration(
+    userId: string,
+    appSlug: string,
+  ): Promise<{ authUrl: string; state: string }> {
     const app = await prisma.app.findUnique({
       where: { slug: appSlug, is_active: true },
     });
@@ -48,9 +52,9 @@ export class IntegrationService {
     const clientId = app.client_id_encrypted ? decrypt(app.client_id_encrypted) : '';
 
     if (appSlug === 'google') {
-      authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${app.redirect_uri}&response_type=code&scope=${app.scopes}&access_type=offline&prompt=consent&state=${state}`;
+      authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId ?? ''}&redirect_uri=${app.redirect_uri ?? ''}&response_type=code&scope=${app.scopes ?? ''}&access_type=offline&prompt=consent&state=${state}`;
     } else if (appSlug === 'zoom') {
-      authUrl = `https://zoom.us/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${app.redirect_uri}&state=${state}`;
+      authUrl = `https://zoom.us/oauth/authorize?response_type=code&client_id=${clientId ?? ''}&redirect_uri=${app.redirect_uri ?? ''}&state=${state}`;
     } else {
       throw new AppError(
         'OAuth flow not implemented for this provider',
@@ -65,7 +69,7 @@ export class IntegrationService {
   /**
    * Disconnect an integration
    */
-  static async disconnectIntegration(userId: string, appSlug: string) {
+  static async disconnectIntegration(userId: string, appSlug: string): Promise<void> {
     const app = await prisma.app.findUnique({
       where: { slug: appSlug },
     });

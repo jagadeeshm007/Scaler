@@ -1,9 +1,11 @@
-import { z } from 'zod';
-import dotenv from 'dotenv';
 import path from 'path';
 
+/* eslint-disable no-console */
+import { config } from 'dotenv';
+import { z } from 'zod';
+
 // Load .env file
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+config({ path: path.resolve(__dirname, '../../.env') });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

@@ -1,4 +1,22 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npx lint-staged
+echo "Running pre-commit checks..."
+
+# 1. Type check
+echo "→ Type checking..."
+cd server && pnpm typecheck
+if [ $? -ne 0 ]; then
+  echo "✗ Type check failed. Fix TypeScript errors before committing."
+  exit 1
+fi
+
+# 2. Lint (errors only in pre-commit, not warnings)
+echo "→ Linting..."
+pnpm lint
+if [ $? -ne 0 ]; then
+  echo "✗ Lint errors found. Run pnpm lint:fix or fix manually."
+  exit 1
+fi
+
+echo "✓ All checks passed."

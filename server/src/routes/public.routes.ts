@@ -1,10 +1,12 @@
-import { Router, Request, Response } from 'express';
-import { asyncHandler } from '../utils/async-handler';
-import { ApiResponse } from '../utils/api-response';
-import { SlotCalculator } from '../utils/slot-calculator';
-import { prisma } from '../lib/prisma';
-import { AppError } from '../utils/app-error';
+import { Router } from 'express';
+
+import type { Request, Response } from 'express';
 import { HTTP_STATUS, ERROR_CODE } from '../config/constants';
+import { prisma } from '../lib/prisma';
+import { ApiResponse } from '../utils/api-response';
+import { AppError } from '../utils/app-error';
+import { asyncHandler } from '../utils/async-handler';
+import { SlotCalculator } from '../utils/slot-calculator';
 
 const router = Router();
 
@@ -102,4 +104,4 @@ router.get(
   }),
 );
 
-export default router;
+export { router as publicRoutes };

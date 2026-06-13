@@ -1,11 +1,12 @@
 import crypto from 'crypto';
+
 import { env } from '../config/env';
 
 const ALGORITHM = 'aes-256-gcm';
 // ENCRYPTION_KEY must be exactly 32 bytes (64 hex characters)
 const ENCRYPTION_KEY = Buffer.from(env.ENCRYPTION_KEY, 'hex');
 const IV_LENGTH = 16;
-const AUTH_TAG_LENGTH = 16;
+// const AUTH_TAG_LENGTH = 16;
 
 /**
  * Encrypts a plain text string using AES-256-GCM

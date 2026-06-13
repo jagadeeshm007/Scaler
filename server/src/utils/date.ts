@@ -1,5 +1,5 @@
-import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
-import { parse, format, addMinutes, startOfDay, endOfDay, isBefore, isAfter } from 'date-fns';
+import { addMinutes, isBefore, isAfter } from 'date-fns';
+import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 
 export class DateUtils {
   /**
@@ -16,7 +16,7 @@ export class DateUtils {
     // Instead of messing with v3 API changes, we can rely on `Intl` or standard date-fns-tz functions.
     // Actually, `fromZonedTime` exists in date-fns-tz v3.
     // Let's import it conditionally or use a robust fallback.
-    return require('date-fns-tz').fromZonedTime(localDateTimeStr, timeZone);
+    return fromZonedTime(localDateTimeStr, timeZone);
   }
 
   /**
@@ -30,14 +30,14 @@ export class DateUtils {
    * Get the start of the day in a specific timezone as a UTC Date
    */
   static getStartOfDayUTC(dateStr: string, timeZone: string): Date {
-    return require('date-fns-tz').fromZonedTime(`${dateStr}T00:00:00`, timeZone);
+    return fromZonedTime(`${dateStr}T00:00:00`, timeZone);
   }
 
   /**
    * Get the end of the day in a specific timezone as a UTC Date
    */
   static getEndOfDayUTC(dateStr: string, timeZone: string): Date {
-    return require('date-fns-tz').fromZonedTime(`${dateStr}T23:59:59`, timeZone);
+    return fromZonedTime(`${dateStr}T23:59:59`, timeZone);
   }
 
   /**

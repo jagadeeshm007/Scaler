@@ -1,8 +1,9 @@
-import { Router } from 'express';
-import { BookingController } from '../controllers/booking.controller';
-import { validate } from '../middleware/validate';
 import { createBookingSchema, updateBookingStatusSchema } from '@scaler/types';
+import { Router } from 'express';
+
+import { BookingController } from '../controllers/booking.controller';
 import { requireAuth } from '../middleware/auth';
+import { validate } from '../middleware/validate';
 
 const router = Router();
 
@@ -19,4 +20,4 @@ router.patch(
   BookingController.updateBookingStatus,
 );
 
-export default router;
+export { router as bookingRoutes };

@@ -192,3 +192,17 @@ model RefreshToken {
   @@index([token_hash])
   @@map("refresh_tokens")
 }
+
+model FailedJob {
+  id             String    @id @default(uuid())
+  type           String    // 'CALENDAR_SYNC', 'EMAIL_SEND'
+  payload        Json      // Contains booking id, provider, etc.
+  error          String
+  retry_count    Int       @default(0)
+  next_retry_at  DateTime?
+  status         String    @default("PENDING") // PENDING, FAILED, RESOLVED
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  
+  @@map("failed_jobs")
+}
