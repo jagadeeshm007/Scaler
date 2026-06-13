@@ -19,6 +19,10 @@ export const queryKeys = {
     byDate: (eventTypeId: string, date: string, timezone: string) =>
       ['slots', eventTypeId, date, timezone] as const,
   },
+  blockedDates: {
+    byMonth: (username: string, month: string) =>
+      ['blocked-dates', username, month] as const,
+  },
   integrations: {
     all: () => ['integrations'] as const,
     list: () => ['integrations', 'list'] as const,

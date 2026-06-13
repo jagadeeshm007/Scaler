@@ -1,6 +1,28 @@
 import { format, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 
+export function formatWeekRange(start: Date, end: Date): string {
+  const sMonth = format(start, 'MMM');
+  const eMonth = format(end, 'MMM');
+  const sDay = format(start, 'd');
+  const eDay = format(end, 'd');
+  const year = format(end, 'yyyy');
+  if (sMonth === eMonth) return `${sMonth} ${sDay}–${eDay}, ${year}`;
+  return `${sMonth} ${sDay}–${eMonth} ${eDay}, ${year}`;
+}
+
+export function formatColumnDayHeader(date: Date): { abbr: string; day: string } {
+  return { abbr: format(date, 'EEE').toUpperCase(), day: format(date, 'd') };
+}
+
+export function formatHourLabel(hour: number, use24h: boolean): string {
+  if (use24h) return `${String(hour).padStart(2, '0')}:00`;
+  if (hour === 0) return '12am';
+  if (hour < 12) return `${hour}am`;
+  if (hour === 12) return '12pm';
+  return `${hour - 12}pm`;
+}
+
 export function formatDuration(mins: number): string {
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);

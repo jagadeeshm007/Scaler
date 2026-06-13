@@ -77,6 +77,18 @@ export interface DateOverride {
   start_time: string | null;
   end_time: string | null;
   is_available: boolean;
+  emoji?: string | null;
+}
+
+export interface BlockedDate {
+  date: string;
+  emoji: string;
+}
+
+export interface BlockedDatesData {
+  blocked: BlockedDate[];
+  /** day_of_week numbers (0=Sun … 6=Sat) that have no active schedule */
+  nonWorkingDays: number[];
 }
 
 export interface Schedule {

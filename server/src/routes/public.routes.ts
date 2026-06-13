@@ -38,6 +38,79 @@ router.get(
 );
 
 /**
+ * GET /api/v1/public/:username/blocked-dates?month=YYYY-MM
+ * Returns dates where the host is fully unavailable (DateOverride with is_available=false),
+ * along with any configured emoji, for display in the public booking calendar.
+ */
+router.get(
+  '/:username/blocked-dates',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { month } = req.query;
+
+    if (!month || !/^\d{4}-\d{2}$/.test(month as string)) {
+      throw new AppError(
+        'Missing or invalid query parameter: month (expected YYYY-MM)',
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODE.VALIDATION_ERROR,
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { username: req.params.username as string },
+    });
+
+    if (!user || user.deleted_at) {
+      throw new AppError('User not found', HTTP_STATUS.NOT_FOUND, ERROR_CODE.NOT_FOUND);
+    }
+
+    const monthStr = month as string;
+    const year = parseInt(monthStr.slice(0, 4), 10);
+    const monthNum = parseInt(monthStr.slice(5, 7), 10);
+    const monthStart = new Date(Date.UTC(year, monthNum - 1, 1));
+    const monthEnd = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
+
+    // Use raw query to avoid stale Prisma generated-type issues with the emoji column
+    interface RawOverride { date: Date; emoji: string | null }
+    const rows = await prisma.$queryRaw<RawOverride[]>`
+      SELECT d.date, d.emoji
+      FROM date_overrides d
+      JOIN schedules s ON s.id = d.schedule_id
+      WHERE s.user_id = ${user.id}
+        AND d.is_available = false
+        AND d.date >= ${monthStart}
+        AND d.date <= ${monthEnd}
+    `;
+
+    // Deduplicate by date (take first occurrence across multiple schedules)
+    const seen = new Set<string>();
+    const blocked = rows
+      .map((r) => ({ date: r.date.toISOString().slice(0, 10), emoji: r.emoji ?? '🔒' }))
+      .filter(({ date }) => {
+        if (seen.has(date)) { return false; }
+        seen.add(date);
+        return true;
+      });
+
+    // Determine non-working weekdays from the user's default schedule
+    const defaultSchedule = await prisma.schedule.findFirst({
+      where: { user_id: user.id, is_default: true },
+      include: { availability: true },
+    });
+    const workingDaySet = new Set(
+      (defaultSchedule?.availability ?? [])
+        .filter((a) => a.is_active)
+        .map((a) => a.day_of_week),
+    );
+    const nonWorkingDays = [0, 1, 2, 3, 4, 5, 6].filter((d) => !workingDaySet.has(d));
+
+    return ApiResponse.success(res, 'Blocked dates retrieved successfully', {
+      blocked,
+      nonWorkingDays,
+    });
+  }),
+);
+
+/**
  * GET /api/v1/public/:username/event-types
  * Returns public active event types for a host
  */

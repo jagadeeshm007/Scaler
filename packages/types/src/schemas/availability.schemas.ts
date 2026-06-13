@@ -20,6 +20,7 @@ export const dateOverrideSchema = z.object({
     .optional()
     .nullable(),
   is_available: z.boolean(),
+  emoji: z.string().max(8).optional().nullable(),
 });
 
 export const createScheduleSchema = z.object({

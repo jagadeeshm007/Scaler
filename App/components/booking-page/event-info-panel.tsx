@@ -1,9 +1,21 @@
-import { Clock, Globe, MapPin, Video } from 'lucide-react';
+import { CalendarDays, Clock, Globe, Video } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { formatDuration } from '@/lib/format';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  formatBookingDate,
+  formatBookingTimeRange,
+  formatDuration,
+  getEventTypeDurations,
+} from '@/lib/format';
 import { cn } from '@/lib/utils';
-import type { EventType, PublicEventType } from '@/types';
+import type { EventType, PublicEventType, Slot } from '@/types';
 
 const LOCATION_LABELS: Record<string, string> = {
   GOOGLE_MEET: 'Google Meet',
@@ -19,14 +31,41 @@ function getLocationLabel(locationType: string, details: string | null): string 
   return LOCATION_LABELS[locationType] ?? locationType.replace(/_/g, ' ');
 }
 
+const COMMON_TIMEZONES = [
+  'UTC',
+  'America/New_York',
+  'America/Los_Angeles',
+  'America/Chicago',
+  'Europe/London',
+  'Europe/Paris',
+  'Europe/Berlin',
+  'Asia/Kolkata',
+  'Asia/Tokyo',
+  'Asia/Singapore',
+  'Australia/Sydney',
+];
+
 interface EventInfoPanelProps {
   eventType: EventType | PublicEventType;
   host: Pick<PublicEventType['user'], 'full_name' | 'avatar_url' | 'username'>;
   timezone: string;
+  onTimezoneChange?: (tz: string) => void;
+  selectedSlot?: Slot | null;
+  selectedDuration?: number;
+  onDurationChange?: (d: number) => void;
   className?: string;
 }
 
-export function EventInfoPanel({ eventType, host, timezone, className }: EventInfoPanelProps) {
+export function EventInfoPanel({
+  eventType,
+  host,
+  timezone,
+  onTimezoneChange,
+  selectedSlot,
+  selectedDuration,
+  onDurationChange,
+  className,
+}: EventInfoPanelProps) {
   const initials = host.full_name
     .split(' ')
     .map((part) => part[0])
@@ -34,10 +73,16 @@ export function EventInfoPanel({ eventType, host, timezone, className }: EventIn
     .slice(0, 2)
     .toUpperCase();
 
+  const durations = getEventTypeDurations(eventType);
+  const activeDuration = selectedDuration ?? eventType.duration_mins;
+  const hasMultipleDurations = durations.length > 1;
+
+  const shortTz = timezone.split('/').pop()?.replace(/_/g, ' ') ?? timezone;
+
   return (
     <aside
       className={cn(
-        'flex flex-col gap-6 border-b border-neutral-800 p-6 lg:border-b-0 lg:border-r',
+        'flex flex-col gap-6 border-b border-neutral-800 p-7 lg:w-[320px] lg:shrink-0 lg:border-b-0 lg:border-r',
         className,
       )}
     >
@@ -50,28 +95,96 @@ export function EventInfoPanel({ eventType, host, timezone, className }: EventIn
       </div>
 
       <div className="space-y-4">
-        <h1 className="text-xl font-semibold text-white">{eventType.title}</h1>
+        <h1 className="text-2xl font-semibold text-white">{eventType.title}</h1>
+
+        {hasMultipleDurations && onDurationChange && (
+          <div className="flex flex-wrap gap-2">
+            {durations.map((d) => (
+              <button
+                key={d}
+                onClick={() => onDurationChange(d)}
+                className={cn(
+                  'rounded-full border px-3 py-1 text-sm transition-colors',
+                  d === activeDuration
+                    ? 'border-neutral-400 bg-neutral-800 text-white'
+                    : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200',
+                )}
+              >
+                {formatDuration(d)}
+              </button>
+            ))}
+          </div>
+        )}
 
         {eventType.description && (
           <p className="text-sm text-neutral-400">{eventType.description}</p>
         )}
 
         <ul className="space-y-3 text-sm text-neutral-400">
-          <li className="flex items-center gap-2">
-            <Clock className="size-4 shrink-0" />
-            <span>{formatDuration(eventType.duration_mins)}</span>
-          </li>
+          {selectedSlot ? (
+            <>
+              <li className="flex items-center gap-2">
+                <CalendarDays className="size-4 shrink-0 text-neutral-500" />
+                <span>{formatBookingDate(selectedSlot.startTime, timezone)}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Clock className="size-4 shrink-0 text-neutral-500" />
+                <span>
+                  {formatBookingTimeRange(selectedSlot.startTime, selectedSlot.endTime, timezone)}
+                </span>
+              </li>
+              <li>
+                <span className="inline-block rounded-full bg-neutral-800 px-2 py-0.5 text-xs">
+                  {formatDuration(activeDuration)}
+                </span>
+              </li>
+            </>
+          ) : !hasMultipleDurations ? (
+            <li className="flex items-center gap-2">
+              <Clock className="size-4 shrink-0" />
+              <span>{formatDuration(activeDuration)}</span>
+            </li>
+          ) : null}
+
           <li className="flex items-center gap-2">
             <Video className="size-4 shrink-0" />
             <span>{getLocationLabel(eventType.location_type, eventType.location_details)}</span>
           </li>
-          <li className="flex items-center gap-2">
-            <MapPin className="size-4 shrink-0" />
-            <span>{getLocationLabel(eventType.location_type, null)}</span>
-          </li>
+
           <li className="flex items-center gap-2">
             <Globe className="size-4 shrink-0" />
-            <span>{timezone}</span>
+            {onTimezoneChange ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-auto px-2 py-0.5 text-sm text-neutral-400 hover:text-white"
+                  >
+                    {shortTz} ›
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="max-h-64 overflow-y-auto border-neutral-700 bg-neutral-900"
+                  align="start"
+                >
+                  {COMMON_TIMEZONES.map((tz) => (
+                    <DropdownMenuItem
+                      key={tz}
+                      className={cn(
+                        'cursor-pointer text-sm',
+                        tz === timezone && 'font-medium text-white',
+                      )}
+                      onClick={() => onTimezoneChange(tz)}
+                    >
+                      {tz.replace(/_/g, ' ')}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <span>{shortTz}</span>
+            )}
           </li>
         </ul>
       </div>

@@ -98,6 +98,7 @@ model DateOverride {
   start_time   String?  // Format: "HH:MM", null if unavailable all day
   end_time     String?  // Format: "HH:MM", null if unavailable all day
   is_available Boolean  @default(false)
+  emoji        String?  // Optional emoji shown on the booking calendar (e.g. "✈️", "🏖️")
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 

@@ -56,6 +56,7 @@ function mapOverrides(overrides: DateOverride[]): DateOverrideInput[] {
     start_time: o.start_time,
     end_time: o.end_time,
     is_available: o.is_available,
+    emoji: o.emoji ?? null,
   }));
 }
 
@@ -83,6 +84,7 @@ function overridesFromDates(dates: string[], existing: DateOverrideInput[]): Dat
         start_time: DEFAULT_WORK_HOURS.start,
         end_time: DEFAULT_WORK_HOURS.end,
         is_available: false,
+        emoji: '🔒',
       },
   );
 }

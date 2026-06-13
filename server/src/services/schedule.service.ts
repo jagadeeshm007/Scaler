@@ -126,6 +126,7 @@ export class ScheduleService {
               start_time: o.start_time,
               end_time: o.end_time,
               is_available: o.is_available,
+              emoji: o.emoji ?? null,
             })),
           });
         }

@@ -18,6 +18,7 @@ export const ENDPOINTS = {
     reorder: '/event-types/reorder',
     public: (username: string, slug: string) => `/public/${username}/${slug}`,
     publicList: (username: string) => `/public/${username}/event-types`,
+    blockedDates: (username: string) => `/public/${username}/blocked-dates`,
   },
   availability: {
     list: '/availability',

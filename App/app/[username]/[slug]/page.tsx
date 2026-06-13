@@ -1,8 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { CalendarPicker } from '@/components/booking-page/calendar-picker';
-import { EventInfoPanel } from '@/components/booking-page/event-info-panel';
-import { TimeSlotList } from '@/components/booking-page/time-slot-list';
+import { BookingPageShell } from '@/components/booking-page/booking-page-shell';
 import { serverFetch } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/endpoints';
 import type { PublicEventType } from '@/types';
@@ -21,15 +19,5 @@ export default async function BookingPage({ params }: BookingPageProps) {
     notFound();
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-neutral-950 lg:flex-row">
-      <EventInfoPanel
-        eventType={eventType}
-        host={eventType.user}
-        timezone={eventType.user.timezone}
-      />
-      <CalendarPicker />
-      <TimeSlotList eventType={eventType} />
-    </div>
-  );
+  return <BookingPageShell eventType={eventType} />;
 }

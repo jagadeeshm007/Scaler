@@ -15,6 +15,15 @@ interface DateOverrideListProps {
   className?: string;
 }
 
+const BLOCK_EMOJIS: { emoji: string; label: string }[] = [
+  { emoji: '🔒', label: 'Busy' },
+  { emoji: '✈️', label: 'OOO' },
+  { emoji: '🏖️', label: 'Holiday' },
+  { emoji: '🤒', label: 'Sick' },
+  { emoji: '🎉', label: 'Event' },
+  { emoji: '🏡', label: 'WFH' },
+];
+
 export function DateOverrideList({ overrides, onChange, className }: DateOverrideListProps) {
   if (overrides.length === 0) {
     return (
@@ -44,38 +53,67 @@ export function DateOverrideList({ overrides, onChange, className }: DateOverrid
       {sorted.map((override, index) => (
         <div
           key={override.date}
-          className="flex flex-col gap-3 rounded-lg border border-neutral-800 bg-neutral-900 p-4 sm:flex-row sm:items-center"
+          className="flex flex-col gap-3 rounded-lg border border-neutral-800 bg-neutral-900 p-4"
         >
-          <div className="flex min-w-[7rem] items-center gap-3">
+          {/* Top row: toggle + date label + delete */}
+          <div className="flex items-center gap-3">
             <Switch
               checked={override.is_available}
-              onCheckedChange={(checked) => updateOverride(index, { is_available: checked })}
+              onCheckedChange={(checked) =>
+                updateOverride(index, {
+                  is_available: checked,
+                  emoji: checked ? null : (override.emoji ?? '🔒'),
+                })
+              }
             />
-            <span className="text-sm font-medium text-white">{formatDateLabel(override.date)}</span>
+            <span className="flex-1 text-sm font-medium text-white">
+              {formatDateLabel(override.date)}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0 text-muted-foreground hover:text-red-500"
+              onClick={() => removeOverride(index)}
+            >
+              <Trash2 className="size-4" />
+              <span className="sr-only">Remove override</span>
+            </Button>
           </div>
 
+          {/* Bottom row: time range OR emoji picker */}
           {override.is_available ? (
             <TimeRangePicker
               startTime={override.start_time ?? '09:00'}
               endTime={override.end_time ?? '17:00'}
               onStartChange={(start_time) => updateOverride(index, { start_time })}
               onEndChange={(end_time) => updateOverride(index, { end_time })}
-              className="flex-1"
             />
           ) : (
-            <span className="flex-1 text-sm text-muted-foreground">Unavailable all day</span>
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-muted-foreground">
+                Unavailable all day — pick an emoji shown to visitors on the calendar:
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {BLOCK_EMOJIS.map(({ emoji, label }) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    title={label}
+                    onClick={() => updateOverride(index, { emoji })}
+                    className={cn(
+                      'flex h-8 w-8 items-center justify-center rounded-md border text-base transition-colors',
+                      override.emoji === emoji
+                        ? 'border-neutral-400 bg-neutral-700'
+                        : 'border-neutral-700 bg-neutral-800 hover:border-neutral-500 hover:bg-neutral-700',
+                    )}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0 text-muted-foreground hover:text-red-500"
-            onClick={() => removeOverride(index)}
-          >
-            <Trash2 className="size-4" />
-            <span className="sr-only">Remove override</span>
-          </Button>
         </div>
       ))}
     </div>

@@ -79,6 +79,16 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
 ::view-transition-old(root) {
   animation: 120ms ease-in fade-out;
 }
