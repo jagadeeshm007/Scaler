@@ -135,7 +135,7 @@ export function EventTypeActions({
           type="button"
           aria-label="Event type actions"
           onClick={() => setMenuOpen(true)}
-          className="flex size-9 items-center justify-center rounded-lg border border-neutral-700/70 bg-[#141414] text-neutral-500 transition-colors hover:bg-neutral-800/80 hover:text-neutral-200"
+          className="flex size-9 items-center justify-center rounded-lg border border-neutral-800 bg-[#1a1a1a] text-neutral-500 transition-colors hover:bg-neutral-800/80 hover:text-neutral-200"
         >
           <MoreHorizontal className="size-4" />
         </button>

@@ -1,5 +1,6 @@
 'use client';
 
+import { SURFACE } from '@/components/shared/page-section';
 import { cn } from '@/lib/utils';
 
 /* ── Action button group ── */
@@ -13,7 +14,8 @@ export function EventTypeActionGroup({
   return (
     <div
       className={cn(
-        'flex items-center overflow-hidden rounded-md border border-neutral-800 bg-neutral-950',
+        'flex items-center overflow-hidden rounded-md border',
+        SURFACE.actionGroup,
         className,
       )}
     >
@@ -64,13 +66,15 @@ export function EventTypeBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 px-1.5 py-0.5 text-xs',
-        /* duration chips — small box-rounded */
         variant === 'default' &&
-          'rounded-md border border-neutral-800 bg-neutral-950 text-neutral-400',
-        /* hidden chip — slightly wider box-rounded, amber */
+          cn(
+            'inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs text-neutral-400',
+            SURFACE.input,
+            SURFACE.inputBorder,
+          ),
+        /* hidden chip — horizontal label */
         variant === 'hidden' &&
-          'rounded-md border border-amber-500/40 bg-amber-500/10 font-medium text-amber-500',
+          'inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-xs font-medium text-amber-500',
         className,
       )}
     >

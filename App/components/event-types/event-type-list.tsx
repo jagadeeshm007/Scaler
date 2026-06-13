@@ -6,10 +6,12 @@ import Link from 'next/link';
 
 import { EventTypeCard } from '@/components/event-types/event-type-card';
 import { EventTypeSearch } from '@/components/event-types/event-type-search';
+import { PageSection, SURFACE } from '@/components/shared/page-section';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useEventTypes } from '@/hooks/queries/use-event-types';
 import { ROUTES } from '@/lib/routes';
+import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 
 export function EventTypeList() {
@@ -29,11 +31,11 @@ export function EventTypeList() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-3 pb-24 md:gap-5 md:pb-0">
-        <Skeleton className="hidden h-16 w-full rounded-none md:block" />
-        <Skeleton className="h-10 w-full rounded-md md:hidden" />
-        <Skeleton className="h-72 w-full rounded-xl" />
-      </div>
+      <PageSection className="flex min-h-full flex-1 flex-col pb-24 md:pb-6">
+        <Skeleton className="hidden h-16 w-full shrink-0 rounded-none md:block" />
+        <Skeleton className="mx-4 mt-4 h-10 w-[calc(100%-2rem)] shrink-0 rounded-md md:hidden" />
+        <Skeleton className="mx-4 mt-4 mb-4 h-72 shrink-0 rounded-xl md:mx-6 md:mt-5 md:mb-6" />
+      </PageSection>
     );
   }
 
@@ -41,9 +43,9 @@ export function EventTypeList() {
   const isEmpty = filtered.length === 0;
 
   return (
-    <div className="flex flex-col gap-3 pb-24 md:gap-5 md:pb-0">
-      {/* Desktop only: page title + search + New */}
-      <div className="hidden items-start justify-between gap-4 md:flex">
+    <PageSection className="flex min-h-full flex-1 flex-col pb-24 md:pb-6">
+      {/* Desktop: title + search + New — inside outer card */}
+      <div className="hidden shrink-0 items-start justify-between gap-4 px-6 pt-6 pb-5 md:flex">
         <div>
           <h1 className="text-xl font-semibold text-white">Event types</h1>
           <p className="mt-0.5 text-sm text-neutral-500">
@@ -59,7 +61,7 @@ export function EventTypeList() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search"
-              className="h-8 w-36 rounded-md border border-neutral-800 bg-neutral-900 py-1.5 pr-7 pl-8 text-sm text-white placeholder:text-neutral-500 focus:border-neutral-700 focus:outline-none"
+              className="h-8 w-36 rounded-md border border-neutral-800 bg-[#1a1a1a] py-1.5 pr-7 pl-8 text-sm text-white placeholder:text-neutral-500 focus:border-neutral-700 focus:outline-none"
             />
             {hasQuery && (
               <button
@@ -84,16 +86,22 @@ export function EventTypeList() {
         </div>
       </div>
 
-      {/* Mobile search */}
-      <div className="md:hidden">
+      {/* Mobile: search only — inside outer card */}
+      <div className="shrink-0 px-4 pt-4 pb-3 md:hidden">
         <EventTypeSearch value={query} onChange={setQuery} />
       </div>
 
-      {/* ── Section 2: List card ── */}
-      <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900">
+      {/* Inner list card — content height only; outer card fills the rest */}
+      <div
+        className={cn(
+          'mx-4 mb-4 shrink-0 overflow-hidden rounded-xl border md:mx-6 md:mb-6',
+          SURFACE.innerList,
+          SURFACE.sectionBorder,
+        )}
+      >
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-            <div className="mb-4 flex size-9 items-center justify-center rounded-md border border-neutral-800 bg-neutral-950">
+            <div className="mb-4 flex size-9 items-center justify-center rounded-md border border-neutral-800 bg-[#1a1a1a]">
               {hasQuery ? (
                 <ShieldCheck className="size-4 text-neutral-500" />
               ) : (
@@ -123,6 +131,6 @@ export function EventTypeList() {
           ))
         )}
       </div>
-    </div>
+    </PageSection>
   );
 }

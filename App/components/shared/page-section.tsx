@@ -4,10 +4,11 @@ import { cn } from '@/lib/utils';
 export const SURFACE = {
   page: 'bg-neutral-950',
   section: 'bg-neutral-900',
+  innerList: 'bg-neutral-900',
   sectionBorder: 'border-neutral-800',
   input: 'bg-[#1a1a1a]',
   inputBorder: 'border-neutral-800',
-  rowDivider: 'border-neutral-800/60',
+  rowDivider: 'border-neutral-800',
   actionGroup: 'bg-[#1a1a1a] border-neutral-800',
 } as const;
 

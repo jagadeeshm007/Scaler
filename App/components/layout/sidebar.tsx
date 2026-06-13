@@ -46,8 +46,8 @@ function NavItem({
           aria-label={label}
           className={cn(
             'flex items-center rounded-md text-sm font-medium transition-colors duration-100',
-            /* collapsed: icon-only centered; full: left-aligned with label */
-            'justify-center p-2 lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
+            /* collapsed (md): fixed square · lg+: full row with label */
+            'size-9 shrink-0 justify-center lg:size-auto lg:w-full lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
             active
               ? 'bg-neutral-800 text-white'
               : 'text-neutral-500 hover:bg-neutral-800/50 hover:text-neutral-200',
@@ -126,7 +126,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
         </div>
 
         {/* ── Main nav ── */}
-        <nav className="flex flex-1 flex-col gap-0.5 px-1.5 lg:px-0">
+        <nav className="flex flex-1 flex-col items-center gap-1 px-1.5 lg:items-stretch lg:gap-0.5 lg:px-0">
           {navItems.map(({ href, label, icon }) => (
             <NavItem
               key={href}
@@ -140,7 +140,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
         </nav>
 
         {/* ── Bottom nav ── */}
-        <div className="mt-auto flex flex-col gap-0.5 border-t border-neutral-800/60 px-1.5 pt-3 lg:px-0 lg:pt-4">
+        <div className="mt-auto flex flex-col items-center gap-1 border-t border-neutral-800/60 px-1.5 pt-3 lg:items-stretch lg:gap-0.5 lg:px-0 lg:pt-4">
           <NavItem
             href={ROUTES.publicBooking(username, '15min')}
             label="View public page"

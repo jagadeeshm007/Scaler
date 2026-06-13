@@ -10,6 +10,8 @@ import {
   EventTypeActionGroupButton,
   EventTypeBadge,
 } from '@/components/event-types/event-type-ui';
+import { SURFACE } from '@/components/shared/page-section';
+import { cn } from '@/lib/utils';
 import { useUpdateEventType } from '@/hooks/mutations/use-event-type-mutations';
 import { formatDuration, getEventTypeDurations } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
@@ -31,7 +33,7 @@ export function EventTypeCard({ eventType, username }: EventTypeCardProps) {
   };
 
   return (
-    <div className="border-b border-neutral-800/60 px-4 py-4 last:border-b-0 md:px-6 md:py-4">
+    <div className={cn('border-b px-4 py-4 last:border-b-0 md:px-6 md:py-4', SURFACE.rowDivider)}>
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">

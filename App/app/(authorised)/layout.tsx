@@ -30,7 +30,9 @@ export default function AuthorisedLayout({ children }: { children: React.ReactNo
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* Mobile only (< md) */}
         <MobileHeader />
-        <main className="flex-1 overflow-y-auto bg-neutral-950 p-3 md:p-4 lg:p-5">{children}</main>
+        <main className="flex flex-1 flex-col overflow-y-auto bg-neutral-950 p-3 md:p-4 lg:p-5">
+          {children}
+        </main>
         <MobileBottomNav />
       </div>
     </div>
