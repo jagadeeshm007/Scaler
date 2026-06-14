@@ -90,9 +90,11 @@ Errors are normalized through `AppError` and a global error handler; responses u
 ```text
 App/
 ├── app/
-│   ├── (authorised)/     # Dashboard — event types, bookings, availability, settings, apps
-│   ├── (unauthorised)/     # Login & signup
-│   └── [username]/[slug]/ # Public booking flow (no auth)
+│   ├── (authenticated)/   # Dashboard — event types, bookings, availability, settings, apps
+│   └── (unauthenticated)/ # Login, signup & booking flow
+│       ├── (auth)/        # Login & signup
+│       └── (public)/      # Public booking flow (no auth)
+│           └── [username]/[slug]/
 ├── components/             # UI by feature (booking-page, event-types, availability, …)
 ├── hooks/                  # TanStack Query hooks (queries + mutations)
 ├── lib/                    # api client, routes, query keys, formatters

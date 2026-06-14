@@ -8,7 +8,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth.store';
 
-export default function AuthorisedLayout({ children }: { children: React.ReactNode }) {
+export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const { hydrate, retryHydrate, isAuthenticated, isHydrating, hasHydrated } = useAuthStore();
 
   useLayoutEffect(() => {
