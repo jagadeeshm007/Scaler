@@ -333,22 +333,22 @@ App/
 
 ## 3. Routing Architecture
 
-| Route                          | Type | Auth | Data fetched         | Suspense                             | Error.tsx |
-| ------------------------------ | ---- | ---- | -------------------- | ------------------------------------ | --------- |
-| `/login`                       | CC   | No   | none                 | No                                   | No        |
-| `/signup`                      | CC   | No   | none                 | No                                   | No        |
-| `/event-types`                 | SC   | Yes  | event types list     | `<EventTypeList>`                    | Yes       |
-| `/event-types/new`             | CC   | Yes  | none (form only)     | No                                   | No        |
-| `/event-types/[id]/edit`       | SC   | Yes  | event type by id     | `<EventTypeForm>`                    | Yes       |
-| `/bookings`                    | SC   | Yes  | bookings (paginated) | `<BookingList>`                      | Yes       |
-| `/availability`                | SC   | Yes  | schedules list       | `<ScheduleList>`                     | Yes       |
-| `/availability/[id]`           | SC   | Yes  | schedule by id       | `<ScheduleEditor>`                   | Yes       |
-| `/apps`                        | SC   | Yes  | integrations list    | `<IntegrationList>`                  | Yes       |
-| `/settings`                    | SC   | Yes  | none (static grid)   | No                                   | No        |
-| `/settings/profile`            | SC   | Yes  | user/me              | `<ProfileForm>`                      | Yes       |
-| `/settings/general`            | SC   | Yes  | user/me              | `<GeneralSettingsForm>`              | Yes       |
-| `/[username]/[slug]`           | SC   | No   | event type (public)  | `<CalendarPicker>`, `<TimeSlotList>` | Yes       |
-| `/[username]/[slug]/confirmed` | SC   | No   | booking by id        | `<BookingConfirmedCard>`             | Yes       |
+| Route                    | Type | Auth | Data fetched         | Suspense                             | Error.tsx |
+| ------------------------ | ---- | ---- | -------------------- | ------------------------------------ | --------- |
+| `/login`                 | CC   | No   | none                 | No                                   | No        |
+| `/signup`                | CC   | No   | none                 | No                                   | No        |
+| `/event-types`           | SC   | Yes  | event types list     | `<EventTypeList>`                    | Yes       |
+| `/event-types/new`       | CC   | Yes  | none (form only)     | No                                   | No        |
+| `/event-types/[id]/edit` | SC   | Yes  | event type by id     | `<EventTypeForm>`                    | Yes       |
+| `/bookings`              | SC   | Yes  | bookings (paginated) | `<BookingList>`                      | Yes       |
+| `/availability`          | SC   | Yes  | schedules list       | `<ScheduleList>`                     | Yes       |
+| `/availability/[id]`     | SC   | Yes  | schedule by id       | `<ScheduleEditor>`                   | Yes       |
+| `/apps`                  | SC   | Yes  | integrations list    | `<IntegrationList>`                  | Yes       |
+| `/settings`              | SC   | Yes  | none (static grid)   | No                                   | No        |
+| `/settings/profile`      | SC   | Yes  | user/me              | `<ProfileForm>`                      | Yes       |
+| `/settings/general`      | SC   | Yes  | user/me              | `<GeneralSettingsForm>`              | Yes       |
+| `/[username]/[slug]`     | SC   | No   | event type (public)  | `<CalendarPicker>`, `<TimeSlotList>` | Yes       |
+| `/booking/[uid]`         | SC   | No   | booking by id        | `<BookingConfirmedCard>`             | Yes       |
 
 **Route conflict**: The `[username]/[slug]` catch-all at root level and `(authenticated)` route groups coexist because Next.js resolves route groups first. Named routes (`/bookings`, `/event-types`, etc.) match before dynamic segments.
 
@@ -787,7 +787,7 @@ page.tsx (SC)
         └── On slot click: setSelectedSlot(slot) in local state
             └── <BookingForm> (CC) — slides in with motion
                 ├── useCreateBooking mutation
-                └── On success: router.push('/[username]/[slug]/confirmed?bookingId=X')
+                └── On success: router.push('/booking/[uid]?isSuccessBookingPage=true')
 ```
 
 ### Calendar section

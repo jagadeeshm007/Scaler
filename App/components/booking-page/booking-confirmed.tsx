@@ -4,8 +4,10 @@ import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Check, ExternalLink, Flag, Loader2, X } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+
+import { Confetti } from '@/components/ui/confetti';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -165,9 +167,11 @@ interface BookingConfirmedProps {
 
 export function BookingConfirmed({ booking }: BookingConfirmedProps) {
   const { timezone } = useTimezone();
-  const params = useParams<{ username: string; slug: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const cancelMutation = usePublicCancelBooking();
+
+  const isSuccessBookingPage = searchParams.get('isSuccessBookingPage') === 'true';
 
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -192,202 +196,215 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
   }
 
   return (
-    <m.div
-      className="mx-auto w-full max-w-xl"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0, 0, 0.2, 1] }}
-    >
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
-        {/* ── header ── */}
-        <div className="flex flex-col items-center gap-3 border-b border-border px-8 py-8 text-center">
-          <m.div
-            className={cn(
-              'flex size-12 items-center justify-center rounded-full border-2',
-              isCancelled ? 'border-neutral-600 bg-accent' : 'border-green-500 bg-green-500/10',
-            )}
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 22, delay: 0.08 }}
-          >
-            {isCancelled ? (
-              <X className="size-6 text-muted-foreground" strokeWidth={2.5} />
-            ) : (
-              <Check className="size-6 text-green-500" strokeWidth={2.5} />
-            )}
-          </m.div>
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">
-              {isCancelled ? 'This event has been cancelled' : 'This meeting is scheduled'}
-            </h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              {isCancelled
-                ? 'A cancellation email has been sent to all attendees.'
-                : 'We sent an email with a calendar invitation with the details to everyone.'}
-            </p>
-          </div>
-        </div>
-
-        {/* ── info table ── */}
-        <div className="px-8 py-2">
-          <InfoRow label="What">
-            <span className="font-medium">{booking.event_type.title}</span>
-          </InfoRow>
-
-          <InfoRow label="When">
-            <p className={cn('font-medium', isCancelled && 'line-through text-muted-foreground')}>
-              {formatFullDate(booking.start_time, timezone)}
-            </p>
-            <p
-              className={cn(
-                'mt-0.5',
-                isCancelled ? 'line-through text-neutral-600' : 'text-muted-foreground',
-              )}
-            >
-              {formatBookingTimeRange(booking.start_time, booking.end_time, timezone)}{' '}
-              <span className="text-muted-foreground">({tzLabel})</span>
-            </p>
-          </InfoRow>
-
-          <InfoRow label="Who">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{hostName}</span>
-                <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-400">
-                  Host
-                </span>
-              </div>
-              {hostEmail && <p className="text-muted-foreground">{hostEmail}</p>}
-            </div>
-            <div className="mt-3">
-              <p className="font-medium">{booking.guest_name}</p>
-              <p className="text-muted-foreground">{booking.guest_email}</p>
-            </div>
-          </InfoRow>
-
-          <InfoRow label="Where">
-            {booking.meeting_url ? (
-              <a
-                href={booking.meeting_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline"
-              >
-                {locationLabel}
-                <ExternalLink className="size-3.5" />
-              </a>
-            ) : (
-              <span>{locationLabel}</span>
-            )}
-          </InfoRow>
-        </div>
-
-        {/* ── cancel inline form ── */}
-        <AnimatePresence>
-          {showCancel && (
+    <>
+      {isSuccessBookingPage && !isCancelled && (
+        <Confetti
+          options={{
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+          }}
+        />
+      )}
+      <m.div
+        className="mx-auto w-full max-w-xl"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0, 0, 0.2, 1] }}
+      >
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          {/* ── header ── */}
+          <div className="flex flex-col items-center gap-3 border-b border-border px-8 py-8 text-center">
             <m.div
-              key="cancel-form"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-              className="overflow-hidden"
+              className={cn(
+                'flex size-12 items-center justify-center rounded-full border-2',
+                isCancelled ? 'border-neutral-600 bg-accent' : 'border-green-500 bg-green-500/10',
+              )}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 22, delay: 0.08 }}
             >
-              <div className="border-t border-border px-8 py-5">
-                <h3 className="mb-3 text-sm font-medium text-foreground">
-                  Reason for cancellation
-                </h3>
-                <Textarea
-                  placeholder="Why are you cancelling?"
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                  disabled={cancelMutation.isPending}
-                  className="min-h-[80px] resize-none border-border bg-accent text-sm text-foreground placeholder:text-muted-foreground focus:border-neutral-500"
-                />
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  Cancellation reason will be shared with guests
-                </p>
-                <div className="mt-4 flex items-center justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowCancel(false)}
-                    disabled={cancelMutation.isPending}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Nevermind
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    onClick={handleCancel}
-                    disabled={cancelMutation.isPending}
-                    className="bg-red-600 hover:bg-red-500"
-                  >
-                    {cancelMutation.isPending && (
-                      <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-                    )}
-                    Cancel event
-                  </Button>
-                </div>
-              </div>
+              {isCancelled ? (
+                <X className="size-6 text-muted-foreground" strokeWidth={2.5} />
+              ) : (
+                <Check className="size-6 text-green-500" strokeWidth={2.5} />
+              )}
             </m.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── add to calendar (only when not cancelled) ── */}
-        {!isCancelled && (
-          <div className="flex items-center gap-3 border-t border-border px-8 py-4">
-            <span className="text-sm text-muted-foreground">Add to calendar</span>
-            <div className="flex items-center gap-2">
-              <CalIconButton href={googleCalUrl(booking, timezone)} label="Google Calendar">
-                <GoogleIcon />
-              </CalIconButton>
-              <CalIconButton href={outlookUrl(booking, timezone)} label="Outlook">
-                <OutlookIcon />
-              </CalIconButton>
-              <CalIconButton href="#" label="Apple iCal">
-                <ICalIcon />
-              </CalIconButton>
-              <CalIconButton href="#" label="Microsoft Teams">
-                <TeamsIcon />
-              </CalIconButton>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">
+                {isCancelled ? 'This event has been cancelled' : 'This meeting is scheduled'}
+              </h1>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                {isCancelled
+                  ? 'A cancellation email has been sent to all attendees.'
+                  : 'We sent an email with a calendar invitation with the details to everyone.'}
+              </p>
             </div>
           </div>
-        )}
 
-        {/* ── footer actions ── */}
-        {!isCancelled && !showCancel && (
-          <div className="border-t border-border px-8 py-4 text-center text-sm text-muted-foreground">
-            Need to make a change?{' '}
-            <button
-              className="text-neutral-300 hover:text-foreground hover:underline"
-              onClick={() =>
-                router.push(`/${params.username}/${params.slug}?reschedule=${booking.uid}`)
-              }
-            >
-              Reschedule
-            </button>{' '}
-            or{' '}
-            <button
-              className="text-neutral-300 hover:text-foreground hover:underline"
-              onClick={() => setShowCancel(true)}
-            >
-              Cancel
-            </button>
+          {/* ── info table ── */}
+          <div className="px-8 py-2">
+            <InfoRow label="What">
+              <span className="font-medium">{booking.event_type.title}</span>
+            </InfoRow>
+
+            <InfoRow label="When">
+              <p className={cn('font-medium', isCancelled && 'line-through text-muted-foreground')}>
+                {formatFullDate(booking.start_time, timezone)}
+              </p>
+              <p
+                className={cn(
+                  'mt-0.5',
+                  isCancelled ? 'line-through text-neutral-600' : 'text-muted-foreground',
+                )}
+              >
+                {formatBookingTimeRange(booking.start_time, booking.end_time, timezone)}{' '}
+                <span className="text-muted-foreground">({tzLabel})</span>
+              </p>
+            </InfoRow>
+
+            <InfoRow label="Who">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{hostName}</span>
+                  <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-400">
+                    Host
+                  </span>
+                </div>
+                {hostEmail && <p className="text-muted-foreground">{hostEmail}</p>}
+              </div>
+              <div className="mt-3">
+                <p className="font-medium">{booking.guest_name}</p>
+                <p className="text-muted-foreground">{booking.guest_email}</p>
+              </div>
+            </InfoRow>
+
+            <InfoRow label="Where">
+              {booking.meeting_url ? (
+                <a
+                  href={booking.meeting_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline"
+                >
+                  {locationLabel}
+                  <ExternalLink className="size-3.5" />
+                </a>
+              ) : (
+                <span>{locationLabel}</span>
+              )}
+            </InfoRow>
           </div>
-        )}
-      </div>
 
-      {/* ── report booking ── */}
-      <div className="mt-4 flex justify-center">
-        <button className="inline-flex items-center gap-1.5 text-xs text-neutral-600 transition-colors hover:text-muted-foreground">
-          <Flag className="size-3.5" />
-          Report booking
-        </button>
-      </div>
-    </m.div>
+          {/* ── cancel inline form ── */}
+          <AnimatePresence>
+            {showCancel && (
+              <m.div
+                key="cancel-form"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="border-t border-border px-8 py-5">
+                  <h3 className="mb-3 text-sm font-medium text-foreground">
+                    Reason for cancellation
+                  </h3>
+                  <Textarea
+                    placeholder="Why are you cancelling?"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    disabled={cancelMutation.isPending}
+                    className="min-h-[80px] resize-none border-border bg-accent text-sm text-foreground placeholder:text-muted-foreground focus:border-neutral-500"
+                  />
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    Cancellation reason will be shared with guests
+                  </p>
+                  <div className="mt-4 flex items-center justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowCancel(false)}
+                      disabled={cancelMutation.isPending}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      Nevermind
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={handleCancel}
+                      disabled={cancelMutation.isPending}
+                      className="bg-red-600 hover:bg-red-500"
+                    >
+                      {cancelMutation.isPending && (
+                        <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                      )}
+                      Cancel event
+                    </Button>
+                  </div>
+                </div>
+              </m.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── add to calendar (only when not cancelled) ── */}
+          {!isCancelled && (
+            <div className="flex items-center gap-3 border-t border-border px-8 py-4">
+              <span className="text-sm text-muted-foreground">Add to calendar</span>
+              <div className="flex items-center gap-2">
+                <CalIconButton href={googleCalUrl(booking, timezone)} label="Google Calendar">
+                  <GoogleIcon />
+                </CalIconButton>
+                <CalIconButton href={outlookUrl(booking, timezone)} label="Outlook">
+                  <OutlookIcon />
+                </CalIconButton>
+                <CalIconButton href="#" label="Apple iCal">
+                  <ICalIcon />
+                </CalIconButton>
+                <CalIconButton href="#" label="Microsoft Teams">
+                  <TeamsIcon />
+                </CalIconButton>
+              </div>
+            </div>
+          )}
+
+          {/* ── footer actions ── */}
+          {!isCancelled && !showCancel && (
+            <div className="border-t border-border px-8 py-4 text-center text-sm text-muted-foreground">
+              Need to make a change?{' '}
+              <button
+                className="text-neutral-300 hover:text-foreground hover:underline"
+                onClick={() =>
+                  router.push(
+                    `/${booking.host?.username}/${booking.event_type.slug}?rescheduleUid=${booking.uid}&rescheduledBy=${encodeURIComponent(booking.guest_email)}`,
+                  )
+                }
+              >
+                Reschedule
+              </button>{' '}
+              or{' '}
+              <button
+                className="text-neutral-300 hover:text-foreground hover:underline"
+                onClick={() => setShowCancel(true)}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── report booking ── */}
+        <div className="mt-4 flex justify-center">
+          <button className="inline-flex items-center gap-1.5 text-xs text-neutral-600 transition-colors hover:text-muted-foreground">
+            <Flag className="size-3.5" />
+            Report booking
+          </button>
+        </div>
+      </m.div>
+    </>
   );
 }

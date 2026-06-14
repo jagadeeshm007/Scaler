@@ -97,7 +97,7 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
   - [ ] Phase 9.2: Event Types module
   - [ ] Phase 9.3: Bookings module
   - [ ] Phase 9.4: Availability module
-  - [ ] Phase 9.5: Public Booking Page (most critical)
+  - [x] Phase 9.5: Public Booking Page (most critical)
   - [ ] Phase 9.6: Settings & Integrations
 
 ## 9. Known Constraints & Assumptions
@@ -126,3 +126,11 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 8. **NEVER** hardcode magic strings/numbers — use `constants.ts`.
 9. **NEVER** use inline styles, raw CSS, or hardcoded tailwind colors (`bg-neutral-900`, `text-black`, etc.) — use Tailwind semantic utilities (`bg-background`, `text-foreground`, `bg-card`).
 10. **NEVER** skip pagination on a list query.
+
+## 12. Strict Validation Requirements (Must Follow)
+
+Before completing any task, you **MUST** run the following commands and ensure zero errors:
+
+1. **Formatting**: `pnpm run format` across the entire workspace to ensure all Prettier/Tailwind rules are applied perfectly.
+2. **Linting**: `pnpm run lint` across the Next.js app and the Express server, ensuring 0 ESLint warnings or errors remain.
+3. **Typechecking**: `pnpm run typecheck` to execute `tsc --noEmit` on the strict TS configurations. No errors should be found anywhere in the app or server.

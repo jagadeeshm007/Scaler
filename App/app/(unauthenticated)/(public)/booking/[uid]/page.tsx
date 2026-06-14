@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { LazyMotion, domAnimation } from 'motion/react';
 
 import { BookingConfirmed } from '@/components/booking-page/booking-confirmed';
@@ -11,8 +11,9 @@ import { useAuthStore } from '@/store/auth.store';
 import type { Booking } from '@/types';
 
 function ConfirmedContent() {
+  const params = useParams();
   const searchParams = useSearchParams();
-  const bookingUid = searchParams.get('uid') ?? '';
+  const bookingUid = (params?.uid as string) ?? searchParams.get('uid') ?? '';
   const bookingId = searchParams.get('bookingId') ?? '';
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: publicBooking, isLoading: isPublicLoading } = usePublicBooking(bookingUid);

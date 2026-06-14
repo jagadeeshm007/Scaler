@@ -2,8 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CalendarDays, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createBookingSchema } from '@scaler/types';
 import { z } from 'zod';
@@ -52,20 +52,33 @@ export function BookingForm({
   className,
 }: BookingFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [idempotencyKey] = useState(() => crypto.randomUUID());
   const [submitError, setSubmitError] = useState<string | null>(null);
   const createBooking = useCreateBooking();
 
   const isReschedule = Boolean(rescheduleBooking);
+  const prefillName = searchParams.get('name') ?? '';
+  const prefillEmail = searchParams.get('email') ?? searchParams.get('rescheduledBy') ?? '';
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
-      guest_name: rescheduleBooking?.guest_name ?? '',
-      guest_email: rescheduleBooking?.guest_email ?? '',
+      guest_name: rescheduleBooking?.guest_name ?? prefillName,
+      guest_email: rescheduleBooking?.guest_email ?? prefillEmail,
       guest_notes: '',
     },
   });
+
+  useEffect(() => {
+    if (rescheduleBooking) {
+      form.reset({
+        ...form.getValues(),
+        guest_name: rescheduleBooking.guest_name,
+        guest_email: rescheduleBooking.guest_email,
+      });
+    }
+  }, [rescheduleBooking, form]);
 
   const isPending = createBooking.isPending;
 
@@ -91,9 +104,16 @@ export function BookingForm({
 
       sessionStorage.setItem(`booking-${booking.id}`, JSON.stringify(booking));
       sessionStorage.setItem(`booking-uid-${booking.uid}`, JSON.stringify(booking));
-      router.push(
-        `${ROUTES.bookingConfirmed(eventType.user.username, eventType.slug)}?uid=${booking.uid}`,
-      );
+
+      const searchParams = new URLSearchParams({
+        isSuccessBookingPage: 'true',
+        email: booking.guest_email,
+        name: booking.guest_name,
+        eventTypeSlug: eventType.slug,
+        uid: booking.uid,
+      });
+
+      router.push(`${ROUTES.publicBookingStatus(booking.uid)}?${searchParams.toString()}`);
     } catch (error) {
       setSubmitError(getErrorMessage(error, 'Failed to create booking'));
     }
