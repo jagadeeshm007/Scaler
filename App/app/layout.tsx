@@ -10,6 +10,13 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata = {
   title: 'Scaler — Scheduling Platform',
   description: 'Cal.com clone scheduling platform',
@@ -18,7 +25,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className="dark">
-      <body className={`${inter.variable} font-sans min-h-screen bg-neutral-950 text-white`}>
+      <body
+        className={`${inter.variable} font-sans min-h-screen overflow-x-hidden bg-neutral-950 text-white`}
+      >
         <Providers>
           {children}
           <Toaster position="bottom-right" richColors closeButton />

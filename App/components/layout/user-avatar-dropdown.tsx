@@ -5,6 +5,7 @@ import { useThemeTransition } from '@/hooks/use-theme-transition';
 import { useRouter } from 'next/navigation';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Moon, Sun, User, Settings, LogOut, Plane } from 'lucide-react';
+import { Classic } from '@/components/ui/theme-toggle';
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -192,23 +193,16 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
 
             {/* Toggle Actions */}
             <div className="space-y-0.5 px-2">
-              <button
-                type="button"
+              <Classic
+                duration={400}
                 onClick={(e) => toggleTheme(e)}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm text-popover-foreground transition-colors hover:bg-accent active:bg-accent"
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-popover-foreground transition-colors hover:bg-accent active:bg-accent focus:outline-none"
               >
-                <div className="flex items-center gap-3">
-                  {resolvedTheme === 'dark' ? (
-                    <Sun className="size-5 text-muted-foreground" />
-                  ) : (
-                    <Moon className="size-5 text-muted-foreground" />
-                  )}
-                  <span>Theme Mode</span>
-                </div>
-                <span className="text-xs capitalize text-muted-foreground">
+                <span>Theme Mode</span>
+                <span className="ml-auto text-xs capitalize text-muted-foreground">
                   {resolvedTheme === 'dark' ? 'dark' : 'light'}
                 </span>
-              </button>
+              </Classic>
 
               <button
                 type="button"
@@ -296,23 +290,22 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
         <DropdownMenuGroup>
           {/* Theme mode toggle */}
           <DropdownMenuItem
-            className="flex cursor-pointer items-center justify-between focus:bg-accent focus:text-foreground"
-            onClick={(e) => {
-              e.preventDefault();
-              toggleTheme(e);
-            }}
+            asChild
+            className="flex cursor-pointer items-center gap-2 focus:bg-accent focus:text-foreground"
           >
-            <div className="flex items-center gap-2">
-              {resolvedTheme === 'dark' ? (
-                <Sun className="size-4 text-muted-foreground" />
-              ) : (
-                <Moon className="size-4 text-muted-foreground" />
-              )}
+            <Classic
+              duration={400}
+              onClick={(e) => {
+                e.preventDefault();
+                toggleTheme(e);
+              }}
+              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-foreground focus:outline-none"
+            >
               <span>Theme Mode</span>
-            </div>
-            <span className="text-xs capitalize text-muted-foreground">
-              {resolvedTheme === 'dark' ? 'dark' : 'light'}
-            </span>
+              <span className="ml-auto text-xs capitalize text-muted-foreground">
+                {resolvedTheme === 'dark' ? 'dark' : 'light'}
+              </span>
+            </Classic>
           </DropdownMenuItem>
 
           {/* Quick OOO toggle */}

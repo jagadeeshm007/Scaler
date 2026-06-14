@@ -7,6 +7,7 @@ import { MobileHeader } from '@/components/layout/mobile-header';
 import { Sidebar } from '@/components/layout/sidebar';
 import { BrandColorProvider } from '@/components/layout/brand-color-provider';
 import { Button } from '@/components/ui/button';
+import { Loader } from '@/components/ui/loader';
 import { useAuthStore } from '@/store/auth.store';
 
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -19,7 +20,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   if (!hasHydrated || isHydrating) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="size-8 animate-pulse rounded-full bg-accent" />
+        <Loader variant="grid" className="text-primary" />
       </div>
     );
   }

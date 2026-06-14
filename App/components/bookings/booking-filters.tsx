@@ -29,7 +29,7 @@ export function BookingFilters({ className }: BookingFiltersProps) {
       onValueChange={(value) => void setStatus(value as BookingStatusTab)}
       className={cn('w-full', className)}
     >
-      <TabsList className="h-auto w-full justify-start gap-0 border-b border-border bg-transparent p-0">
+      <TabsList className="flex h-auto w-full justify-start gap-0 overflow-x-auto overflow-y-hidden border-b border-border bg-transparent p-0 [&::-webkit-scrollbar]:hidden">
         {BOOKING_STATUS_TABS.map((tab) => (
           <TabsTrigger
             key={tab}

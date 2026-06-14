@@ -1,9 +1,9 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Loader } from '@/components/ui/loader';
 
-export default function BookingPageLoading() {
+export default function PublicBookingLoading() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <Skeleton className="h-[480px] w-full rounded-xl" />
+    <div className="flex flex-1 min-h-[85vh] w-full items-center justify-center">
+      <Loader variant="grid" className="text-primary" />
     </div>
   );
 }
