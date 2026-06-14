@@ -48,11 +48,15 @@ export class EmailService {
       recipientName: booking.host.full_name,
     });
 
+    const guestEmails = [booking.guest_email, ...(booking.additional_guests || [])];
+
     await Promise.all([
-      sendEmail(
-        booking.guest_email,
-        `Confirmed: ${booking.event_type.title} with ${booking.host.full_name}`,
-        guestHtml,
+      ...guestEmails.map(async (email) =>
+        sendEmail(
+          email,
+          `Confirmed: ${booking.event_type.title} with ${booking.host.full_name}`,
+          guestHtml,
+        ),
       ),
       sendEmail(
         booking.host.email,
@@ -86,11 +90,15 @@ export class EmailService {
       recipientName: booking.host.full_name,
     });
 
+    const guestEmails = [booking.guest_email, ...(booking.additional_guests || [])];
+
     await Promise.all([
-      sendEmail(
-        booking.guest_email,
-        `Cancelled: ${booking.event_type.title} with ${booking.host.full_name}`,
-        guestHtml,
+      ...guestEmails.map(async (email) =>
+        sendEmail(
+          email,
+          `Cancelled: ${booking.event_type.title} with ${booking.host.full_name}`,
+          guestHtml,
+        ),
       ),
       sendEmail(
         booking.host.email,
@@ -131,11 +139,15 @@ export class EmailService {
       recipientName: newBooking.host.full_name,
     });
 
+    const guestEmails = [newBooking.guest_email, ...(newBooking.additional_guests || [])];
+
     await Promise.all([
-      sendEmail(
-        newBooking.guest_email,
-        `Rescheduled: ${newBooking.event_type.title} with ${newBooking.host.full_name}`,
-        guestHtml,
+      ...guestEmails.map(async (email) =>
+        sendEmail(
+          email,
+          `Rescheduled: ${newBooking.event_type.title} with ${newBooking.host.full_name}`,
+          guestHtml,
+        ),
       ),
       sendEmail(
         newBooking.host.email,

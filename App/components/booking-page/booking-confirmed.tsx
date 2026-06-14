@@ -189,6 +189,13 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [isCancelled, setIsCancelled] = useState(booking.status === 'CANCELLED');
+  const isRescheduled = booking.status === 'RESCHEDULED';
+
+  const formerTimeStr = searchParams.get('formerTime');
+  const formerTime = formerTimeStr ? new Date(formerTimeStr) : null;
+  const formerEndTime = formerTime
+    ? new Date(formerTime.getTime() + booking.event_type.duration_mins * 60000)
+    : null;
 
   const locationLabel =
     LOCATION_LABELS[booking.event_type.location_type] ??
@@ -216,6 +223,78 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
       router.replace(newUrl, { scroll: false });
     }
   }, [isSuccessBookingPage, pathname, router, searchParams]);
+
+  if (isRescheduled) {
+    return (
+      <m.div
+        className="mx-auto w-full max-w-xl"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0, 0, 0.2, 1] }}
+      >
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex flex-col items-center gap-3 border-b border-border px-8 py-8 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full border-2 border-red-500/50 bg-red-500/10">
+              <X className="size-6 text-red-500" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">
+                Your event has been rescheduled
+              </h1>
+            </div>
+          </div>
+
+          <div className="px-8 py-2">
+            <InfoRow label="What">
+              <span className="font-medium">{booking.event_type.title}</span>
+            </InfoRow>
+            <InfoRow label="When">
+              <p className="font-medium line-through text-muted-foreground">
+                {formatFullDate(booking.start_time, timezone)}
+              </p>
+              <p className="mt-0.5 line-through text-neutral-600">
+                {formatBookingTimeRange(booking.start_time, booking.end_time, timezone)}{' '}
+                <span className="text-neutral-600">({tzLabel})</span>
+              </p>
+            </InfoRow>
+            <InfoRow label="Who">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{hostName}</span>
+                  <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-400">
+                    Host
+                  </span>
+                </div>
+                {hostEmail && <p className="text-muted-foreground">{hostEmail}</p>}
+              </div>
+              <div className="mt-3">
+                <p className="font-medium">{booking.guest_name}</p>
+                <p className="text-muted-foreground">{booking.guest_email}</p>
+              </div>
+            </InfoRow>
+            {/* @ts-expect-error - scheduled_to_uid might not be explicitly strongly typed without prisma generate yet */}
+            {booking.rescheduled_to_uid && (
+              <InfoRow label="Rescheduled">
+                <a
+                  /* @ts-expect-error - scheduled_to_uid might not be explicitly strongly typed without prisma generate yet */
+                  href={`/booking/${booking.rescheduled_to_uid}`}
+                  className="text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1"
+                >
+                  View booking <ExternalLink className="size-3.5" />
+                </a>
+              </InfoRow>
+            )}
+          </div>
+        </div>
+        <div className="mt-4 flex justify-center">
+          <button className="inline-flex items-center gap-1.5 text-xs text-neutral-600 transition-colors hover:text-muted-foreground">
+            <Flag className="size-3.5" />
+            Report booking
+          </button>
+        </div>
+      </m.div>
+    );
+  }
 
   return (
     <>
@@ -266,11 +345,35 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
 
           {/* ── info table ── */}
           <div className="px-8 py-2">
+            {formerTime && (
+              <InfoRow label="Rescheduled by">
+                <div>
+                  <p className="font-medium">{booking.guest_email}</p>
+                  <p className="mt-0.5 text-muted-foreground">Original booking</p>
+                </div>
+              </InfoRow>
+            )}
+
             <InfoRow label="What">
               <span className="font-medium">{booking.event_type.title}</span>
             </InfoRow>
 
             <InfoRow label="When">
+              {formerTime && formerEndTime && (
+                <div className="mb-4">
+                  <p className="font-medium line-through text-muted-foreground">
+                    {formatFullDate(formerTime.toISOString(), timezone)}
+                  </p>
+                  <p className="mt-0.5 line-through text-neutral-600">
+                    {formatBookingTimeRange(
+                      formerTime.toISOString(),
+                      formerEndTime.toISOString(),
+                      timezone,
+                    )}{' '}
+                    <span className="text-neutral-600">({tzLabel})</span>
+                  </p>
+                </div>
+              )}
               <p className={cn('font-medium', isCancelled && 'line-through text-muted-foreground')}>
                 {formatFullDate(booking.start_time, timezone)}
               </p>

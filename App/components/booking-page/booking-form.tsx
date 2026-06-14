@@ -1,10 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarDays, Loader2 } from 'lucide-react';
+import { CalendarDays, Loader2, Plus, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { createBookingSchema } from '@scaler/types';
 import { z } from 'zod';
 
@@ -26,10 +26,14 @@ import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import type { Booking, CreateBookingInput, PublicEventType, Slot } from '@/types';
 
-const bookingFormSchema = createBookingSchema.shape.body.pick({
-  guest_name: true,
-  guest_email: true,
-  guest_notes: true,
+const bookingFormSchema = z.object({
+  guest_name: z.string().min(2, 'Name must be at least 2 characters'),
+  guest_email: z.string().email('Invalid email address'),
+  guest_notes: z.string().optional().nullable(),
+  additional_guests: z
+    .array(z.object({ email: z.string().email('Invalid email address') }))
+    .optional()
+    .default([]),
 });
 
 type BookingFormValues = z.infer<typeof bookingFormSchema>;
@@ -67,7 +71,15 @@ export function BookingForm({
       guest_name: rescheduleBooking?.guest_name ?? prefillName,
       guest_email: rescheduleBooking?.guest_email ?? prefillEmail,
       guest_notes: '',
+      additional_guests:
+        // @ts-expect-error - Prisma client in App might not have additional_guests typed yet
+        rescheduleBooking?.additional_guests?.map((email: string) => ({ email })) ?? [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    name: 'additional_guests',
+    control: form.control,
   });
 
   useEffect(() => {
@@ -92,6 +104,7 @@ export function BookingForm({
       guest_name: values.guest_name,
       guest_email: values.guest_email,
       guest_notes: values.guest_notes ?? null,
+      additional_guests: values.additional_guests?.map((g) => g.email) ?? [],
       timezone,
       ...(rescheduleBooking ? { reschedule_from_uid: rescheduleBooking.uid } : {}),
     };
@@ -112,6 +125,10 @@ export function BookingForm({
         eventTypeSlug: eventType.slug,
         uid: booking.uid,
       });
+
+      if (rescheduleBooking) {
+        searchParams.set('formerTime', rescheduleBooking.start_time.toString());
+      }
 
       router.push(`${ROUTES.publicBookingStatus(booking.uid)}?${searchParams.toString()}`);
     } catch (error) {
@@ -184,6 +201,55 @@ export function BookingForm({
               </FormItem>
             )}
           />
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <FormLabel>Add guests</FormLabel>
+            </div>
+            {fields.map((field, index) => (
+              <FormField
+                key={field.id}
+                control={form.control}
+                name={`additional_guests.${index}.email`}
+                render={({ field: inputField }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="email"
+                          placeholder="guest@example.com"
+                          disabled={isPending}
+                          {...inputField}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          disabled={isPending}
+                          className="size-9 shrink-0 text-muted-foreground hover:text-foreground"
+                          onClick={() => remove(index)}
+                        >
+                          <X className="size-4" />
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              className="mt-1 text-xs"
+              onClick={() => append({ email: '' })}
+            >
+              <Plus className="mr-1.5 size-3" />
+              Add another
+            </Button>
+          </div>
 
           <FormField
             control={form.control}

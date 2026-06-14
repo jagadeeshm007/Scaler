@@ -141,6 +141,10 @@ model Booking {
   status              String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, RESCHEDULED
   cancellation_reason String?
 
+  rescheduled_from_uid String?
+  rescheduled_to_uid   String?
+  additional_guests    String[] @default([])
+
   meeting_url    String?
   integration_id String? // ID from external calendar if synced
 

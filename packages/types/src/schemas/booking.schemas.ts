@@ -9,6 +9,10 @@ export const createBookingSchema = z.object({
     guest_name: z.string().min(2, 'Name must be at least 2 characters'),
     guest_email: z.string().email('Invalid email address'),
     guest_notes: z.string().optional().nullable(),
+    additional_guests: z
+      .array(z.string().email('Invalid guest email address'))
+      .optional()
+      .default([]),
     timezone: z.string(), // Client's timezone for email rendering
     reschedule_from_uid: z.string().uuid().optional(),
   }),

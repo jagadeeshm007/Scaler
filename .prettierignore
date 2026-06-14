@@ -11,3 +11,4 @@ task
 .agents
 server/reports
 server/prisma/migrations
+next-env.d.ts
