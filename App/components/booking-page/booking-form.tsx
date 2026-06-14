@@ -1,11 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarDays, Loader2, Plus, X } from 'lucide-react';
+import { CalendarDays, Loader2, X, UserPlus } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { createBookingSchema } from '@scaler/types';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -203,52 +202,61 @@ export function BookingForm({
           />
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <FormLabel>Add guests</FormLabel>
-            </div>
-            {fields.map((field, index) => (
-              <FormField
-                key={field.id}
-                control={form.control}
-                name={`additional_guests.${index}.email`}
-                render={({ field: inputField }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="email"
-                          placeholder="guest@example.com"
-                          disabled={isPending}
-                          {...inputField}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          disabled={isPending}
-                          className="size-9 shrink-0 text-muted-foreground hover:text-foreground"
-                          onClick={() => remove(index)}
-                        >
-                          <X className="size-4" />
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isPending}
-              className="mt-1 text-xs"
-              onClick={() => append({ email: '' })}
-            >
-              <Plus className="mr-1.5 size-3" />
-              Add another
-            </Button>
+            {fields.length === 0 ? (
+              <button
+                type="button"
+                onClick={() => append({ email: '' })}
+                disabled={isPending}
+                className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md transition-colors"
+              >
+                <UserPlus className="size-4" />
+                Add guests
+              </button>
+            ) : (
+              <>
+                <FormLabel>Add guests</FormLabel>
+                {fields.map((field, index) => (
+                  <FormField
+                    key={field.id}
+                    control={form.control}
+                    name={`additional_guests.${index}.email`}
+                    render={({ field: inputField }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type="email"
+                              placeholder="Email"
+                              disabled={isPending}
+                              className="pr-10"
+                              {...inputField}
+                            />
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => remove(index)}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground focus:outline-none rounded-md"
+                            >
+                              <X className="size-4" />
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onClick={() => append({ email: '' })}
+                  disabled={isPending}
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md transition-colors"
+                >
+                  <UserPlus className="size-4" />
+                  Add another
+                </button>
+              </>
+            )}
           </div>
 
           <FormField
