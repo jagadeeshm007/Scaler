@@ -44,7 +44,7 @@ export function IntegrationList() {
   return (
     <div className="space-y-6">
       <Tabs value={category} onValueChange={setCategory}>
-        <TabsList className="bg-neutral-900">
+        <TabsList className="bg-card">
           {categories.map((cat) => (
             <TabsTrigger key={cat} value={cat} className="capitalize">
               {cat === 'all' ? 'All' : cat}

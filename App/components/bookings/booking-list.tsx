@@ -78,7 +78,7 @@ export function BookingList() {
       {!filtered.length ? (
         <EmptyState icon={CalendarX2} title={empty.title} description={empty.description} />
       ) : (
-        <Card className="overflow-hidden border-neutral-800 bg-neutral-900 p-0">
+        <Card className="overflow-hidden border-border bg-card p-0">
           {filtered.map((booking) => (
             <BookingCard
               key={booking.id}

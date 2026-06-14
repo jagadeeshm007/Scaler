@@ -58,12 +58,12 @@ export function ColumnView({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Navigation bar */}
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 text-neutral-400 hover:text-white"
+            className="size-7 text-muted-foreground hover:text-foreground"
             onClick={() => setWeekStart((d) => subWeeks(d, 1))}
             aria-label="Previous week"
           >
@@ -72,13 +72,13 @@ export function ColumnView({
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 text-neutral-400 hover:text-white"
+            className="size-7 text-muted-foreground hover:text-foreground"
             onClick={() => setWeekStart((d) => addWeeks(d, 1))}
             aria-label="Next week"
           >
             <ChevronRight className="size-4" />
           </Button>
-          <span className="text-sm font-medium text-white">
+          <span className="text-sm font-medium text-foreground">
             {formatWeekRange(weekStart, weekEnd)}
           </span>
         </div>
@@ -88,7 +88,7 @@ export function ColumnView({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 border-neutral-700 text-xs"
+              className="h-7 border-border text-xs"
               onClick={() => setWeekStart(today)}
             >
               Today
@@ -127,15 +127,15 @@ export function ColumnView({
                 {/* Day header */}
                 <div
                   className={cn(
-                    'border-b border-neutral-800 px-3 py-2 text-center',
-                    todayDay && 'bg-neutral-900',
+                    'border-b border-border px-3 py-2 text-center',
+                    todayDay && 'bg-card',
                   )}
                 >
-                  <p className="text-xs font-medium text-neutral-500">{abbr}</p>
+                  <p className="text-xs font-medium text-muted-foreground">{abbr}</p>
                   <p
                     className={cn(
                       'mt-0.5 inline-flex size-7 items-center justify-center rounded-full text-sm font-semibold',
-                      todayDay ? 'bg-neutral-100 text-neutral-900' : 'text-white',
+                      todayDay ? 'bg-neutral-100 text-neutral-900' : 'text-foreground',
                     )}
                   >
                     {day}
@@ -147,7 +147,7 @@ export function ColumnView({
                   {isLoading && (
                     <div className="flex flex-col gap-1.5">
                       {Array.from({ length: 4 }).map((_, k) => (
-                        <div key={k} className="h-8 animate-pulse rounded-md bg-neutral-800" />
+                        <div key={k} className="h-8 animate-pulse rounded-md bg-accent" />
                       ))}
                     </div>
                   )}
@@ -159,7 +159,7 @@ export function ColumnView({
                       <button
                         key={slot.startTime}
                         onClick={() => onSlotSelect(slot)}
-                        className="flex w-full items-center gap-1.5 rounded-md border border-neutral-700 bg-transparent px-2 py-1.5 text-xs text-neutral-200 transition-colors hover:border-neutral-500 hover:bg-neutral-800"
+                        className="flex w-full items-center gap-1.5 rounded-md border border-border bg-transparent px-2 py-1.5 text-xs text-card-foreground transition-colors hover:border-neutral-500 hover:bg-accent"
                       >
                         <span className="size-1.5 shrink-0 rounded-full bg-green-500" />
                         {formatTimeSlot(slot.startTime, timezone, use24h)}

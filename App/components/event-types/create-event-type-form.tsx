@@ -92,10 +92,10 @@ export function CreateEventTypeForm() {
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] items-start justify-center px-4 py-8 md:items-center md:py-12">
-      <div className="w-full max-w-lg rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-xl md:p-8">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-xl md:p-8">
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-white">Add a new event type</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="text-xl font-semibold text-foreground">Add a new event type</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Set up event types to offer different types of meetings.
           </p>
         </div>
@@ -111,7 +111,7 @@ export function CreateEventTypeForm() {
                   <FormControl>
                     <Input
                       placeholder="Quick chat"
-                      className="h-10 rounded-md border-neutral-800 bg-neutral-950"
+                      className="h-10 rounded-md border-border bg-background"
                       {...field}
                     />
                   </FormControl>
@@ -127,8 +127,8 @@ export function CreateEventTypeForm() {
                 <FormItem>
                   <FormLabel className="text-neutral-300">URL</FormLabel>
                   <FormControl>
-                    <div className="flex h-10 overflow-hidden rounded-md border border-neutral-800 bg-neutral-950">
-                      <span className="flex shrink-0 items-center border-r border-neutral-800 px-3 text-sm text-neutral-500">
+                    <div className="flex h-10 overflow-hidden rounded-md border border-border bg-background">
+                      <span className="flex shrink-0 items-center border-r border-border px-3 text-sm text-muted-foreground">
                         {appUrl}/{username}/
                       </span>
                       <input
@@ -138,7 +138,7 @@ export function CreateEventTypeForm() {
                           setSlugManuallyEdited(true);
                           field.onChange(e);
                         }}
-                        className="min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-neutral-600"
+                        className="min-w-0 flex-1 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-neutral-600"
                       />
                     </div>
                   </FormControl>
@@ -158,11 +158,11 @@ export function CreateEventTypeForm() {
                       <Input
                         type="number"
                         min={1}
-                        className="h-10 rounded-md border-neutral-800 bg-neutral-950 pr-20"
+                        className="h-10 rounded-md border-border bg-background pr-20"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
-                      <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-neutral-500">
+                      <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
                         Minutes
                       </span>
                     </div>
@@ -187,20 +187,20 @@ export function CreateEventTypeForm() {
                     className={cn(
                       'flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition-colors',
                       selected
-                        ? 'border-neutral-600 bg-neutral-800/60'
-                        : 'border-neutral-800 bg-neutral-950 hover:border-neutral-700',
+                        ? 'border-neutral-600 bg-accent/60'
+                        : 'border-border bg-background hover:border-border',
                       disabled && 'cursor-not-allowed opacity-50',
                     )}
                   >
-                    <Icon className="mt-0.5 size-4 shrink-0 text-neutral-400" />
+                    <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-white">{kindTitle}</p>
-                      <p className="mt-0.5 text-xs text-neutral-500">{description}</p>
+                      <p className="text-sm font-medium text-foreground">{kindTitle}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
                     </div>
                     <Circle
                       className={cn(
                         'mt-0.5 size-4 shrink-0',
-                        selected ? 'fill-white text-white' : 'text-neutral-600',
+                        selected ? 'fill-white text-foreground' : 'text-neutral-600',
                       )}
                     />
                   </button>
@@ -212,7 +212,7 @@ export function CreateEventTypeForm() {
               <Button
                 type="submit"
                 disabled={createMutation.isPending}
-                className="h-10 w-full rounded-md bg-white text-sm font-medium text-black hover:bg-neutral-200"
+                className="h-10 w-full rounded-md text-sm font-medium"
               >
                 Continue
               </Button>
@@ -220,7 +220,7 @@ export function CreateEventTypeForm() {
                 type="button"
                 variant="ghost"
                 asChild
-                className="text-neutral-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <Link href={ROUTES.eventTypes}>Close</Link>
               </Button>

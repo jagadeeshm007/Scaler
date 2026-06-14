@@ -36,7 +36,7 @@ function DetailRow({
       <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-        <div className="mt-1 text-sm text-white">{children}</div>
+        <div className="mt-1 text-sm text-foreground">{children}</div>
       </div>
     </div>
   );
@@ -57,11 +57,13 @@ export function BookingDetailPanel({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full overflow-y-auto border-neutral-800 bg-neutral-950 sm:max-w-md">
-        <SheetHeader className="border-b border-neutral-800 pb-4">
+      <SheetContent className="w-full overflow-y-auto border-border bg-background sm:max-w-md">
+        <SheetHeader className="border-b border-border pb-4">
           <div className="flex items-start justify-between gap-3 pr-8">
             <div>
-              <SheetTitle className="text-left text-white">{booking.event_type.title}</SheetTitle>
+              <SheetTitle className="text-left text-foreground">
+                {booking.event_type.title}
+              </SheetTitle>
               <SheetDescription className="text-left">{booking.guest_name}</SheetDescription>
             </div>
             <Badge variant="secondary" className="capitalize">
@@ -78,7 +80,7 @@ export function BookingDetailPanel({
             </p>
           </DetailRow>
 
-          <Separator className="bg-neutral-800" />
+          <Separator className="bg-accent" />
 
           <DetailRow icon={User} label="Who">
             <p>{booking.guest_name}</p>
@@ -88,7 +90,7 @@ export function BookingDetailPanel({
             ) : null}
           </DetailRow>
 
-          <Separator className="bg-neutral-800" />
+          <Separator className="bg-accent" />
 
           <DetailRow icon={MapPin} label="Where">
             <p className="capitalize">{locationLabel}</p>

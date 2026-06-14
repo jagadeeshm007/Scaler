@@ -27,7 +27,7 @@ export function TimeRangePicker({
         value={startTime}
         onChange={(e) => onStartChange(e.target.value)}
         disabled={disabled}
-        className="w-[7.5rem] border-neutral-800 bg-neutral-900"
+        className="w-[7.5rem] border-border bg-card"
       />
       <span className="text-sm text-muted-foreground">–</span>
       <Input
@@ -35,7 +35,7 @@ export function TimeRangePicker({
         value={endTime}
         onChange={(e) => onEndChange(e.target.value)}
         disabled={disabled}
-        className="w-[7.5rem] border-neutral-800 bg-neutral-900"
+        className="w-[7.5rem] border-border bg-card"
       />
     </div>
   );

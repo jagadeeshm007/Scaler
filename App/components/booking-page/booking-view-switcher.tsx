@@ -31,8 +31,8 @@ export function BookingViewSwitcher({ value, onChange, className }: BookingViewS
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'size-8 rounded text-neutral-400 hover:text-white',
-                  value === v && 'bg-neutral-800 text-white',
+                  'size-8 rounded text-muted-foreground hover:text-foreground',
+                  value === v && 'bg-accent text-foreground',
                 )}
                 onClick={() => onChange(v)}
                 aria-label={label}

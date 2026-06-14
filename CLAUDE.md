@@ -124,5 +124,5 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 6. **NEVER** commit secrets, `.env` files, or `console.log` statements.
 7. **NEVER** fetch data without a loading skeleton and error boundary.
 8. **NEVER** hardcode magic strings/numbers — use `constants.ts`.
-9. **NEVER** use inline styles or raw CSS — use Tailwind utilities.
+9. **NEVER** use inline styles, raw CSS, or hardcoded tailwind colors (`bg-neutral-900`, `text-black`, etc.) — use Tailwind semantic utilities (`bg-background`, `text-foreground`, `bg-card`).
 10. **NEVER** skip pagination on a list query.

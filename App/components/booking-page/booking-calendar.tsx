@@ -28,8 +28,10 @@ function BookingMonthCaption({ calendarMonth }: { calendarMonth: CalendarMonth }
   return (
     <div className="mb-5 flex items-center justify-between px-1">
       <p className="text-base">
-        <span className="font-semibold text-white">{format(calendarMonth.date, 'MMMM')}</span>{' '}
-        <span className="font-normal text-neutral-400">{format(calendarMonth.date, 'yyyy')}</span>
+        <span className="font-semibold text-foreground">{format(calendarMonth.date, 'MMMM')}</span>{' '}
+        <span className="font-normal text-muted-foreground">
+          {format(calendarMonth.date, 'yyyy')}
+        </span>
       </p>
 
       <div className="flex items-center gap-0.5">
@@ -40,8 +42,8 @@ function BookingMonthCaption({ calendarMonth }: { calendarMonth: CalendarMonth }
           onClick={() => previousMonth && goToMonth(previousMonth)}
           className={cn(
             'flex size-7 items-center justify-center rounded-md',
-            'text-neutral-400 transition-colors',
-            'hover:bg-neutral-800 hover:text-white',
+            'text-muted-foreground transition-colors',
+            'hover:bg-accent hover:text-foreground',
             'disabled:pointer-events-none disabled:opacity-30',
           )}
         >
@@ -54,8 +56,8 @@ function BookingMonthCaption({ calendarMonth }: { calendarMonth: CalendarMonth }
           onClick={() => nextMonth && goToMonth(nextMonth)}
           className={cn(
             'flex size-7 items-center justify-center rounded-md',
-            'text-neutral-400 transition-colors',
-            'hover:bg-neutral-800 hover:text-white',
+            'text-muted-foreground transition-colors',
+            'hover:bg-accent hover:text-foreground',
             'disabled:pointer-events-none disabled:opacity-30',
           )}
         >
@@ -99,7 +101,7 @@ function BookingDayButton({
         'relative flex aspect-square w-full min-h-[44px] select-none items-center justify-center rounded-lg text-[15px] font-medium transition-colors duration-150',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
         // Default: interactive working day
-        'cursor-pointer bg-neutral-800 text-neutral-200 hover:bg-white hover:text-neutral-900',
+        'cursor-pointer bg-accent text-card-foreground hover:bg-primary hover:text-primary-foreground',
         // Non-working weekday: transparent, faded — no box at all
         isNonWorkingWeekday &&
           'cursor-default bg-transparent text-neutral-600 hover:bg-transparent hover:text-neutral-600 pointer-events-none',
@@ -107,13 +109,14 @@ function BookingDayButton({
         modifiers.disabled &&
           !isNonWorkingWeekday &&
           !isHoliday &&
-          'cursor-not-allowed bg-neutral-900 text-neutral-600 hover:bg-neutral-900 hover:text-neutral-600',
+          'cursor-not-allowed bg-card text-neutral-600 hover:bg-card hover:text-neutral-600',
         // Holiday: show emoji, subtle dark bg, no hover
-        isHoliday && 'cursor-default bg-neutral-900 hover:bg-neutral-900 pointer-events-none',
+        isHoliday && 'cursor-default bg-card hover:bg-card pointer-events-none',
         // Today ring (not selected)
         modifiers.today && !modifiers.selected && 'ring-1 ring-inset ring-neutral-400',
         // Selected
-        modifiers.selected && 'bg-white font-semibold text-neutral-900 hover:bg-neutral-100',
+        modifiers.selected &&
+          'bg-primary font-semibold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground',
         className,
       )}
     >
@@ -192,7 +195,7 @@ export function BookingCalendar({
             month_grid: 'w-full',
             weekdays: 'flex',
             weekday:
-              'flex-1 pb-3 text-center text-xs font-medium uppercase tracking-wide text-neutral-500 select-none',
+              'flex-1 pb-3 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground select-none',
             week: 'mt-2 flex gap-2',
             day: 'flex-1 p-0',
             outside: 'pointer-events-none',

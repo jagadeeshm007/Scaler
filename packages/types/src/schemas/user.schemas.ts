@@ -9,3 +9,19 @@ export const updateUserSchema = z.object({
 });
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>['body'];
+
+export const updateUserSettingsSchema = z.object({
+  body: z.object({
+    theme: z.enum(['light', 'dark', 'system']).optional(),
+    brand_color_light: z
+      .string()
+      .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
+      .optional(),
+    brand_color_dark: z
+      .string()
+      .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
+      .optional(),
+  }),
+});
+
+export type UpdateUserSettingsInput = z.infer<typeof updateUserSettingsSchema>['body'];

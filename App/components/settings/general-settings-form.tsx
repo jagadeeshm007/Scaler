@@ -33,7 +33,7 @@ export function GeneralSettingsForm() {
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
           onBlur={handleTimezoneBlur}
-          className="flex h-9 w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 text-sm text-white outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex h-9 w-full rounded-md border border-border bg-card px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Asia/Kolkata"
         />
         <button
@@ -58,7 +58,7 @@ export function GeneralSettingsForm() {
           <ToggleGroupItem value="12h">12-hour (1:00pm)</ToggleGroupItem>
           <ToggleGroupItem value="24h">24-hour (13:00)</ToggleGroupItem>
         </ToggleGroup>
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-muted-foreground">
           Controls how times are displayed across the dashboard and booking pages.
         </p>
       </div>

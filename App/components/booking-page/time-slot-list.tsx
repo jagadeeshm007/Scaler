@@ -59,8 +59,8 @@ export function TimeSlotList({ eventType, className }: TimeSlotListProps) {
 
   return (
     <section className={cn('flex w-full flex-col lg:w-[280px]', className)}>
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
-        <span className="text-sm font-medium text-white">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <span className="text-sm font-medium text-foreground">
           {date ? formatDateLabel(date) : 'Select a date'}
         </span>
         <ToggleGroup
@@ -83,7 +83,7 @@ export function TimeSlotList({ eventType, className }: TimeSlotListProps) {
 
       <div className="max-h-[420px] overflow-y-auto p-4">
         {!date && (
-          <p className="py-8 text-center text-sm text-neutral-500">
+          <p className="py-8 text-center text-sm text-muted-foreground">
             Select a date to see available times
           </p>
         )}
@@ -114,7 +114,7 @@ export function TimeSlotList({ eventType, className }: TimeSlotListProps) {
                 >
                   <Button
                     variant="outline"
-                    className="w-full justify-start gap-2 border-neutral-700 bg-transparent hover:bg-neutral-800"
+                    className="w-full justify-start gap-2 border-border bg-transparent hover:bg-accent"
                     onClick={() => setSelectedSlot(slot)}
                   >
                     <span className="size-2 shrink-0 rounded-full bg-green-500" />

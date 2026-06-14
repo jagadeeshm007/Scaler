@@ -122,7 +122,7 @@ export function EventTypeSortableList({
         {activeItem ? (
           <div
             className={cn(
-              'cursor-grabbing overflow-hidden rounded-lg border border-neutral-800',
+              'cursor-grabbing overflow-hidden rounded-lg border border-border',
               SURFACE.innerList,
             )}
             style={activeWidth ? { width: activeWidth } : undefined}

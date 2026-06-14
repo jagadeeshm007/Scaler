@@ -46,7 +46,7 @@ export function ScheduleList() {
           description="Create a schedule to define when you're available for meetings."
         />
       ) : (
-        <Card className="overflow-hidden border-neutral-800 bg-neutral-900 p-0">
+        <Card className="overflow-hidden border-border bg-card p-0">
           {schedules.map((schedule) => (
             <ScheduleCard key={schedule.id} schedule={schedule} />
           ))}

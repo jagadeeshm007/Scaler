@@ -50,37 +50,34 @@ export function EventTypeList() {
       {/* Desktop: title + search + New — inside outer card */}
       <div className="hidden shrink-0 items-start justify-between gap-4 px-6 pt-6 pb-5 md:flex">
         <div>
-          <h1 className="text-xl font-semibold text-white">Event types</h1>
-          <p className="mt-0.5 text-sm text-neutral-500">
+          <h1 className="text-xl font-semibold text-foreground">Event types</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Configure different events for people to book on your calendar.
           </p>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
           <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-neutral-500" />
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search"
-              className="h-8 w-36 rounded-md border border-neutral-800 bg-[#1a1a1a] py-1.5 pr-7 pl-8 text-sm text-white placeholder:text-neutral-500 focus:border-neutral-700 focus:outline-none"
+              className="h-8 w-36 rounded-md border border-border bg-muted py-1.5 pr-7 pl-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
             />
             {hasQuery && (
               <button
                 type="button"
                 aria-label="Clear search"
                 onClick={() => setQuery('')}
-                className="absolute top-1/2 right-2 -translate-y-1/2 text-neutral-500 hover:text-white"
+                className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 <X className="size-3" />
               </button>
             )}
           </div>
-          <Button
-            asChild
-            className="h-8 rounded-md bg-white px-3 text-sm font-medium text-black hover:bg-neutral-200"
-          >
+          <Button asChild className="h-8 px-3 text-sm font-medium">
             <Link href={ROUTES.eventTypeNew}>
               <Plus className="size-3.5" />
               New
@@ -105,26 +102,23 @@ export function EventTypeList() {
       >
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-            <div className="mb-4 flex size-9 items-center justify-center rounded-md border border-neutral-800 bg-[#1a1a1a]">
+            <div className="mb-4 flex size-9 items-center justify-center rounded-md border border-border bg-muted">
               {hasQuery ? (
-                <ShieldCheck className="size-4 text-neutral-500" />
+                <ShieldCheck className="size-4 text-muted-foreground" />
               ) : (
-                <EventTypeLinkIcon className="size-4 text-neutral-500" />
+                <EventTypeLinkIcon className="size-4 text-muted-foreground" />
               )}
             </div>
-            <h3 className="text-sm font-semibold text-white">
+            <h3 className="text-sm font-semibold text-foreground">
               {hasQuery ? `No result found for "${query.trim()}"` : 'No event types yet'}
             </h3>
-            <p className="mt-1.5 max-w-xs text-sm text-neutral-500">
+            <p className="mt-1.5 max-w-xs text-sm text-muted-foreground">
               {hasQuery
                 ? 'Event types let you share links that show availability and allow people to book meetings with you.'
                 : 'Create your first event type to start accepting bookings.'}
             </p>
             {!hasQuery && (
-              <Button
-                asChild
-                className="mt-5 h-8 rounded-md bg-white px-4 text-sm font-medium text-black hover:bg-neutral-200"
-              >
+              <Button asChild className="mt-5 h-8 px-4 text-sm font-medium">
                 <Link href={ROUTES.eventTypeNew}>Create</Link>
               </Button>
             )}

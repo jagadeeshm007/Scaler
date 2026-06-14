@@ -32,20 +32,17 @@ export function TimezoneSelector({ value, onChange, className }: TimezoneSelecto
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn(
-            'w-full justify-between border-neutral-800 bg-neutral-900 font-normal',
-            className,
-          )}
+          className={cn('w-full justify-between border-border bg-card font-normal', className)}
         >
           <span className="truncate">{value.replace(/_/g, ' ')}</span>
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] border-neutral-800 bg-neutral-950 p-0"
+        className="w-[var(--radix-popover-trigger-width)] border-border bg-background p-0"
         align="start"
       >
-        <Command className="bg-neutral-950">
+        <Command className="bg-background">
           <CommandInput placeholder="Search timezone..." />
           <CommandList>
             <CommandEmpty>No timezone found.</CommandEmpty>

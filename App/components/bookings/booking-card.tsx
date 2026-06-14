@@ -30,7 +30,7 @@ export function BookingCard({
   return (
     <div
       className={cn(
-        'group flex cursor-pointer items-center gap-4 border-b border-neutral-800 px-4 py-4 last:border-0 transition-colors hover:bg-neutral-800/30',
+        'group flex cursor-pointer items-center gap-4 border-b border-border px-4 py-4 last:border-0 transition-colors hover:bg-accent/30',
         isCancelled && 'opacity-60',
         className,
       )}
@@ -48,7 +48,7 @@ export function BookingCard({
         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {formatBookingDate(booking.start_time, timezone).split(',')[0]}
         </span>
-        <span className="text-lg font-semibold text-white">
+        <span className="text-lg font-semibold text-foreground">
           {formatBookingDate(booking.start_time, timezone).split(' ').slice(-2).join(' ')}
         </span>
       </div>
@@ -57,7 +57,7 @@ export function BookingCard({
         <p className="text-sm text-muted-foreground">
           {formatBookingTimeRange(booking.start_time, booking.end_time, timezone)}
         </p>
-        <p className="truncate font-medium text-white">{booking.event_type.title}</p>
+        <p className="truncate font-medium text-foreground">{booking.event_type.title}</p>
         <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-muted-foreground">
           <User className="size-3.5 shrink-0" />
           {booking.guest_name}

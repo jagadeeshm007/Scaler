@@ -37,7 +37,7 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-4 border-b border-neutral-800 px-4 py-4 last:border-0',
+        'flex items-center justify-between gap-4 border-b border-border px-4 py-4 last:border-0',
         className,
       )}
     >
@@ -45,7 +45,7 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
         <div className="flex items-center gap-2">
           <Link
             href={ROUTES.availabilityEdit(schedule.id)}
-            className="truncate font-medium text-white hover:underline"
+            className="truncate font-medium text-foreground hover:underline"
           >
             {schedule.name}
           </Link>
@@ -61,7 +61,7 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <Button variant="outline" size="sm" className="border-neutral-800" asChild>
+        <Button variant="outline" size="sm" className="border-border" asChild>
           <Link href={ROUTES.availabilityEdit(schedule.id)}>
             <Pencil className="size-3.5" />
             Edit
@@ -75,7 +75,7 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
               <span className="sr-only">Schedule actions</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="border-neutral-800 bg-neutral-950">
+          <DropdownMenuContent align="end" className="border-border bg-background">
             {!schedule.is_default && onDelete ? (
               <DropdownMenuItem
                 className="text-red-500 focus:text-red-500"

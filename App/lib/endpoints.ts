@@ -8,6 +8,7 @@ export const ENDPOINTS = {
   },
   users: {
     me: '/users/me',
+    settings: '/users/me/settings',
   },
   eventTypes: {
     list: '/event-types',

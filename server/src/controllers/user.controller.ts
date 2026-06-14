@@ -16,4 +16,11 @@ export class UserController {
     );
     return ApiResponse.success(res, 'User updated successfully', user);
   });
+  static updateSettings = asyncHandler(async (req: Request, res: Response) => {
+    const settings = await UserService.updateUserSettings(
+      (req.user as { id: string; email: string }).id,
+      req.body,
+    );
+    return ApiResponse.success(res, 'Settings updated successfully', settings);
+  });
 }

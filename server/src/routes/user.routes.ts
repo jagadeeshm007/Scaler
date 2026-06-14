@@ -1,4 +1,4 @@
-import { updateUserSchema } from '@scaler/types';
+import { updateUserSchema, updateUserSettingsSchema } from '@scaler/types';
 import { Router } from 'express';
 
 import { UserController } from '../controllers/user.controller';
@@ -12,5 +12,6 @@ router.use(requireAuth);
 
 router.get('/me', UserController.getMe);
 router.patch('/me', validate(updateUserSchema), UserController.updateMe);
+router.patch('/me/settings', validate(updateUserSettingsSchema), UserController.updateSettings);
 
 export { router as userRoutes };

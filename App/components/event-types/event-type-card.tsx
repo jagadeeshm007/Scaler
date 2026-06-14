@@ -24,7 +24,9 @@ import { ROUTES } from '@/lib/routes';
 import type { EventType } from '@/types';
 
 function stopDragPointer(e: React.PointerEvent) {
-  e.stopPropagation();
+  if (e.currentTarget.contains(e.target as Node)) {
+    e.stopPropagation();
+  }
 }
 
 interface EventTypeCardProps {
@@ -90,7 +92,7 @@ export function EventTypeCard({
       {isSortable ? (
         <div
           className={cn(
-            'flex w-4 shrink-0 items-center justify-center text-neutral-500 transition-opacity duration-150',
+            'flex w-4 shrink-0 items-center justify-center text-muted-foreground transition-opacity duration-150',
             showDragHandle
               ? 'opacity-100'
               : 'opacity-0 group-hover:opacity-100 group-active:opacity-100',
@@ -103,8 +105,10 @@ export function EventTypeCard({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-sm font-semibold text-white md:text-[15px]">{eventType.title}</span>
-          <span className="hidden truncate text-sm text-neutral-500 md:inline">
+          <span className="text-sm font-semibold text-foreground md:text-[15px]">
+            {eventType.title}
+          </span>
+          <span className="hidden truncate text-sm text-muted-foreground md:inline">
             /{username}/{eventType.slug}
           </span>
         </div>
@@ -127,8 +131,12 @@ export function EventTypeCard({
 
       <div
         className="hidden shrink-0 items-center gap-2.5 md:flex"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          if (e.currentTarget.contains(e.target as Node)) e.stopPropagation();
+        }}
+        onKeyDown={(e) => {
+          if (e.currentTarget.contains(e.target as Node)) e.stopPropagation();
+        }}
         onPointerDown={stopDragPointer}
       >
         <EventTypeActiveToggle
@@ -161,8 +169,12 @@ export function EventTypeCard({
 
       <div
         className="md:hidden"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          if (e.currentTarget.contains(e.target as Node)) e.stopPropagation();
+        }}
+        onKeyDown={(e) => {
+          if (e.currentTarget.contains(e.target as Node)) e.stopPropagation();
+        }}
         onPointerDown={stopDragPointer}
       >
         <EventTypeActions
@@ -185,11 +197,7 @@ export function EventTypeCard({
   if (isSortable && dragProps) {
     return (
       <div
-        className={cn(
-          'group',
-          rowClass,
-          'cursor-grab active:cursor-grabbing hover:bg-neutral-800/30',
-        )}
+        className={cn('group', rowClass, 'cursor-grab active:cursor-grabbing hover:bg-accent/30')}
         {...dragProps.attributes}
         {...dragListeners}
         onClick={handleSortableClick}
@@ -210,7 +218,7 @@ export function EventTypeCard({
 
   return (
     <div
-      className={cn(rowClass, 'cursor-pointer hover:bg-neutral-800/30')}
+      className={cn(rowClass, 'cursor-pointer hover:bg-accent/30')}
       onClick={openEdit}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

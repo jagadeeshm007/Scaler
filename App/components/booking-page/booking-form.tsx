@@ -105,13 +105,13 @@ export function BookingForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 p-4">
           {/* New time header — shown in reschedule mode */}
           {isReschedule && (
-            <div className="flex items-start gap-2 rounded-lg border border-neutral-700 bg-neutral-800/50 px-3 py-2.5 text-sm">
-              <CalendarDays className="mt-0.5 size-4 shrink-0 text-neutral-400" />
+            <div className="flex items-start gap-2 rounded-lg border border-border bg-accent/50 px-3 py-2.5 text-sm">
+              <CalendarDays className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
               <div>
-                <p className="font-medium text-white">
+                <p className="font-medium text-foreground">
                   {formatBookingDate(slot.startTime, timezone)}
                 </p>
-                <p className="text-neutral-400">
+                <p className="text-muted-foreground">
                   {formatBookingTimeRange(slot.startTime, slot.endTime, timezone)}
                 </p>
               </div>
@@ -183,7 +183,7 @@ export function BookingForm({
               variant="ghost"
               onClick={onBack}
               disabled={isPending}
-              className="text-neutral-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               Back
             </Button>

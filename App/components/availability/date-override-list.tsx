@@ -53,7 +53,7 @@ export function DateOverrideList({ overrides, onChange, className }: DateOverrid
       {sorted.map((override, index) => (
         <div
           key={override.date}
-          className="flex flex-col gap-3 rounded-lg border border-neutral-800 bg-neutral-900 p-4"
+          className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4"
         >
           {/* Top row: toggle + date label + delete */}
           <div className="flex items-center gap-3">
@@ -66,7 +66,7 @@ export function DateOverrideList({ overrides, onChange, className }: DateOverrid
                 })
               }
             />
-            <span className="flex-1 text-sm font-medium text-white">
+            <span className="flex-1 text-sm font-medium text-foreground">
               {formatDateLabel(override.date)}
             </span>
             <Button
@@ -105,7 +105,7 @@ export function DateOverrideList({ overrides, onChange, className }: DateOverrid
                       'flex h-8 w-8 items-center justify-center rounded-md border text-base transition-colors',
                       override.emoji === emoji
                         ? 'border-neutral-400 bg-neutral-700'
-                        : 'border-neutral-700 bg-neutral-800 hover:border-neutral-500 hover:bg-neutral-700',
+                        : 'border-border bg-accent hover:border-neutral-500 hover:bg-neutral-700',
                     )}
                   >
                     {emoji}

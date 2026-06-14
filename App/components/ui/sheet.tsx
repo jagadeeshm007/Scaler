@@ -30,7 +30,7 @@ function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        'fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-[sheet-overlay-fade-out_0.25s_ease-in_forwards] data-[state=open]:animate-[sheet-overlay-fade-in_0.3s_ease-out_forwards]',
+        'fixed inset-0 z-50 bg-background/50 data-[state=closed]:animate-[sheet-overlay-fade-out_0.25s_ease-in_forwards] data-[state=open]:animate-[sheet-overlay-fade-in_0.3s_ease-out_forwards]',
         className,
       )}
       {...props}

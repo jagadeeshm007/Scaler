@@ -83,7 +83,7 @@ export function MonthView({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -24, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }}
             transition={{ duration: 0.32, ease: [0, 0, 0.2, 1] }}
-            className="flex flex-1 flex-col items-center border-b border-neutral-800 p-4 lg:border-b-0 lg:border-r lg:p-8"
+            className="flex flex-1 flex-col items-center border-b border-border p-4 lg:border-b-0 lg:border-r lg:p-8"
           >
             <div className="w-full max-w-[380px]">
               <BookingCalendar
@@ -116,8 +116,8 @@ export function MonthView({
       >
         {/* Panel header — hidden when the booking form is open */}
         {!selectedSlot && (
-          <div className="flex items-center justify-between gap-2 border-b border-neutral-800 px-5 py-4">
-            <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+          <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-4">
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
               {dateStr ? formatDateLabel(dateStr) : 'Select a date'}
             </span>
             <ToggleGroup
@@ -153,7 +153,7 @@ export function MonthView({
               >
                 <div className="max-h-[480px] overflow-y-auto scrollbar-none p-5">
                   {!dateStr && (
-                    <p className="py-8 text-center text-sm text-neutral-500">
+                    <p className="py-8 text-center text-sm text-muted-foreground">
                       Select a date to see available times
                     </p>
                   )}
@@ -181,7 +181,7 @@ export function MonthView({
                         >
                           <Button
                             variant="outline"
-                            className="w-full justify-center border-neutral-700 bg-neutral-900 text-sm font-medium text-white transition-colors duration-150 hover:!border-white hover:!bg-neutral-900 hover:!text-white"
+                            className="w-full justify-center border-border bg-card text-sm font-medium text-foreground transition-colors duration-150 hover:!border-foreground hover:!bg-card hover:!text-foreground"
                             onClick={() => onSlotSelect(slot)}
                           >
                             <span className="mr-2 size-2 shrink-0 rounded-full bg-green-500" />

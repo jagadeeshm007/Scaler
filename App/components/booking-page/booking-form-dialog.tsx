@@ -21,7 +21,7 @@ export function BookingFormDialog({
 }: BookingFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border-neutral-800 bg-neutral-900 p-0 sm:max-w-sm">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-card p-0 sm:max-w-sm">
         <BookingForm
           eventType={eventType}
           slot={slot}

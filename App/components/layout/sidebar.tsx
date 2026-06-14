@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
 
 import { TransitionLink } from '@/components/layout/transition-link';
-import { AvatarFallback } from '@/components/shared/avatar-fallback';
+import { UserAvatarDropdown } from '@/components/layout/user-avatar-dropdown';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
@@ -51,8 +51,8 @@ function NavItem({
             /* collapsed (md): fixed square · lg+: full row with label */
             'size-9 shrink-0 justify-center lg:size-auto lg:w-full lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
             active
-              ? 'bg-neutral-800 text-white'
-              : 'text-neutral-500 hover:bg-neutral-800/50 hover:text-neutral-200',
+              ? 'bg-accent text-accent-foreground'
+              : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground',
           )}
         >
           <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.25 : 1.75} />
@@ -63,7 +63,7 @@ function NavItem({
       <TooltipContent
         side="right"
         sideOffset={8}
-        className="border-neutral-700 bg-neutral-900 text-xs text-neutral-200 lg:hidden"
+        className="border-border bg-popover text-xs text-popover-foreground lg:hidden"
       >
         {label}
       </TooltipContent>
@@ -81,28 +81,20 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
       <aside
         className={cn(
           /* no right border — page bg handles separation */
-          'flex w-[60px] shrink-0 flex-col bg-neutral-950 py-3 lg:w-60 lg:px-3 lg:py-4',
+          'flex w-[60px] shrink-0 flex-col bg-background py-3 lg:w-60 lg:px-3 lg:py-4',
           className,
         )}
       >
         {/* ── Header ── */}
         <div className="mb-4 flex flex-col items-center gap-3 px-1.5 lg:mb-5 lg:flex-row lg:items-center lg:justify-between lg:px-1">
           {/* Logo — "Scaler" on lg, "SA" chip on md */}
-          <span className="hidden text-base font-bold tracking-tight text-white lg:inline">
+          <span className="hidden text-base font-bold tracking-tight text-foreground lg:inline">
             Scaler
           </span>
-          <span className="text-sm font-bold text-white lg:hidden">SA</span>
+          <span className="text-sm font-bold text-foreground lg:hidden">SA</span>
 
-          {/* Avatar — always visible */}
-          {user ? (
-            <div className="relative">
-              <AvatarFallback name={user.full_name} className="size-7 text-xs lg:size-8" />
-              <span className="absolute right-0 bottom-0 size-2 rounded-full border-2 border-neutral-950 bg-green-500" />
-            </div>
-          ) : (
-            /* placeholder so layout doesn't jump before auth hydration */
-            <div className="size-7 rounded-full bg-neutral-800 lg:size-8" />
-          )}
+          {/* Avatar dropdown */}
+          <UserAvatarDropdown avatarClassName="size-7 lg:size-8" />
         </div>
 
         {/* ── Search (below header in collapsed, in header row on lg) ── */}
@@ -112,7 +104,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
               <button
                 type="button"
                 aria-label="Search"
-                className="flex size-9 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-800/50 hover:text-neutral-200"
+                className="flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground"
               >
                 <Search className="size-4" />
               </button>
@@ -120,7 +112,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
             <TooltipContent
               side="right"
               sideOffset={8}
-              className="border-neutral-700 bg-neutral-900 text-xs text-neutral-200"
+              className="border-border bg-popover text-xs text-popover-foreground"
             >
               Search
             </TooltipContent>
@@ -142,7 +134,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
         </nav>
 
         {/* ── Bottom nav ── */}
-        <div className="mt-auto flex flex-col items-center gap-1 border-t border-neutral-800/60 px-1.5 pt-3 lg:items-stretch lg:gap-0.5 lg:px-0 lg:pt-4">
+        <div className="mt-auto flex flex-col items-center gap-1 border-t border-border/60 px-1.5 pt-3 lg:items-stretch lg:gap-0.5 lg:px-0 lg:pt-4">
           <NavItem
             href={ROUTES.publicBooking(username, '15min')}
             label="View public page"
@@ -160,7 +152,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
               onNavigate={onNavigate}
             />
           ))}
-          <p className="hidden px-3 pt-3 text-xs text-neutral-700 lg:block">
+          <p className="hidden px-3 pt-3 text-xs text-muted-foreground lg:block">
             © {new Date().getFullYear()} Scaler
           </p>
         </div>

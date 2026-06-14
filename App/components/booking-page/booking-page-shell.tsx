@@ -43,7 +43,7 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
   const isDialogOpen = selectedSlot !== null && layout !== 'month';
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-950">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* ── Top bar ── */}
       <header className="flex items-center justify-end px-6 py-4">
         {/* Hidden on mobile — only desktop shows the view icons */}
@@ -58,7 +58,7 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
           /* Centered card for month view */
           <div
             className={cn(
-              'w-full overflow-hidden lg:rounded-2xl lg:border lg:border-neutral-800 transition-[max-width] duration-500 ease-[cubic-bezier(0,0,0.2,1)]',
+              'w-full overflow-hidden lg:rounded-2xl lg:border lg:border-border transition-[max-width] duration-500 ease-[cubic-bezier(0,0,0.2,1)]',
               selectedSlot ? 'lg:max-w-2xl' : 'lg:max-w-6xl',
             )}
           >
@@ -122,7 +122,7 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
 
       {/* ── Footer branding ── */}
       <footer className="py-6 text-center">
-        <span className="text-sm font-semibold tracking-widest text-neutral-500">Scaler</span>
+        <span className="text-sm font-semibold tracking-widest text-muted-foreground">Scaler</span>
       </footer>
 
       {isDialogOpen && selectedSlot && (

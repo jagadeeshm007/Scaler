@@ -2,14 +2,14 @@ import { cn } from '@/lib/utils';
 
 /** Cal.com dark theme surfaces — see docs/design-tokens.md */
 export const SURFACE = {
-  page: 'bg-neutral-950',
-  section: 'bg-neutral-900',
-  innerList: 'bg-neutral-900',
-  sectionBorder: 'border-neutral-800',
-  input: 'bg-[#1a1a1a]',
-  inputBorder: 'border-neutral-800',
-  rowDivider: 'border-neutral-800',
-  actionGroup: 'bg-[#1a1a1a] border-neutral-800',
+  page: 'bg-background',
+  section: 'bg-card',
+  innerList: 'bg-card',
+  sectionBorder: 'border-border',
+  input: 'bg-muted',
+  inputBorder: 'border-border',
+  rowDivider: 'border-border',
+  actionGroup: 'bg-muted border-border',
 } as const;
 
 export const RADIUS = {

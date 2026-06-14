@@ -11,7 +11,7 @@ export function CalendarPicker() {
   const selected = dateStr ? new Date(`${dateStr}T00:00:00`) : undefined;
 
   return (
-    <div className="border-b border-neutral-800 p-6 lg:border-b-0 lg:border-r">
+    <div className="border-b border-border p-6 lg:border-b-0 lg:border-r">
       <Calendar
         mode="single"
         selected={selected}

@@ -29,12 +29,12 @@ export function BookingFilters({ className }: BookingFiltersProps) {
       onValueChange={(value) => void setStatus(value as BookingStatusTab)}
       className={cn('w-full', className)}
     >
-      <TabsList className="h-auto w-full justify-start gap-0 border-b border-neutral-800 bg-transparent p-0">
+      <TabsList className="h-auto w-full justify-start gap-0 border-b border-border bg-transparent p-0">
         {BOOKING_STATUS_TABS.map((tab) => (
           <TabsTrigger
             key={tab}
             value={tab}
-            className="rounded-none border-b-2 border-transparent px-4 py-2.5 data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            className="rounded-none border-b-2 border-transparent px-4 py-2.5 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
             {TAB_LABELS[tab]}
           </TabsTrigger>

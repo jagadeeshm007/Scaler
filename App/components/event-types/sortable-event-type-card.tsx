@@ -50,7 +50,7 @@ export function SortableEventTypeCard({
       className={cn(
         isListDragging &&
           !isDragging &&
-          cn('overflow-hidden rounded-lg border border-neutral-800', SURFACE.innerList),
+          cn('overflow-hidden rounded-lg border border-border', SURFACE.innerList),
       )}
     >
       {isDragging ? (

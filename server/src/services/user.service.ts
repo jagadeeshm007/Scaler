@@ -1,4 +1,4 @@
-import type { UpdateUserInput } from '@scaler/types';
+import type { UpdateUserInput, UpdateUserSettingsInput } from '@scaler/types';
 import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
@@ -7,6 +7,7 @@ export class UserService {
   static async getCurrentUser(userId: string): Promise<unknown> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: { settings: true },
     });
 
     if (!user || user.deleted_at) {
@@ -27,5 +28,16 @@ export class UserService {
     const safeUser = { ...user };
     delete (safeUser as { password_hash?: string }).password_hash;
     return safeUser;
+  }
+  static async updateUserSettings(userId: string, data: UpdateUserSettingsInput): Promise<unknown> {
+    const settings = await prisma.userSettings.upsert({
+      where: { user_id: userId },
+      update: data,
+      create: {
+        user_id: userId,
+        ...data,
+      },
+    });
+    return settings;
   }
 }

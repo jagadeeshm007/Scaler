@@ -50,3 +50,28 @@ export function useUpdateProfile() {
     onSettled: () => void queryClient.invalidateQueries({ queryKey: queryKeys.user.me() }),
   });
 }
+
+export function useUpdateSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) => api.patch<AuthUser>(ENDPOINTS.users.settings, data),
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.user.me() });
+      const previous = queryClient.getQueryData<AuthUser>(queryKeys.user.me());
+      if (previous) {
+        // Optimistically update settings
+        const newSettings = { ...(previous as any).settings, ...data };
+        queryClient.setQueryData<AuthUser>(queryKeys.user.me(), {
+          ...previous,
+          settings: newSettings,
+        } as AuthUser);
+      }
+      return { previous };
+    },
+    onError: (err: Error, _data, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(queryKeys.user.me(), ctx.previous);
+      toast.error(err.message);
+    },
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: queryKeys.user.me() }),
+  });
+}

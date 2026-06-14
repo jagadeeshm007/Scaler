@@ -10,7 +10,7 @@ export function AvatarFallback({ name, className }: AvatarFallbackProps) {
   return (
     <div
       className={cn(
-        'flex size-8 shrink-0 items-center justify-center rounded-full bg-pink-600 text-sm font-medium text-white',
+        'flex size-8 shrink-0 items-center justify-center rounded-full bg-pink-600 text-sm font-medium text-foreground',
         className,
       )}
     >

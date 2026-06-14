@@ -90,12 +90,12 @@ export function WeekView({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Navigation bar */}
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 text-neutral-400 hover:text-white"
+            className="size-7 text-muted-foreground hover:text-foreground"
             onClick={() => setWeekStart((d) => subWeeks(d, 1))}
             aria-label="Previous week"
           >
@@ -104,13 +104,13 @@ export function WeekView({
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 text-neutral-400 hover:text-white"
+            className="size-7 text-muted-foreground hover:text-foreground"
             onClick={() => setWeekStart((d) => addWeeks(d, 1))}
             aria-label="Next week"
           >
             <ChevronRight className="size-4" />
           </Button>
-          <span className="text-sm font-medium text-white">
+          <span className="text-sm font-medium text-foreground">
             {formatWeekRange(weekStart, weekEnd)}
           </span>
         </div>
@@ -120,7 +120,7 @@ export function WeekView({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 border-neutral-700 text-xs"
+              className="h-7 border-border text-xs"
               onClick={() => setWeekStart(today)}
             >
               Today
@@ -148,7 +148,7 @@ export function WeekView({
       {/* Week grid */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {/* Day headers */}
-        <div className="flex border-b border-neutral-800">
+        <div className="flex border-b border-border">
           {/* Time gutter */}
           <div className="w-14 shrink-0" />
           {weekDates.map((date, i) => {
@@ -157,13 +157,13 @@ export function WeekView({
             return (
               <div
                 key={dateStrs[i]}
-                className="flex flex-1 flex-col items-center border-l border-neutral-800 py-2"
+                className="flex flex-1 flex-col items-center border-l border-border py-2"
               >
-                <p className="text-xs font-medium text-neutral-500">{abbr}</p>
+                <p className="text-xs font-medium text-muted-foreground">{abbr}</p>
                 <p
                   className={cn(
                     'mt-0.5 inline-flex size-7 items-center justify-center rounded-full text-sm font-semibold',
-                    todayDay ? 'bg-neutral-100 text-neutral-900' : 'text-white',
+                    todayDay ? 'bg-neutral-100 text-neutral-900' : 'text-foreground',
                   )}
                 >
                   {day}
@@ -177,11 +177,11 @@ export function WeekView({
         <div className="flex min-h-0 flex-1 overflow-y-auto" ref={gridRef}>
           <div className="relative flex w-full" style={{ height: gridHeight }}>
             {/* Hour labels */}
-            <div className="sticky left-0 z-10 w-14 shrink-0 bg-neutral-950">
+            <div className="sticky left-0 z-10 w-14 shrink-0 bg-background">
               {Array.from({ length: totalHours }, (_, h) => (
                 <div
                   key={h}
-                  className="relative border-b border-neutral-800/50"
+                  className="relative border-b border-border/50"
                   style={{ height: HOUR_HEIGHT }}
                 >
                   <span className="absolute -top-2 right-2 text-xs text-neutral-600">
@@ -199,14 +199,14 @@ export function WeekView({
               return (
                 <div
                   key={dateStr}
-                  className="relative flex-1 border-l border-neutral-800"
+                  className="relative flex-1 border-l border-border"
                   style={{ height: gridHeight }}
                 >
                   {/* Hour grid lines */}
                   {Array.from({ length: totalHours }, (_, h) => (
                     <div
                       key={h}
-                      className="absolute inset-x-0 border-b border-neutral-800/50"
+                      className="absolute inset-x-0 border-b border-border/50"
                       style={{ top: h * HOUR_HEIGHT, height: HOUR_HEIGHT }}
                     />
                   ))}
@@ -222,7 +222,7 @@ export function WeekView({
 
                   {/* Loading shimmer */}
                   {isLoading && (
-                    <div className="absolute inset-x-1 top-4 h-20 animate-pulse rounded bg-neutral-800/60" />
+                    <div className="absolute inset-x-1 top-4 h-20 animate-pulse rounded bg-accent/60" />
                   )}
 
                   {/* Available slot blocks */}

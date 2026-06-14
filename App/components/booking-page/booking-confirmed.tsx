@@ -72,9 +72,9 @@ function outlookUrl(booking: Booking, tz: string): string {
 
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[120px_1fr] gap-4 border-b border-neutral-800/60 py-4 last:border-0">
-      <span className="pt-0.5 text-sm text-neutral-500">{label}</span>
-      <div className="text-sm text-white">{children}</div>
+    <div className="grid grid-cols-[120px_1fr] gap-4 border-b border-border/60 py-4 last:border-0">
+      <span className="pt-0.5 text-sm text-muted-foreground">{label}</span>
+      <div className="text-sm text-foreground">{children}</div>
     </div>
   );
 }
@@ -94,7 +94,7 @@ function CalIconButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="flex size-9 items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800 transition-colors hover:border-neutral-500 hover:bg-neutral-700"
+      className="flex size-9 items-center justify-center rounded-lg border border-border bg-accent transition-colors hover:border-neutral-500 hover:bg-neutral-700"
     >
       {children}
     </a>
@@ -199,31 +199,29 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0, 0, 0.2, 1] }}
     >
-      <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         {/* ── header ── */}
-        <div className="flex flex-col items-center gap-3 border-b border-neutral-800 px-8 py-8 text-center">
+        <div className="flex flex-col items-center gap-3 border-b border-border px-8 py-8 text-center">
           <m.div
             className={cn(
               'flex size-12 items-center justify-center rounded-full border-2',
-              isCancelled
-                ? 'border-neutral-600 bg-neutral-800'
-                : 'border-green-500 bg-green-500/10',
+              isCancelled ? 'border-neutral-600 bg-accent' : 'border-green-500 bg-green-500/10',
             )}
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 280, damping: 22, delay: 0.08 }}
           >
             {isCancelled ? (
-              <X className="size-6 text-neutral-400" strokeWidth={2.5} />
+              <X className="size-6 text-muted-foreground" strokeWidth={2.5} />
             ) : (
               <Check className="size-6 text-green-500" strokeWidth={2.5} />
             )}
           </m.div>
           <div>
-            <h1 className="text-xl font-semibold text-white">
+            <h1 className="text-xl font-semibold text-foreground">
               {isCancelled ? 'This event has been cancelled' : 'This meeting is scheduled'}
             </h1>
-            <p className="mt-1.5 text-sm text-neutral-400">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               {isCancelled
                 ? 'A cancellation email has been sent to all attendees.'
                 : 'We sent an email with a calendar invitation with the details to everyone.'}
@@ -238,17 +236,17 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
           </InfoRow>
 
           <InfoRow label="When">
-            <p className={cn('font-medium', isCancelled && 'line-through text-neutral-500')}>
+            <p className={cn('font-medium', isCancelled && 'line-through text-muted-foreground')}>
               {formatFullDate(booking.start_time, timezone)}
             </p>
             <p
               className={cn(
                 'mt-0.5',
-                isCancelled ? 'line-through text-neutral-600' : 'text-neutral-400',
+                isCancelled ? 'line-through text-neutral-600' : 'text-muted-foreground',
               )}
             >
               {formatBookingTimeRange(booking.start_time, booking.end_time, timezone)}{' '}
-              <span className="text-neutral-500">({tzLabel})</span>
+              <span className="text-muted-foreground">({tzLabel})</span>
             </p>
           </InfoRow>
 
@@ -260,11 +258,11 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
                   Host
                 </span>
               </div>
-              {hostEmail && <p className="text-neutral-400">{hostEmail}</p>}
+              {hostEmail && <p className="text-muted-foreground">{hostEmail}</p>}
             </div>
             <div className="mt-3">
               <p className="font-medium">{booking.guest_name}</p>
-              <p className="text-neutral-400">{booking.guest_email}</p>
+              <p className="text-muted-foreground">{booking.guest_email}</p>
             </div>
           </InfoRow>
 
@@ -296,16 +294,18 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
               transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden"
             >
-              <div className="border-t border-neutral-800 px-8 py-5">
-                <h3 className="mb-3 text-sm font-medium text-white">Reason for cancellation</h3>
+              <div className="border-t border-border px-8 py-5">
+                <h3 className="mb-3 text-sm font-medium text-foreground">
+                  Reason for cancellation
+                </h3>
                 <Textarea
                   placeholder="Why are you cancelling?"
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                   disabled={cancelMutation.isPending}
-                  className="min-h-[80px] resize-none border-neutral-700 bg-neutral-800 text-sm text-white placeholder:text-neutral-500 focus:border-neutral-500"
+                  className="min-h-[80px] resize-none border-border bg-accent text-sm text-foreground placeholder:text-muted-foreground focus:border-neutral-500"
                 />
-                <p className="mt-1.5 text-xs text-neutral-500">
+                <p className="mt-1.5 text-xs text-muted-foreground">
                   Cancellation reason will be shared with guests
                 </p>
                 <div className="mt-4 flex items-center justify-end gap-2">
@@ -315,7 +315,7 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
                     size="sm"
                     onClick={() => setShowCancel(false)}
                     disabled={cancelMutation.isPending}
-                    className="text-neutral-400 hover:text-white"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     Nevermind
                   </Button>
@@ -340,8 +340,8 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
 
         {/* ── add to calendar (only when not cancelled) ── */}
         {!isCancelled && (
-          <div className="flex items-center gap-3 border-t border-neutral-800 px-8 py-4">
-            <span className="text-sm text-neutral-400">Add to calendar</span>
+          <div className="flex items-center gap-3 border-t border-border px-8 py-4">
+            <span className="text-sm text-muted-foreground">Add to calendar</span>
             <div className="flex items-center gap-2">
               <CalIconButton href={googleCalUrl(booking, timezone)} label="Google Calendar">
                 <GoogleIcon />
@@ -361,10 +361,10 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
 
         {/* ── footer actions ── */}
         {!isCancelled && !showCancel && (
-          <div className="border-t border-neutral-800 px-8 py-4 text-center text-sm text-neutral-500">
+          <div className="border-t border-border px-8 py-4 text-center text-sm text-muted-foreground">
             Need to make a change?{' '}
             <button
-              className="text-neutral-300 hover:text-white hover:underline"
+              className="text-neutral-300 hover:text-foreground hover:underline"
               onClick={() =>
                 router.push(`/${params.username}/${params.slug}?reschedule=${booking.uid}`)
               }
@@ -373,7 +373,7 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
             </button>{' '}
             or{' '}
             <button
-              className="text-neutral-300 hover:text-white hover:underline"
+              className="text-neutral-300 hover:text-foreground hover:underline"
               onClick={() => setShowCancel(true)}
             >
               Cancel
@@ -384,7 +384,7 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
 
       {/* ── report booking ── */}
       <div className="mt-4 flex justify-center">
-        <button className="inline-flex items-center gap-1.5 text-xs text-neutral-600 transition-colors hover:text-neutral-400">
+        <button className="inline-flex items-center gap-1.5 text-xs text-neutral-600 transition-colors hover:text-muted-foreground">
           <Flag className="size-3.5" />
           Report booking
         </button>

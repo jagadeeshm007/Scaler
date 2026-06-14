@@ -2,7 +2,7 @@
 
 import { Search } from 'lucide-react';
 
-import { AvatarFallback } from '@/components/shared/avatar-fallback';
+import { UserAvatarDropdown } from '@/components/layout/user-avatar-dropdown';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 
@@ -21,22 +21,17 @@ export function MobileHeader({ className }: MobileHeaderProps) {
 
   return (
     <header className={cn('flex h-14 items-center justify-between px-4 md:hidden', className)}>
-      <span className="text-lg font-bold tracking-tight text-white">Scaler</span>
+      <span className="text-lg font-bold tracking-tight text-foreground">Scaler</span>
       <div className="flex items-center gap-3">
         <button
           type="button"
           aria-label="Search"
           onClick={focusSearch}
-          className="text-neutral-400 transition-colors hover:text-white"
+          className="text-muted-foreground transition-colors hover:text-foreground"
         >
           <Search className="size-5" />
         </button>
-        {user && (
-          <div className="relative">
-            <AvatarFallback name={user.full_name} className="size-8" />
-            <span className="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-neutral-950 bg-green-500" />
-          </div>
-        )}
+        <UserAvatarDropdown avatarClassName="size-8" />
       </div>
     </header>
   );

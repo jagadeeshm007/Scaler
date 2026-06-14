@@ -20,7 +20,7 @@ export function EventTypeDragHandleIcon({ className }: { className?: string }) {
 export function EventTypeListRowPlaceholder({ className }: { className?: string }) {
   return (
     <div
-      className={cn('rounded-lg border border-dashed border-neutral-600 bg-neutral-900', className)}
+      className={cn('rounded-lg border border-dashed border-neutral-600 bg-card', className)}
       aria-hidden
     />
   );
@@ -77,8 +77,8 @@ export function EventTypeActionGroupButton({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        'flex h-7 w-8 items-center justify-center text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200',
-        showDivider && 'border-r border-neutral-800 last:border-r-0',
+        'flex h-7 w-8 items-center justify-center text-muted-foreground transition-colors hover:bg-accent hover:text-card-foreground',
+        showDivider && 'border-r border-border last:border-r-0',
         className,
       )}
     >
@@ -102,7 +102,7 @@ export function EventTypeBadge({
       className={cn(
         variant === 'default' &&
           cn(
-            'inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs text-neutral-400',
+            'inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs text-muted-foreground',
             SURFACE.input,
             SURFACE.inputBorder,
           ),

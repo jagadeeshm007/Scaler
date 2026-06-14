@@ -181,7 +181,7 @@ export function ScheduleEditor({ scheduleId }: ScheduleEditorProps) {
     <div className="mx-auto max-w-3xl space-y-8 pb-12">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{schedule.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{schedule.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Set your weekly hours and date-specific overrides.
           </p>
@@ -191,14 +191,14 @@ export function ScheduleEditor({ scheduleId }: ScheduleEditorProps) {
         </Button>
       </div>
 
-      <div className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-900 p-6">
+      <div className="space-y-4 rounded-lg border border-border bg-card p-6">
         <div className="space-y-2">
           <Label htmlFor="schedule-name">Schedule name</Label>
           <Input
             id="schedule-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="max-w-md border-neutral-800 bg-neutral-950"
+            className="max-w-md border-border bg-background"
           />
         </div>
 
@@ -213,8 +213,8 @@ export function ScheduleEditor({ scheduleId }: ScheduleEditorProps) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-6">
-        <h2 className="border-b border-neutral-800 py-4 text-base font-medium text-white">
+      <div className="rounded-lg border border-border bg-card px-6">
+        <h2 className="border-b border-border py-4 text-base font-medium text-foreground">
           Weekly hours
         </h2>
         {Array.from({ length: 7 }, (_, day) => (
@@ -232,10 +232,10 @@ export function ScheduleEditor({ scheduleId }: ScheduleEditorProps) {
         ))}
       </div>
 
-      <div className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-900 p-6">
+      <div className="space-y-4 rounded-lg border border-border bg-card p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-base font-medium text-white">Date overrides</h2>
+            <h2 className="text-base font-medium text-foreground">Date overrides</h2>
             <p className="text-sm text-muted-foreground">Adjust availability for specific dates.</p>
           </div>
           <DateOverridePicker
