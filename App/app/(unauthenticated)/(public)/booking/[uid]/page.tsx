@@ -56,7 +56,7 @@ function ConfirmedContent() {
   if (!booking) {
     return (
       <div className="py-12 text-center">
-        <p className="text-lg font-semibold text-white">Your booking has been confirmed</p>
+        <p className="text-lg font-semibold text-foreground">Your booking has been confirmed</p>
         <p className="mt-2 text-sm text-muted-foreground">Check your email for details.</p>
       </div>
     );
@@ -68,7 +68,7 @@ function ConfirmedContent() {
 export default function BookingConfirmedPage() {
   return (
     <LazyMotion features={domAnimation}>
-      <div className="min-h-screen bg-neutral-950 px-4 py-12">
+      <div className="min-h-screen bg-background px-4 py-12">
         <Suspense fallback={<Skeleton className="mx-auto h-96 max-w-lg rounded-xl" />}>
           <ConfirmedContent />
         </Suspense>

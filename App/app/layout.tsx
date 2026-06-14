@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className="dark">
       <body
-        className={`${inter.variable} font-sans min-h-screen overflow-x-hidden bg-neutral-950 text-white`}
+        className={`${inter.variable} font-sans min-h-screen overflow-x-hidden bg-background text-foreground`}
       >
         <Providers>
           {children}

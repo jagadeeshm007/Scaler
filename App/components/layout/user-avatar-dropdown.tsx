@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useThemeTransition } from '@/hooks/use-theme-transition';
 import { useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'motion/react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { User, Settings, LogOut, Plane } from 'lucide-react';
 import { Classic } from '@/components/ui/theme-toggle';
@@ -147,12 +148,20 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
           {initial}
         </AvatarFallback>
       </Avatar>
-      <span
-        className={cn(
-          'absolute right-0 bottom-0 size-2.5 rounded-full border border-background transition-all duration-200',
-          isAvailable ? 'bg-green-500 border-2' : 'bg-background border border-foreground',
+      <AnimatePresence>
+        {schedules !== undefined && (
+          <motion.span
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', bounce: 0.5, duration: 0.5 }}
+            className={cn(
+              'absolute right-0 bottom-0 size-2.5 rounded-full border border-background transition-colors duration-200',
+              isAvailable ? 'bg-green-500 border-2' : 'bg-background border border-foreground',
+            )}
+          />
         )}
-      />
+      </AnimatePresence>
     </button>
   );
 

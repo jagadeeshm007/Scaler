@@ -22,7 +22,7 @@ export default async function BookingPage({ params }: BookingPageProps) {
   }
 
   return (
-    <Suspense fallback={<Skeleton className="min-h-screen w-full bg-neutral-950" />}>
+    <Suspense fallback={<Skeleton className="min-h-screen w-full bg-background" />}>
       <BookingPageShell eventType={eventType} />
     </Suspense>
   );

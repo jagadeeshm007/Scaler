@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { usePublicCancelBooking } from '@/hooks/mutations/use-booking-mutations';
 import { useTimezone } from '@/hooks/use-timezone';
 import { formatBookingTimeRange } from '@/lib/format';
+import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import type { Booking } from '@/types';
 
@@ -349,7 +350,18 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
               <InfoRow label="Rescheduled by">
                 <div>
                   <p className="font-medium">{booking.guest_email}</p>
-                  <p className="mt-0.5 text-muted-foreground">Original booking</p>
+                  {/* @ts-expect-error - rescheduled_from_uid might not be explicitly strongly typed yet */}
+                  {booking.rescheduled_from_uid ? (
+                    <a
+                      /* @ts-expect-error - rescheduled_from_uid is not yet strictly typed in Prisma client */
+                      href={ROUTES.publicBookingStatus(booking.rescheduled_from_uid)}
+                      className="mt-0.5 inline-flex items-center gap-1 text-muted-foreground hover:text-primary hover:underline"
+                    >
+                      Original booking
+                    </a>
+                  ) : (
+                    <p className="mt-0.5 text-muted-foreground">Original booking</p>
+                  )}
                 </div>
               </InfoRow>
             )}
