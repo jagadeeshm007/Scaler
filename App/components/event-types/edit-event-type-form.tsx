@@ -115,9 +115,11 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
   const publicUrl = `${appUrl}${ROUTES.publicBooking(username, eventType.slug)}`;
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedTitle = form.watch('title');
   const watchedDuration = form.watch('duration_mins') ?? eventType.duration_mins;
   const watchedHidden = form.watch('is_hidden') ?? false;
+  const watchedLocation = form.watch('location_type');
 
   useEffect(() => {
     if (!allowMultiple) {
@@ -449,8 +451,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
               ))}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              {LOCATION_OPTIONS.find((l) => l.value === form.watch('location_type'))?.label ??
-                'Location'}
+              {LOCATION_OPTIONS.find((l) => l.value === watchedLocation)?.label ?? 'Location'}
             </p>
             {watchedHidden && (
               <EventTypeBadge variant="hidden" className="mt-3">

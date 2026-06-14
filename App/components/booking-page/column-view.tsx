@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
-import { SlotSkeleton } from '@/components/booking-page/slot-skeleton';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useWeekSlots } from '@/hooks/queries/use-week-slots';
@@ -26,13 +25,7 @@ function dateToStr(date: Date): string {
   return format(date, 'yyyy-MM-dd');
 }
 
-export function ColumnView({
-  eventType,
-  timezone,
-  layout,
-  onLayoutChange,
-  onSlotSelect,
-}: ColumnViewProps) {
+export function ColumnView({ eventType, timezone, onSlotSelect }: ColumnViewProps) {
   const [weekStart, setWeekStart] = useState<Date>(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }),
   );

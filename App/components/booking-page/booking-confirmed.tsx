@@ -4,7 +4,6 @@ import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Check, ExternalLink, Flag, Loader2, X } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 

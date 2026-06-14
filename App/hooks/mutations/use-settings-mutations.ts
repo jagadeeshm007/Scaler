@@ -54,13 +54,16 @@ export function useUpdateProfile() {
 export function useUpdateSettings() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: any) => api.patch<AuthUser>(ENDPOINTS.users.settings, data),
+    mutationFn: (data: unknown) => api.patch<AuthUser>(ENDPOINTS.users.settings, data),
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.user.me() });
       const previous = queryClient.getQueryData<AuthUser>(queryKeys.user.me());
       if (previous) {
         // Optimistically update settings
-        const newSettings = { ...(previous as any).settings, ...data };
+        const newSettings = {
+          ...(previous as unknown as { settings: Record<string, string> }).settings,
+          ...(data as Record<string, string>),
+        };
         queryClient.setQueryData<AuthUser>(queryKeys.user.me(), {
           ...previous,
           settings: newSettings,

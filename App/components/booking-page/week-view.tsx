@@ -55,13 +55,7 @@ interface WeekViewProps {
   onSlotSelect: (slot: Slot) => void;
 }
 
-export function WeekView({
-  eventType,
-  timezone,
-  layout,
-  onLayoutChange,
-  onSlotSelect,
-}: WeekViewProps) {
+export function WeekView({ eventType, timezone, onSlotSelect }: WeekViewProps) {
   const [weekStart, setWeekStart] = useState<Date>(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }),
   );

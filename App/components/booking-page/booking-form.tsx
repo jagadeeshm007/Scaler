@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CalendarDays, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createBookingSchema } from '@scaler/types';
 import { z } from 'zod';
@@ -52,7 +52,7 @@ export function BookingForm({
   className,
 }: BookingFormProps) {
   const router = useRouter();
-  const idempotencyKeyRef = useRef(crypto.randomUUID());
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
   const [submitError, setSubmitError] = useState<string | null>(null);
   const createBooking = useCreateBooking();
 
@@ -86,7 +86,7 @@ export function BookingForm({
     try {
       const booking = await createBooking.mutateAsync({
         data: body,
-        idempotencyKey: idempotencyKeyRef.current,
+        idempotencyKey,
       });
 
       sessionStorage.setItem(`booking-${booking.id}`, JSON.stringify(booking));

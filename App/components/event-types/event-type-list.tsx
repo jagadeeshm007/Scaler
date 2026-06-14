@@ -94,10 +94,10 @@ export function EventTypeList() {
       {/* Inner list card — content height only; outer card fills the rest */}
       <div
         className={cn(
-          'mx-4 mb-4 shrink-0 rounded-xl border transition-colors duration-200 md:mx-6 md:mb-6',
-          isDragging ? 'overflow-visible p-2' : 'overflow-hidden',
-          SURFACE.innerList,
-          isDragging ? 'border-transparent' : SURFACE.sectionBorder,
+          'mx-4 mb-4 shrink-0 transition-all duration-300 ease-in-out md:mx-6 md:mb-6',
+          isDragging
+            ? 'overflow-visible rounded-none border-transparent bg-transparent p-2'
+            : cn('overflow-hidden rounded-xl border', SURFACE.sectionBorder, SURFACE.innerList),
         )}
       >
         {isEmpty ? (

@@ -101,11 +101,13 @@ export function ScheduleEditor({ scheduleId }: ScheduleEditorProps) {
 
   useEffect(() => {
     if (!schedule) return;
-    setName(schedule.name);
-    setTimezone(schedule.timezone);
-    setIsDefault(schedule.is_default);
-    setDayRanges(buildDayRanges(schedule.availability));
-    setOverrides(mapOverrides(schedule.overrides));
+    queueMicrotask(() => {
+      setName(schedule.name);
+      setTimezone(schedule.timezone);
+      setIsDefault(schedule.is_default);
+      setDayRanges(buildDayRanges(schedule.availability));
+      setOverrides(mapOverrides(schedule.overrides));
+    });
   }, [schedule]);
 
   const overrideDates = useMemo(() => overrides.map((o) => o.date), [overrides]);

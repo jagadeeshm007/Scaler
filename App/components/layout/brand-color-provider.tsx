@@ -10,7 +10,7 @@ export function BrandColorProvider() {
 
   useEffect(() => {
     // We expect user settings to be attached via the relation query
-    const settings = (user as any)?.settings;
+    const settings = (user as unknown as { settings?: Record<string, string> })?.settings;
     if (!settings) return;
 
     const root = document.documentElement;

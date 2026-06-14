@@ -1,15 +1,13 @@
 'use client';
 
-import type { DraggableAttributes } from '@dnd-kit/core';
-import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import { EventTypeCard } from '@/components/event-types/event-type-card';
-import { EventTypeListRowPlaceholder } from '@/components/event-types/event-type-ui';
-import { SURFACE } from '@/components/shared/page-section';
 import { cn } from '@/lib/utils';
 import type { EventType } from '@/types';
+
+import React from 'react';
 
 const SORT_TRANSITION = {
   duration: 250,
@@ -22,7 +20,7 @@ interface SortableEventTypeCardProps {
   isListDragging: boolean;
 }
 
-export function SortableEventTypeCard({
+export const SortableEventTypeCard = React.memo(function SortableEventTypeCard({
   eventType,
   username,
   isListDragging,
@@ -33,31 +31,39 @@ export function SortableEventTypeCard({
     transition: SORT_TRANSITION,
   });
 
+  const combinedTransition = transition
+    ? `${transition}, margin 300ms ease-in-out, border-radius 300ms ease-in-out, border-color 300ms ease-in-out, box-shadow 300ms ease-in-out`
+    : 'margin 300ms ease-in-out, border-radius 300ms ease-in-out, border-color 300ms ease-in-out, box-shadow 300ms ease-in-out';
+
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: combinedTransition,
   };
 
-  const dragProps: {
-    attributes: DraggableAttributes;
-    listeners: SyntheticListenerMap | undefined;
-  } = { attributes, listeners };
+  const dragProps = React.useMemo(
+    () => ({
+      attributes,
+      listeners,
+    }),
+    [attributes, listeners],
+  );
 
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={cn(
-        isListDragging &&
-          !isDragging &&
-          cn('overflow-hidden rounded-lg border border-border', SURFACE.innerList),
+        'overflow-hidden bg-card',
+        isListDragging
+          ? 'mb-2 rounded-lg border border-border shadow-sm last:mb-0'
+          : 'rounded-none border-b border-transparent border-b-border last:border-b-transparent',
       )}
     >
       {isDragging ? (
-        <EventTypeListRowPlaceholder className="min-h-[64px]" />
+        <div className="min-h-[88px] rounded-lg border-2 border-dashed border-border/60 bg-transparent" />
       ) : (
         <EventTypeCard eventType={eventType} username={username} isSortable dragProps={dragProps} />
       )}
     </div>
   );
-}
+});

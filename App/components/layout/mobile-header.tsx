@@ -4,15 +4,12 @@ import { Search } from 'lucide-react';
 
 import { UserAvatarDropdown } from '@/components/layout/user-avatar-dropdown';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/auth.store';
 
 interface MobileHeaderProps {
   className?: string;
 }
 
 export function MobileHeader({ className }: MobileHeaderProps) {
-  const user = useAuthStore((s) => s.user);
-
   const focusSearch = () => {
     const input = document.getElementById('event-type-search');
     input?.focus();

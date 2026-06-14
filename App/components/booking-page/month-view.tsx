@@ -32,8 +32,6 @@ interface MonthViewProps {
 export function MonthView({
   eventType,
   timezone,
-  layout,
-  onLayoutChange,
   selectedSlot,
   onSlotSelect,
   rescheduleBooking,

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useThemeTransition } from '@/hooks/use-theme-transition';
 import { useRouter } from 'next/navigation';
 import { formatInTimeZone } from 'date-fns-tz';
-import { Moon, Sun, User, Settings, LogOut, Plane } from 'lucide-react';
+import { User, Settings, LogOut, Plane } from 'lucide-react';
 import { Classic } from '@/components/ui/theme-toggle';
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -20,9 +20,7 @@ import {
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { useAuthStore } from '@/store/auth.store';
-import { useUIStore } from '@/store/ui.store';
 import { useAvailability } from '@/hooks/queries/use-availability';
-import { useUpdateSettings } from '@/hooks/mutations/use-settings-mutations';
 import { useUpdateSchedule } from '@/hooks/mutations/use-availability-mutations';
 import { useIsMdUp } from '@/hooks/use-media-query';
 import { ROUTES } from '@/lib/routes';
@@ -43,11 +41,12 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
 
   const { data: schedules } = useAvailability();
   const updateSchedule = useUpdateSchedule();
-  const updateSettings = useUpdateSettings();
 
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => {
+      setMounted(true);
+    });
   }, []);
 
   if (!mounted || !user) {

@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useCreateEventType } from '@/hooks/mutations/use-event-type-mutations';
-import { useDebounce } from '@/hooks/use-debounce';
 import { slugify } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
@@ -73,14 +72,17 @@ export function CreateEventTypeForm() {
     },
   });
 
-  const title = form.watch('title');
-  const debouncedTitle = useDebounce(title, 500);
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const watchedTitle = form.watch('title');
 
   useEffect(() => {
-    if (!slugManuallyEdited && debouncedTitle) {
-      form.setValue('slug', slugify(debouncedTitle), { shouldValidate: true });
+    if (!slugManuallyEdited && watchedTitle) {
+      const timer = setTimeout(() => {
+        form.setValue('slug', slugify(watchedTitle), { shouldValidate: true });
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [debouncedTitle, slugManuallyEdited, form]);
+  }, [watchedTitle, slugManuallyEdited, form]);
 
   const onSubmit = (values: CreateEventTypeInput) => {
     createMutation.mutate(values, {

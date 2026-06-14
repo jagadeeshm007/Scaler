@@ -61,8 +61,13 @@ export function useThemeTransition(options: UseThemeTransitionOptions = {}) {
         x = rect.left + rect.width / 2;
         y = rect.top + rect.height / 2;
       } else {
-        const ev = event as any;
-        if (ev && 'currentTarget' in ev && ev.currentTarget instanceof HTMLElement) {
+        const ev = event as unknown;
+        if (
+          ev &&
+          typeof ev === 'object' &&
+          'currentTarget' in ev &&
+          ev.currentTarget instanceof HTMLElement
+        ) {
           const rect = ev.currentTarget.getBoundingClientRect();
           x = rect.left + rect.width / 2;
           y = rect.top + rect.height / 2;

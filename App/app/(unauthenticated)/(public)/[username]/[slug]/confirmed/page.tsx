@@ -24,10 +24,11 @@ function ConfirmedContent() {
       const raw = sessionStorage.getItem(`booking-uid-${bookingUid}`);
       if (raw) {
         try {
-          setStoredBooking(JSON.parse(raw) as Booking);
+          const parsed = JSON.parse(raw) as Booking;
+          queueMicrotask(() => setStoredBooking(parsed));
           return;
         } catch {
-          setStoredBooking(null);
+          queueMicrotask(() => setStoredBooking(null));
         }
       }
     }
@@ -36,9 +37,10 @@ function ConfirmedContent() {
     const raw = sessionStorage.getItem(`booking-${bookingId}`);
     if (raw) {
       try {
-        setStoredBooking(JSON.parse(raw) as Booking);
+        const parsed = JSON.parse(raw) as Booking;
+        queueMicrotask(() => setStoredBooking(parsed));
       } catch {
-        setStoredBooking(null);
+        queueMicrotask(() => setStoredBooking(null));
       }
     }
   }, [bookingUid, bookingId]);

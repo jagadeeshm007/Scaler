@@ -5,6 +5,7 @@ import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { Clock, EyeOff, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
+import React from 'react';
 import { toast } from 'sonner';
 
 import { EventTypeActions } from '@/components/event-types/event-type-actions';
@@ -41,7 +42,7 @@ interface EventTypeCardProps {
   };
 }
 
-export function EventTypeCard({
+export const EventTypeCard = React.memo(function EventTypeCard({
   eventType,
   username,
   isSortable = false,
@@ -233,4 +234,4 @@ export function EventTypeCard({
       {content}
     </div>
   );
-}
+});
