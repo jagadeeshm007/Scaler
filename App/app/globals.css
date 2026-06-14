@@ -89,6 +89,29 @@
   }
 }
 
+html.theme-transitioning::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+html.theme-transitioning::view-transition-group(root) {
+  animation-duration: 700ms;
+}
+
+html.theme-transitioning::view-transition-old(root),
+html.theme-transitioning::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  display: block;
+}
+
+html.theme-transitioning::view-transition-new(root) {
+  z-index: 9999;
+}
+
+html.theme-transitioning::view-transition-old(root) {
+  z-index: 1;
+}
+
 ::view-transition-old(root) {
   animation: 120ms ease-in fade-out;
 }

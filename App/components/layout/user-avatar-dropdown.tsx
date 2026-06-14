@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useTheme } from 'next-themes';
+import { useThemeTransition } from '@/hooks/use-theme-transition';
 import { useRouter } from 'next/navigation';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Moon, Sun, User, Settings, LogOut, Plane } from 'lucide-react';
@@ -36,7 +36,7 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { toggleTheme, resolvedTheme } = useThemeTransition();
   const isMdUp = useIsMdUp();
   const [open, setOpen] = React.useState(false);
 
@@ -194,12 +194,7 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
             <div className="space-y-0.5 px-2">
               <button
                 type="button"
-                onClick={() => {
-                  const nextTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
-                  setTheme(nextTheme);
-                  useUIStore.getState().setTheme(nextTheme);
-                  updateSettings.mutate({ theme: nextTheme });
-                }}
+                onClick={(e) => toggleTheme(e)}
                 className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm text-popover-foreground transition-colors hover:bg-accent active:bg-accent"
               >
                 <div className="flex items-center gap-3">
@@ -304,10 +299,7 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
             className="flex cursor-pointer items-center justify-between focus:bg-accent focus:text-foreground"
             onClick={(e) => {
               e.preventDefault();
-              const nextTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
-              setTheme(nextTheme);
-              useUIStore.getState().setTheme(nextTheme);
-              updateSettings.mutate({ theme: nextTheme });
+              toggleTheme(e);
             }}
           >
             <div className="flex items-center gap-2">
