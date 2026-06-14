@@ -124,7 +124,7 @@ export function EventTypeList() {
             )}
           </div>
         ) : hasQuery ? (
-          <div className="divide-y divide-neutral-800">
+          <div className="divide-y divide-border">
             {filtered.map((eventType) => (
               <EventTypeCard key={eventType.id} eventType={eventType} username={username} />
             ))}

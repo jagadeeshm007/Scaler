@@ -115,7 +115,7 @@ export function ColumnView({
 
       {/* Day columns */}
       <div className="flex min-h-0 flex-1 overflow-x-auto">
-        <div className="flex min-w-full divide-x divide-neutral-800">
+        <div className="flex min-w-full divide-x divide-border">
           {weekDates.map((date, i) => {
             const dateStr = dateStrs[i]!;
             const daySlots = slotsByDate[dateStr] ?? [];

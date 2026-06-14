@@ -29,19 +29,19 @@ export default function LoginPage() {
   });
 
   return (
-    <Card className="border-neutral-800 bg-neutral-900 p-6">
+    <Card className="border-border bg-card p-6">
       <h1 className="text-xl font-semibold">Login</h1>
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <input
           placeholder="Email"
           type="email"
-          className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           {...form.register('email')}
         />
         <input
           placeholder="Password"
           type="password"
-          className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           {...form.register('password')}
         />
         <Button type="submit" className="w-full">
@@ -50,7 +50,7 @@ export default function LoginPage() {
       </form>
       <p className="mt-4 text-center text-sm text-muted-foreground">
         No account?{' '}
-        <Link href={ROUTES.signup} className="text-white underline">
+        <Link href={ROUTES.signup} className="text-foreground underline">
           Sign up
         </Link>
       </p>

@@ -99,9 +99,7 @@ export function EventTypeSortableList({
       onDragCancel={handleDragCancel}
     >
       <div
-        className={cn(
-          isListDragging ? 'flex flex-col gap-2 md:gap-2.5' : 'divide-y divide-neutral-800',
-        )}
+        className={cn(isListDragging ? 'flex flex-col gap-2 md:gap-2.5' : 'divide-y divide-border')}
       >
         <SortableContext
           items={orderedItems.map((item) => item.id)}
