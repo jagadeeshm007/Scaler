@@ -4,7 +4,14 @@ import { useTheme } from 'next-themes';
 import { useUIStore } from '@/store/ui.store';
 import { useUpdateSettings } from '@/hooks/mutations/use-settings-mutations';
 
-export type ThemeTransitionType = 'CIRCLE' | 'DIAMOND' | 'SWIPE';
+export type ThemeTransitionType =
+  | 'CIRCLE'
+  | 'DIAMOND'
+  | 'SWIPE'
+  | 'SWIPE_UP'
+  | 'SPLIT_HORIZONTAL'
+  | 'SPLIT_VERTICAL'
+  | 'BOX_OUT';
 
 interface UseThemeTransitionOptions {
   animationType?: ThemeTransitionType;
@@ -124,6 +131,25 @@ export function useThemeTransition(options: UseThemeTransitionOptions = {}) {
         ];
       } else if (animationType === 'SWIPE') {
         keyframes = [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }];
+      } else if (animationType === 'SWIPE_UP') {
+        keyframes = [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }];
+      } else if (animationType === 'BOX_OUT') {
+        keyframes = [
+          {
+            clipPath: `inset(${y}px ${window.innerWidth - x}px ${window.innerHeight - y}px ${x}px)`,
+          },
+          { clipPath: 'inset(0 0 0 0)' },
+        ];
+      } else if (animationType === 'SPLIT_HORIZONTAL') {
+        keyframes = [
+          { clipPath: `inset(0 ${window.innerWidth - x}px 0 ${x}px)` },
+          { clipPath: 'inset(0 0 0 0)' },
+        ];
+      } else if (animationType === 'SPLIT_VERTICAL') {
+        keyframes = [
+          { clipPath: `inset(${y}px 0 ${window.innerHeight - y}px 0)` },
+          { clipPath: 'inset(0 0 0 0)' },
+        ];
       }
 
       // 6. Execute animation
