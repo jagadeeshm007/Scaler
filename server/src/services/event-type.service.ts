@@ -1,4 +1,5 @@
 import type { CreateEventTypeInput, UpdateEventTypeInput } from '@scaler/types';
+import { Prisma } from '@prisma/client';
 import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
@@ -47,10 +48,15 @@ export class EventTypeService {
       select: { position: true },
     });
     const position = (last?.position ?? -1) + 1;
+    const { theme_config, ...restData } = data;
 
     return prisma.eventType.create({
       data: {
-        ...data,
+        ...restData,
+        theme_config:
+          theme_config === null
+            ? Prisma.DbNull
+            : (theme_config as Prisma.InputJsonValue | undefined),
         user_id: userId,
         position,
       },
@@ -84,9 +90,19 @@ export class EventTypeService {
       }
     }
 
+    const { theme_config, ...restData } = data;
+
     return prisma.eventType.update({
       where: { id },
-      data,
+      data: {
+        ...restData,
+        ...(theme_config !== undefined
+          ? {
+              theme_config:
+                theme_config === null ? Prisma.DbNull : (theme_config as Prisma.InputJsonValue),
+            }
+          : {}),
+      },
     });
   }
 

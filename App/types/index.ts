@@ -62,6 +62,7 @@ export interface EventType {
   buffer_before_mins: number;
   buffer_after_mins: number;
   position: number;
+  theme_config?: { party_mode_enabled?: boolean } | null;
   created_at: string;
   updated_at: string;
 }

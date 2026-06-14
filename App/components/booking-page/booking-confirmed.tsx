@@ -4,8 +4,8 @@ import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Check, ExternalLink, Flag, Loader2, X } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 import { Confetti } from '@/components/ui/confetti';
 
@@ -168,10 +168,23 @@ interface BookingConfirmedProps {
 export function BookingConfirmed({ booking }: BookingConfirmedProps) {
   const { timezone } = useTimezone();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const cancelMutation = usePublicCancelBooking();
 
   const isSuccessBookingPage = searchParams.get('isSuccessBookingPage') === 'true';
+
+  let themeConfigObj: { party_mode_enabled?: boolean } | null = null;
+  if (typeof booking.event_type.theme_config === 'string') {
+    try {
+      themeConfigObj = JSON.parse(booking.event_type.theme_config);
+    } catch {
+      // ignore
+    }
+  } else {
+    themeConfigObj = booking.event_type.theme_config as { party_mode_enabled?: boolean } | null;
+  }
+  const partyModeEnabled = themeConfigObj?.party_mode_enabled ?? true;
 
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -195,9 +208,18 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
     setShowCancel(false);
   }
 
+  useEffect(() => {
+    if (isSuccessBookingPage) {
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete('isSuccessBookingPage');
+      const newUrl = newParams.toString() ? `${pathname}?${newParams.toString()}` : pathname;
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [isSuccessBookingPage, pathname, router, searchParams]);
+
   return (
     <>
-      {isSuccessBookingPage && !isCancelled && (
+      {isSuccessBookingPage && !isCancelled && partyModeEnabled && (
         <Confetti
           options={{
             particleCount: 100,

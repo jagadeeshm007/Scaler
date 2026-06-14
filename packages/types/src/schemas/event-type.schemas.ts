@@ -17,6 +17,12 @@ export const createEventTypeSchema = z.object({
     buffer_after_mins: z.number().int().min(0).optional(),
     is_hidden: z.boolean().optional(),
     is_active: z.boolean().optional(),
+    theme_config: z
+      .object({
+        party_mode_enabled: z.boolean().optional(),
+      })
+      .optional()
+      .nullable(),
   }),
 });
 

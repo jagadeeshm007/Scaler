@@ -145,7 +145,16 @@ export function BookingForm({
               <FormItem>
                 <FormLabel>Your name *</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" disabled={isPending} {...field} />
+                  <Input
+                    placeholder="John Doe"
+                    disabled={isPending}
+                    readOnly={isReschedule}
+                    className={cn(
+                      isReschedule &&
+                        'bg-accent/60 text-muted-foreground opacity-70 pointer-events-none select-none focus-visible:ring-0',
+                    )}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -163,6 +172,11 @@ export function BookingForm({
                     type="email"
                     placeholder="john@example.com"
                     disabled={isPending}
+                    readOnly={isReschedule}
+                    className={cn(
+                      isReschedule &&
+                        'bg-accent/60 text-muted-foreground opacity-70 pointer-events-none select-none focus-visible:ring-0',
+                    )}
                     {...field}
                   />
                 </FormControl>

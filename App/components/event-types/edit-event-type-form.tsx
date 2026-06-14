@@ -35,6 +35,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
@@ -110,6 +111,9 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
       duration_mins: eventType.duration_mins,
       location_type: eventType.location_type,
       is_hidden: eventType.is_hidden,
+      theme_config: (eventType.theme_config as { party_mode_enabled?: boolean } | null) ?? {
+        party_mode_enabled: true,
+      },
     },
   });
 
@@ -398,6 +402,24 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                       </SelectContent>
                     </Select>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="theme_config.party_mode_enabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-xl border border-border bg-background p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm text-foreground">Party Mode</FormLabel>
+                      <FormDescription className="text-xs text-muted-foreground">
+                        Play confetti animation upon successful booking.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                    </FormControl>
                   </FormItem>
                 )}
               />

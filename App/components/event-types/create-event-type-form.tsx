@@ -16,10 +16,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useCreateEventType } from '@/hooks/mutations/use-event-type-mutations';
 import { slugify } from '@/lib/format';
+import { Switch } from '@/components/ui/switch';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
@@ -69,6 +71,9 @@ export function CreateEventTypeForm() {
       duration_mins: 15,
       location_type: 'GOOGLE_MEET',
       is_hidden: false,
+      theme_config: {
+        party_mode_enabled: true,
+      },
     },
   });
 
@@ -209,6 +214,24 @@ export function CreateEventTypeForm() {
                 );
               })}
             </div>
+
+            <FormField
+              control={form.control}
+              name="theme_config.party_mode_enabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-xl border border-border bg-background p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-sm text-foreground">Party Mode</FormLabel>
+                    <FormDescription className="text-xs text-muted-foreground">
+                      Play confetti animation upon successful booking.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <div className="flex flex-col gap-3 pt-2">
               <Button
