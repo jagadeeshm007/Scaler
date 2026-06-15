@@ -5,11 +5,14 @@ import { Search } from 'lucide-react';
 import { UserAvatarDropdown } from '@/components/layout/user-avatar-dropdown';
 import { cn } from '@/lib/utils';
 
+import type { UserDTO } from '@/lib/dto';
+
 interface MobileHeaderProps {
   className?: string;
+  user: UserDTO | null;
 }
 
-export function MobileHeader({ className }: MobileHeaderProps) {
+export function MobileHeader({ className, user }: MobileHeaderProps) {
   const focusSearch = () => {
     const input = document.getElementById('event-type-search');
     input?.focus();
@@ -28,7 +31,7 @@ export function MobileHeader({ className }: MobileHeaderProps) {
         >
           <Search className="size-5" />
         </button>
-        <UserAvatarDropdown avatarClassName="size-8" />
+        <UserAvatarDropdown avatarClassName="size-8" user={user} />
       </div>
     </header>
   );

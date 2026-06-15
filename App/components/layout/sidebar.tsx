@@ -11,7 +11,7 @@ import { UserAvatarDropdown } from '@/components/layout/user-avatar-dropdown';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/auth.store';
+import type { UserDTO } from '@/lib/dto';
 
 const navItems = [
   { href: ROUTES.eventTypes, label: 'Event types', icon: EventTypeLinkIcon },
@@ -25,6 +25,7 @@ const bottomItems = [{ href: ROUTES.settings, label: 'Settings', icon: Settings 
 interface SidebarProps {
   className?: string;
   onNavigate?: () => void;
+  user: UserDTO | null;
 }
 
 function NavItem({
@@ -72,9 +73,8 @@ function NavItem({
   );
 }
 
-export function Sidebar({ className, onNavigate }: SidebarProps) {
+export function Sidebar({ className, onNavigate, user }: SidebarProps) {
   const pathname = usePathname();
-  const user = useAuthStore((s) => s.user);
   const username = user?.username ?? env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
 
   return (
@@ -95,7 +95,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
           <span className="text-sm font-bold text-foreground lg:hidden">SA</span>
 
           {/* Avatar dropdown */}
-          <UserAvatarDropdown avatarClassName="size-7 lg:size-8" />
+          <UserAvatarDropdown avatarClassName="size-7 lg:size-8" user={user} />
         </div>
 
         {/* ── Search (below header in collapsed, in header row on lg) ── */}

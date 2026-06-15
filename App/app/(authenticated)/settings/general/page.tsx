@@ -1,7 +1,9 @@
+import { verifySession } from '@/lib/dal';
 import { GeneralSettingsForm } from '@/components/settings/general-settings-form';
 import { SettingsNav } from '@/components/settings/settings-nav';
 
-export default function GeneralSettingsPage() {
+export default async function GeneralSettingsPage() {
+  await verifySession();
   return (
     <div className="mx-auto flex max-w-5xl gap-8 px-6 py-8">
       <aside className="hidden w-48 shrink-0 md:block">

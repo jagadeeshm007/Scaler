@@ -19,7 +19,7 @@ export function useBookings() {
 }
 
 export function useBooking(id: string) {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isAuthenticated = useAuthStore((s) => s.accessToken !== null);
   return useQuery({
     queryKey: queryKeys.bookings.byId(id),
     queryFn: () => fetchBooking(id),

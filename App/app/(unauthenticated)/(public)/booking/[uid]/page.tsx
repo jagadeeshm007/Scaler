@@ -15,7 +15,7 @@ function ConfirmedContent() {
   const searchParams = useSearchParams();
   const bookingUid = (params?.uid as string) ?? searchParams.get('uid') ?? '';
   const bookingId = searchParams.get('bookingId') ?? '';
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isAuthenticated = useAuthStore((s) => s.accessToken !== null);
   const { data: publicBooking, isLoading: isPublicLoading } = usePublicBooking(bookingUid);
   const { data: authBooking, isLoading: isAuthLoading } = useBooking(bookingId);
   const [storedBooking, setStoredBooking] = useState<Booking | null>(null);

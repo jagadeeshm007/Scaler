@@ -1,9 +1,9 @@
-import { Loader } from '@/components/ui/loader';
+import { PageShell } from '@/components/layout/page-shell';
 
 export default function ProfileSettingsLoading() {
   return (
-    <div className="flex flex-1 min-h-[85vh] w-full items-center justify-center">
-      <Loader variant="grid" className="text-primary" />
-    </div>
+    <PageShell title="Profile">
+      <div className="mx-4 mb-4 md:mx-6 md:mb-6 h-64 rounded-xl border border-border bg-muted/50 animate-pulse" />
+    </PageShell>
   );
 }

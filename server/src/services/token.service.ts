@@ -50,6 +50,51 @@ export class TokenService {
   }
 
   /**
+   * Validates a refresh token without revoking it.
+   * Used by GET /auth/session — session checks must not rotate tokens.
+   */
+  static async validateRefreshToken(refreshToken: string): Promise<TokenPayload> {
+    try {
+      const decoded = verify(refreshToken, env.JWT_REFRESH_SECRET) as TokenPayload;
+      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+      const storedToken = await prisma.refreshToken.findUnique({
+        where: { token_hash: tokenHash },
+      });
+
+      if (!storedToken || storedToken.is_revoked || storedToken.expires_at < new Date()) {
+        throw new AppError(
+          'Invalid or expired refresh token',
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_CODE.UNAUTHORIZED,
+        );
+      }
+
+      return decoded;
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        'Invalid refresh token',
+        HTTP_STATUS.UNAUTHORIZED,
+        ERROR_CODE.UNAUTHORIZED,
+      );
+    }
+  }
+
+  /**
+   * Issues a short-lived access token from a valid refresh token without rotation.
+   */
+  static async getAccessTokenFromRefresh(refreshToken: string): Promise<string> {
+    const decoded = await this.validateRefreshToken(refreshToken);
+    return this.generateAccessToken({
+      userId: decoded.userId,
+      email: decoded.email,
+    });
+  }
+
+  /**
    * Verifies a refresh token and issues a new access token
    */
   static async rotateTokens(

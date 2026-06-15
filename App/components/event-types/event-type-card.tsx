@@ -94,10 +94,10 @@ export const EventTypeCard = React.memo(function EventTypeCard({
       {isSortable ? (
         <div
           className={cn(
-            'flex w-4 shrink-0 items-center justify-center text-muted-foreground transition-opacity duration-150',
+            'flex w-4 shrink-0 items-center justify-center text-muted-foreground',
             showDragHandle
               ? 'opacity-100'
-              : 'opacity-0 group-hover:opacity-100 group-active:opacity-100',
+              : 'opacity-40 group-hover:opacity-100 group-active:opacity-100',
           )}
           aria-hidden
         >
@@ -199,6 +199,7 @@ export const EventTypeCard = React.memo(function EventTypeCard({
   if (isSortable && dragProps) {
     return (
       <div
+        suppressHydrationWarning
         className={cn('group', rowClass, 'cursor-grab active:cursor-grabbing hover:bg-accent/30')}
         {...dragProps.attributes}
         {...dragListeners}

@@ -3,5 +3,5 @@
 import { useAuthStore } from '@/store/auth.store';
 
 export function useAuthReady() {
-  return useAuthStore((s) => s.isAuthenticated);
+  return useAuthStore((s) => s.accessToken !== null);
 }

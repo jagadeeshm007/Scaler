@@ -6,6 +6,7 @@ import { HTTP_STATUS } from '../config/constants';
 import { env } from '../config/env';
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
+import { UserService } from '../services/user.service';
 import { ApiResponse } from '../utils/api-response';
 import { asyncHandler } from '../utils/async-handler';
 
@@ -17,8 +18,17 @@ export class AuthController {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: Number(maxAge),
+      path: '/',
+    });
+
+    res.cookie('session_hint', '1', {
+      httpOnly: false,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: Number(maxAge),
+      path: '/',
     });
   }
 
@@ -76,7 +86,35 @@ export class AuthController {
       });
     } catch (error) {
       res.clearCookie('refresh_token');
+      res.clearCookie('session_hint');
       throw error;
+    }
+  });
+
+  static session = asyncHandler(async (req: Request, res: Response) => {
+    const oldRefreshToken = req.cookies.refresh_token;
+
+    if (!oldRefreshToken) {
+      return ApiResponse.success(res, 'Unauthenticated', { authenticated: false });
+    }
+
+    try {
+      const decoded = await TokenService.validateRefreshToken(oldRefreshToken);
+      const accessToken = TokenService.generateAccessToken({
+        userId: decoded.userId,
+        email: decoded.email,
+      });
+      const user = await UserService.getCurrentUser(decoded.userId);
+
+      return ApiResponse.success(res, 'Session retrieved successfully', {
+        authenticated: true,
+        accessToken,
+        user,
+      });
+    } catch {
+      res.clearCookie('refresh_token');
+      res.clearCookie('session_hint');
+      return ApiResponse.success(res, 'Unauthenticated', { authenticated: false });
     }
   });
 
@@ -98,6 +136,7 @@ export class AuthController {
     }
 
     res.clearCookie('refresh_token');
+    res.clearCookie('session_hint');
     return ApiResponse.success(res, 'Logged out successfully');
   });
 }

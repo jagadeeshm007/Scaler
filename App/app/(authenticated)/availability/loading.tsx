@@ -1,9 +1,13 @@
-import { Loader } from '@/components/ui/loader';
+import { PageShell } from '@/components/layout/page-shell';
+import { CardListSkeleton } from '@/components/shared/skeletons/card-list-skeleton';
 
 export default function AvailabilityLoading() {
   return (
-    <div className="flex flex-1 min-h-[85vh] w-full items-center justify-center">
-      <Loader variant="grid" className="text-primary" />
-    </div>
+    <PageShell
+      title="Availability"
+      description="Configure times when you are available for bookings."
+    >
+      <CardListSkeleton count={3} />
+    </PageShell>
   );
 }

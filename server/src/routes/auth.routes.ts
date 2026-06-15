@@ -12,6 +12,7 @@ router.post('/register', authRateLimiter, validate(registerSchema), AuthControll
 router.post('/login', authRateLimiter, validate(loginSchema), AuthController.login);
 router.post('/bypass', validate(bypassSchema), AuthController.bypass);
 router.post('/refresh', AuthController.refresh);
+router.get('/session', AuthController.session);
 
 // Protected auth routes
 router.post('/logout', AuthController.logout);

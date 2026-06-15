@@ -16,13 +16,19 @@ import { Button } from '@/components/ui/button';
 import { useEventTypes } from '@/hooks/queries/use-event-types';
 import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/auth.store';
+import { useUserProfile } from '@/hooks/queries/use-user-profile';
 
-export function EventTypeList() {
+import type { EventType } from '@scaler/types';
+
+interface EventTypeListProps {
+  initialData?: EventType[];
+}
+
+export function EventTypeList({ initialData }: EventTypeListProps = {}) {
   const [query, setQuery] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-  const { data, isLoading } = useEventTypes();
-  const user = useAuthStore((s) => s.user);
+  const { data, isLoading } = useEventTypes({ initialData });
+  const { data: user } = useUserProfile();
   const username = user?.username ?? env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
 
   const filtered = useMemo(() => {

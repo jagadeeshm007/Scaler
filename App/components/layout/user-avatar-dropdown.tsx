@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { useThemeTransition } from '@/hooks/use-theme-transition';
-import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { User, Settings, LogOut, Plane } from 'lucide-react';
@@ -20,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
-import { useAuthStore } from '@/store/auth.store';
+import { logoutAction } from '@/actions/auth.actions';
 import { useAvailability } from '@/hooks/queries/use-availability';
 import { useUpdateSchedule } from '@/hooks/mutations/use-availability-mutations';
 import { useIsMdUp } from '@/hooks/use-media-query';
@@ -28,14 +27,14 @@ import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import { TransitionLink } from '@/components/layout/transition-link';
 
+import type { UserDTO } from '@/lib/dto';
+
 interface UserAvatarDropdownProps {
   avatarClassName?: string;
+  user: UserDTO | null;
 }
 
-export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps) {
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
-  const router = useRouter();
+export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdownProps) {
   const { toggleTheme, resolvedTheme } = useThemeTransition();
   const isMdUp = useIsMdUp();
   const [open, setOpen] = React.useState(false);
@@ -130,7 +129,7 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
     }
   };
 
-  const initial = user.full_name.charAt(0).toUpperCase();
+  const initial = user.name.charAt(0).toUpperCase();
 
   const triggerButton = (
     <button
@@ -139,11 +138,7 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
       aria-label="User menu"
     >
       <Avatar className={avatarClassName}>
-        <AvatarImage
-          src={user.avatar_url ?? undefined}
-          alt={user.full_name}
-          className="object-cover"
-        />
+        <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} className="object-cover" />
         <AvatarFallback className="bg-pink-600 font-medium text-foreground">
           {initial}
         </AvatarFallback>
@@ -183,8 +178,8 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
             <div className="flex items-center gap-3 px-5 py-3">
               <Avatar className="size-10">
                 <AvatarImage
-                  src={user.avatar_url ?? undefined}
-                  alt={user.full_name}
+                  src={user.avatarUrl ?? undefined}
+                  alt={user.name}
                   className="object-cover"
                 />
                 <AvatarFallback className="bg-pink-600 font-medium text-foreground">
@@ -192,7 +187,7 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <p className="text-sm font-semibold text-foreground">{user.full_name}</p>
+                <p className="text-sm font-semibold text-foreground">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
             </div>
@@ -259,10 +254,9 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
             <div className="px-2">
               <button
                 type="button"
-                onClick={async () => {
+                onClick={() => {
                   setOpen(false);
-                  await logout();
-                  router.push(ROUTES.login);
+                  void logoutAction();
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-red-400 transition-colors hover:bg-red-950/20 active:bg-red-950/20"
               >
@@ -289,7 +283,7 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none text-foreground">{user.full_name}</p>
+            <p className="text-sm font-medium leading-none text-foreground">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
@@ -373,9 +367,8 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
 
         {/* Logout */}
         <DropdownMenuItem
-          onClick={async () => {
-            await logout();
-            router.push(ROUTES.login);
+          onClick={() => {
+            void logoutAction();
           }}
           className="flex cursor-pointer items-center gap-2 text-red-400 focus:bg-red-950/30 focus:text-red-400"
         >

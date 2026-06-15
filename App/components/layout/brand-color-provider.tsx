@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { useAuthStore } from '@/store/auth.store';
+import { useUserProfile } from '@/hooks/queries/use-user-profile';
 
 export function BrandColorProvider() {
-  const user = useAuthStore((s) => s.user);
+  const { data: user } = useUserProfile();
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {

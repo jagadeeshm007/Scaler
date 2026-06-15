@@ -17,6 +17,13 @@ export const authPayloadSchema = z.object({
 });
 export type AuthPayload = z.infer<typeof authPayloadSchema>;
 
+export const sessionResponseSchema = z.object({
+  authenticated: z.boolean(),
+  accessToken: z.string().optional(),
+  user: authUserSchema.optional(),
+});
+export type SessionResponse = z.infer<typeof sessionResponseSchema>;
+
 export const eventTypeSchema = z.object({
   id: z.string(),
   user_id: z.string(),

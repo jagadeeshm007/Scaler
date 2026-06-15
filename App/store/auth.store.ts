@@ -1,95 +1,25 @@
 import { create } from 'zustand';
 
-import { logoutUser, refreshSession } from '@/lib/api/auth';
-import { fetchUserProfile } from '@/lib/api/users';
-import type { AuthUser } from '@/types';
+import { localApi } from '@/lib/api';
+import { INTERNAL_API } from '@/lib/constants/internal-api';
+import { clearSessionHint } from '@/lib/session-hint';
 
 interface AuthState {
-  user: AuthUser | null;
   accessToken: string | null;
-  isAuthenticated: boolean;
-  isHydrating: boolean;
-  hasHydrated: boolean;
-}
-
-interface AuthActions {
-  setAuth: (user: AuthUser, token: string) => void;
-  setToken: (token: string) => void;
+  setAccessToken: (token: string) => void;
   logout: () => Promise<void>;
-  hydrate: () => Promise<void>;
-  retryHydrate: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
-  user: null,
+export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
-  isAuthenticated: false,
-  isHydrating: false,
-  hasHydrated: false,
-
-  setAuth: (user, token) =>
-    set({
-      user,
-      accessToken: token,
-      isAuthenticated: true,
-      isHydrating: false,
-      hasHydrated: true,
-    }),
-
-  setToken: (token) => set({ accessToken: token }),
-
+  setAccessToken: (accessToken) => set({ accessToken }),
   logout: async () => {
+    set({ accessToken: null });
+    clearSessionHint();
     try {
-      await logoutUser();
+      await localApi.post(INTERNAL_API.auth.logout);
     } catch {
-      // Ignore errors on logout
-    } finally {
-      set({
-        user: null,
-        accessToken: null,
-        isAuthenticated: false,
-        isHydrating: false,
-        hasHydrated: true,
-      });
-      if (typeof window !== 'undefined') {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = '/login';
-      }
+      // Local state is already cleared; redirect handles the rest.
     }
-  },
-
-  hydrate: async () => {
-    if (get().hasHydrated || get().isHydrating) return;
-    set({ isHydrating: true });
-    try {
-      const refreshData = await refreshSession();
-      const accessToken = refreshData.accessToken;
-
-      set({ accessToken });
-
-      const user = await fetchUserProfile();
-
-      set({
-        user,
-        accessToken,
-        isAuthenticated: true,
-        isHydrating: false,
-        hasHydrated: true,
-      });
-    } catch {
-      set({
-        isHydrating: false,
-        hasHydrated: true,
-        isAuthenticated: false,
-        accessToken: null,
-        user: null,
-      });
-    }
-  },
-
-  retryHydrate: async () => {
-    set({ hasHydrated: false, isHydrating: false });
-    await get().hydrate();
   },
 }));

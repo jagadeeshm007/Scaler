@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { BookingPageShell } from '@/components/booking-page/booking-page-shell';
 import { Skeleton } from '@/components/ui/skeleton';
-import { serverFetch } from '@/lib/api';
+import { serverApi } from '@/lib/api/server';
 import { ENDPOINTS } from '@/lib/constants/api';
 import type { PublicEventType } from '@/types';
 
@@ -16,7 +16,7 @@ export default async function BookingPage({ params }: BookingPageProps) {
 
   let eventType: PublicEventType;
   try {
-    eventType = await serverFetch<PublicEventType>(ENDPOINTS.eventTypes.public(username, slug));
+    eventType = await serverApi.get<PublicEventType>(ENDPOINTS.eventTypes.public(username, slug));
   } catch {
     notFound();
   }

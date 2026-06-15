@@ -6,7 +6,7 @@ import { BookingActionMenu } from '@/components/bookings/booking-action-menu';
 import { Button } from '@/components/ui/button';
 import { formatBookingDate, formatBookingTimeRange } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/auth.store';
+import { useUserProfile } from '@/hooks/queries/use-user-profile';
 import type { Booking } from '@/types';
 
 interface BookingCardProps {
@@ -29,7 +29,7 @@ export function BookingCard({
   className,
 }: BookingCardProps) {
   const isCancelled = booking.status === 'CANCELLED' || booking.status === 'RESCHEDULED';
-  const user = useAuthStore((s) => s.user);
+  const { data: user } = useUserProfile();
   const hostName = booking.host?.full_name || user?.full_name || 'Host';
 
   return (

@@ -52,7 +52,7 @@ import { useDeleteEventType, useUpdateEventType } from '@/hooks/mutations/use-ev
 import { formatDuration } from '@/lib/format';
 import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/auth.store';
+import { useUserProfile } from '@/hooks/queries/use-user-profile';
 import type { EventType } from '@/types';
 
 const LOCATION_OPTIONS = [
@@ -93,7 +93,7 @@ interface EditEventTypeFormProps {
 
 export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
+  const { data: user } = useUserProfile();
   const username = user?.username ?? '';
   const updateMutation = useUpdateEventType();
   const deleteMutation = useDeleteEventType();

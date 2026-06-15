@@ -107,6 +107,7 @@ export function EventTypeSortableList({
 
   return (
     <DndContext
+      id="event-types-sortable-list"
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}

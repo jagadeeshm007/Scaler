@@ -10,7 +10,9 @@ export function useUserProfile() {
   return useQuery({
     queryKey: queryKeys.user.me(),
     queryFn: () => fetchUserProfile(),
-    staleTime: 60_000,
+    staleTime: 30 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     enabled: isAuthReady,
   });
 }

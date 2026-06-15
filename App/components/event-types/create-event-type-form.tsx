@@ -25,7 +25,7 @@ import { slugify } from '@/lib/format';
 import { Switch } from '@/components/ui/switch';
 import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/auth.store';
+import { useUserProfile } from '@/hooks/queries/use-user-profile';
 
 const EVENT_KINDS = [
   {
@@ -59,7 +59,8 @@ const EVENT_KINDS = [
 
 export function CreateEventTypeForm() {
   const router = useRouter();
-  const username = useAuthStore((s) => s.user?.username ?? '');
+  const { data: user } = useUserProfile();
+  const username = user?.username ?? '';
   const createMutation = useCreateEventType();
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [eventKind, setEventKind] = useState<string>('solo');

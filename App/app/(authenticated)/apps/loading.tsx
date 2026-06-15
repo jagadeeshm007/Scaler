@@ -1,9 +1,10 @@
-import { Loader } from '@/components/ui/loader';
+import { PageShell } from '@/components/layout/page-shell';
+import { CardListSkeleton } from '@/components/shared/skeletons/card-list-skeleton';
 
 export default function AppsLoading() {
   return (
-    <div className="flex flex-1 min-h-[85vh] w-full items-center justify-center">
-      <Loader variant="grid" className="text-primary" />
-    </div>
+    <PageShell title="Apps" description="Connect your calendar and conferencing accounts">
+      <CardListSkeleton count={4} />
+    </PageShell>
   );
 }

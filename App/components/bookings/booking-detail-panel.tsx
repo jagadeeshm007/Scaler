@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetClose, SheetTitle } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatBookingDate, formatBookingTimeRange } from '@/lib/format';
-import { useAuthStore } from '@/store/auth.store';
+import { useUserProfile } from '@/hooks/queries/use-user-profile';
 import type { Booking } from '@/types';
 import { Copy, MoreHorizontal, Video, ChevronUp, ChevronDown, X, Flag } from 'lucide-react';
 import { BookingActionMenu } from '@/components/bookings/booking-action-menu';
@@ -44,7 +44,7 @@ export function BookingDetailPanel({
   onReschedule,
   onCancel,
 }: BookingDetailPanelProps) {
-  const user = useAuthStore((s) => s.user);
+  const { data: user } = useUserProfile();
   if (!booking) return null;
 
   const isCancelled = booking.status === 'CANCELLED' || booking.status === 'RESCHEDULED';

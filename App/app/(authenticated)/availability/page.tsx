@@ -1,7 +1,7 @@
-'use client';
-
+import { verifySession } from '@/lib/dal';
 import { ScheduleList } from '@/components/availability/schedule-list';
 
-export default function AvailabilityPage() {
+export default async function AvailabilityPage() {
+  await verifySession();
   return <ScheduleList />;
 }
