@@ -14,7 +14,7 @@ After running the database seed, use these credentials to sign in manually at `/
 | Password | `demo123!`                 |
 | Username | `jagadeesh`                |
 
-**Admin auto-login:** The dashboard does not require manual login. On load, the frontend calls `POST /api/v1/auth/bypass` and signs in as the seeded demo user automatically (assignment requirement: no login required for admin).
+**Admin login:** Sign in at `/login` with the seeded demo credentials below. The dashboard uses JWT sessions (`refresh_token` httpOnly cookie on the Next.js origin + in-memory access token). Backend `POST /auth/bypass` exists for assignment demos but is not called automatically.
 
 **Public booking pages** (no auth):
 
@@ -27,12 +27,12 @@ After running the database seed, use these credentials to sign in manually at `/
 
 ## Tech Stack
 
-| Layer    | Technologies                                                                                    |
-| -------- | ----------------------------------------------------------------------------------------------- |
-| Frontend | Next.js 15, React 19, Tailwind CSS v4, shadcn/ui, TanStack Query, Zustand, React Hook Form, Zod |
-| Backend  | Express 5, Prisma 7, PostgreSQL (Supabase), JWT, bcrypt, Pino                                   |
-| Shared   | `@scaler/types` — Zod schemas and TypeScript types used by both apps                            |
-| Tooling  | pnpm workspaces, Husky, ESLint, Prettier, Vitest                                                |
+| Layer    | Technologies                                                                                           |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| Frontend | Next.js 16, React 19, Tailwind CSS v4, shadcn/ui, TanStack Query, Zustand, Axios, React Hook Form, Zod |
+| Backend  | Express 5, Prisma 7, PostgreSQL (Supabase), JWT, bcrypt, Pino                                          |
+| Shared   | `@scaler/types` — Zod schemas and TypeScript types used by both apps                                   |
+| Tooling  | pnpm workspaces, Husky, ESLint, Prettier, Vitest                                                       |
 
 ---
 
@@ -97,11 +97,13 @@ App/
 │           └── [username]/[slug]/
 ├── components/             # UI by feature (booking-page, event-types, availability, …)
 ├── hooks/                  # TanStack Query hooks (queries + mutations)
-├── lib/                    # api client, routes, query keys, formatters
+├── lib/                    # axios API clients, dal, auth-cookies, routes, query keys
+├── actions/                # Server actions (auth login/register/logout)
+├── proxy.ts                # Next.js 16 route guard (optimistic, not security)
 └── store/                  # Zustand (auth, UI state)
 ```
 
-**State management:** Server data lives in TanStack Query; auth tokens and session UI state live in Zustand (`auth.store.ts`). The API client attaches JWT access tokens and refreshes via httpOnly refresh-token cookies.
+**State management:** Server data lives in TanStack Query; the access token lives in Zustand memory. httpOnly `refresh_token` cookies are set on the Next.js origin via server actions. `lib/dal.ts` (`verifySession`) is the auth security boundary for RSC.
 
 ### Shared type contract
 
@@ -204,8 +206,7 @@ Or from each package: `cd server && pnpm dev` and `cd App && pnpm dev`.
 ### 5. Verify
 
 - Health check: http://localhost:4000/health
-- Dashboard: http://localhost:3000/event-types (auto-authenticated)
-- Manual login: http://localhost:3000/login
+- Dashboard: http://localhost:3000/login → sign in → http://localhost:3000/event-types
 - Public booking: http://localhost:3000/jagadeesh/15min
 
 ---
@@ -230,15 +231,15 @@ Slot calculation: `GET /slots?eventTypeId=...&date=YYYY-MM-DD&timezone=Asia/Kolk
 
 ## Scripts
 
-| Command                              | Description                       |
-| ------------------------------------ | --------------------------------- |
-| `pnpm dev:backend`                   | Start Express API with nodemon    |
-| `pnpm dev:frontend`                  | Start Next.js dev server          |
-| `pnpm build`                         | Build types, server, and frontend |
-| `pnpm lint`                          | Lint frontend and backend         |
-| `pnpm typecheck`                     | Typecheck server                  |
-| `cd server && pnpm test`             | Run backend unit tests            |
-| `cd server && pnpm test:integration` | Run integration tests             |
+| Command                              | Description                           |
+| ------------------------------------ | ------------------------------------- |
+| `pnpm dev:backend`                   | Start Express API with nodemon        |
+| `pnpm dev:frontend`                  | Start Next.js dev server              |
+| `pnpm build`                         | Build types, server, and frontend     |
+| `pnpm lint`                          | Lint frontend and backend             |
+| `pnpm typecheck`                     | Typecheck types, server, and frontend |
+| `cd server && pnpm test`             | Run backend unit tests                |
+| `cd server && pnpm test:integration` | Run integration tests                 |
 
 ---
 
@@ -248,13 +249,14 @@ Slot calculation: `GET /slots?eventTypeId=...&date=YYYY-MM-DD&timezone=Asia/Kolk
 - **UTC in database** — All timestamps stored in UTC; timezone conversion at the API edge and frontend.
 - **Dynamic app store** — OAuth integrations configured in the database; credentials encrypted at rest.
 - **Double-booking prevention** — Slot calculator checks availability rules, overrides, buffers, and existing bookings.
-- **Auth bypass for demo** — Full JWT auth exists; dashboard uses bypass for assignment “no login” requirement.
+- **JWT auth with BFF cookies** — Refresh tokens are stored on the Next.js origin; client refresh/logout goes through `/api/auth/*` route handlers.
 
 ---
 
 ## Further reading
 
 - [Backend implementation plan](docs/backend-implementation-plan.md)
+- [Authentication flow](docs/auth-flow.md)
 - [Frontend implementation plan](docs/frontend-implementation-plan.md)
 - [Design tokens](docs/design-tokens.md)
 - [Project conventions (CLAUDE.md)](CLAUDE.md)

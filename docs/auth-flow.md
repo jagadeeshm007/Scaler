@@ -1,118 +1,139 @@
 # Scaler Authentication Flow
 
-This document details the authentication architecture, token management, and UI hydration logic in the Scaler platform.
+This document describes the current authentication architecture in the Scaler platform (Next.js 16 + Express JWT).
 
-## 1. Hard Reload Sequence
+## Architecture overview
 
-This diagram shows the sequence when a user navigates to a protected route (e.g., `/event-types`) on a fresh page load.
+| Layer                         | Responsibility                                                                                            |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `App/proxy.ts`                | Optimistic route guard — redirects based on `refresh_token` cookie presence only                          |
+| `App/lib/dal.ts`              | **Security boundary** — `verifySession()` validates session via backend, redirects to `/login` on failure |
+| `App/actions/auth.actions.ts` | Login/register/logout server actions — sets httpOnly cookies on the Next.js origin                        |
+| `App/app/api/auth/*`          | Same-origin BFF routes for client token refresh and logout                                                |
+| `App/lib/api/`                | Axios clients — `client` (browser) and `server` (RSC / actions / route handlers)                          |
+| `App/store/auth.store.ts`     | In-memory `accessToken` only (Zustand)                                                                    |
+| Express `/api/v1/auth/*`      | Source of truth for credentials, refresh rotation, and session validation                                 |
 
-```text
-Browser                           Next.js Middleware                  Server Components                 Client (React)                  Backend API
-   |                                      |                                   |                               |                              |
-   |-- GET /event-types ----------------->|                                   |                               |                              |
-   |  (Cookies: session_hint,             |                                   |                               |                              |
-   |   refresh_token)                     |                                   |                               |                              |
-   |                                      |-- Check `session_hint` === '1'    |                               |                              |
-   |                                      |   (Hint exists -> let through)    |                               |                              |
-   |                                      |---------------------------------->|                               |                              |
-   |                                      |                                   |-- fetch /auth/session ------->|                              |
-   |                                      |                                   |   (server-side fetch)         |                              |
-   |                                      |                                   |<------------------------------|                              |
-   |                                      |                                   |-- prefetch user profile ----->|                              |
-   |                                      |                                   |<------------------------------|                              |
-   |                                      |                                   |-- render HTML (with cache)    |                              |
-   |<-------------------------------------|-----------------------------------|                               |                              |
-   |-- Hydrate React ---------------------------------------------------------------------------------------->|                              |
-   |                                      |                                   |                               |-- AuthHydrator runs          |
-   |                                      |                                   |                               |   isAuthReady = false        |
-   |                                      |                                   |                               |   (renders skeleton)         |
-   |                                      |                                   |                               |-- /auth/session ------------>|
-   |                                      |                                   |                               |<-- accessToken, user --------|
-   |                                      |                                   |                               |-- isAuthReady = true         |
-   |                                      |                                   |                               |   (renders real data)        |
-```
+> **Next.js 16 note:** `middleware.ts` was renamed to `proxy.ts`. The proxy is **not** a security boundary — always enforce auth in the DAL (`verifySession`) and on the Express API.
 
-## 2. Login Flow
+## 1. Hard reload sequence
 
 ```text
-User                      Client (React)                       Backend API
-  |                             |                                   |
-  |-- Enter credentials ------->|                                   |
-  |                             |-- POST /auth/login -------------->|
-  |                             |                                   |-- Validate credentials
-  |                             |                                   |-- Generate accessToken
-  |                             |                                   |-- Generate refreshToken
-  |                             |<-- Set-Cookie: refresh_token -----|
-  |                             |<-- Set-Cookie: session_hint=1 ----|
-  |                             |<-- { accessToken, user } ---------|
-  |                             |                                   |
-  |                             |-- Store accessToken in memory     |
-  |                             |-- isAuthReady = true              |
-  |                             |-- Redirect to /event-types        |
+Browser                    proxy.ts              Server (RSC)                    Client                     Express API
+  |                           |                       |                            |                            |
+  |-- GET /event-types ------>|                       |                            |                            |
+  |  Cookie: refresh_token    |                       |                            |                            |
+  |                           |-- has refresh_token?  |                            |                            |
+  |                           |   no → /login         |                            |                            |
+  |                           |   yes → continue ---->|                            |                            |
+  |                           |                       |-- verifySession()          |                            |
+  |                           |                       |-- GET /auth/session ------>|--------------------------->|
+  |                           |                       |   (axios, Cookie header)   |                            |
+  |                           |                       |<-- accessToken + user -----|<---------------------------|
+  |                           |                       |-- render layout + pages    |                            |
+  |                           |                       |-- AuthTokenBridge -------->|-- set accessToken (memory)|
+  |<---------------------------|-----------------------|----------------------------|                            |
+  |                           |                       |                            |-- TanStack Query enabled   |
+  |                           |                       |                            |-- api.get (Bearer token) ->|
 ```
 
-## 3. Logout Flow
+`GET /auth/session` validates the refresh token **without rotating it**. Token rotation happens only on `POST /auth/refresh`.
+
+## 2. Login flow
 
 ```text
-User                      Client (React)                       Backend API
-  |                             |                                   |
-  |-- Click "Logout" ---------->|                                   |
-  |                             |-- POST /auth/logout ------------->|
-  |                             |                                   |-- Revoke refresh_token in DB
-  |                             |<-- Clear-Cookie: refresh_token ---|
-  |                             |<-- Clear-Cookie: session_hint ----|
-  |                             |                                   |
-  |                             |-- Clear accessToken from memory   |
-  |                             |-- Clear React Query cache         |
-  |                             |-- Clear session_hint client-side  |
-  |                             |-- Redirect to /login              |
+User                 login/page.tsx          loginAction (server)           Express API              Browser cookies
+  |                        |                        |                          |                         |
+  |-- submit form -------->|                        |                          |                         |
+  |                        |-- Server Action ------>|                          |                         |
+  |                        |                        |-- POST /auth/login ----->|                         |
+  |                        |                        |<-- Set-Cookie + body ----|                         |
+  |                        |                        |-- set refresh_token -----|------------------------>|
+  |                        |                        |-- set session_hint -------|------------------------>|
+  |                        |<-- redirect /event-types                          |                         |
 ```
 
-## 4. Token Refresh during API Call (401 Retry)
+Login uses a **server action** so the refresh token is stored on the Next.js origin (`localhost:3000`), not the API origin (`localhost:4000`). This is required for RSC session verification.
+
+## 3. Logout flow
 
 ```text
-Client (React)                                         Backend API
-      |                                                     |
-      |-- GET /users/me (Bearer expired_token) ------------>|
-      |                                                     |-- Token expired
-      |<-- 401 Unauthorized --------------------------------|
-      |                                                     |
-      |-- Intercept 401 response                            |
-      |-- POST /auth/refresh (Cookie: refresh_token) ------>|
-      |                                                     |-- Validate refresh_token
-      |                                                     |-- Generate new tokens
-      |                                                     |<-- Set-Cookie: refresh_token (new)
-      |<-- { accessToken: new_token } ----------------------|
-      |                                                     |
-      |-- Update memory accessToken                         |
-      |-- Retry GET /users/me (Bearer new_token) ---------->|
-      |<-- 200 OK (data) -----------------------------------|
+User UI                logoutAction / localApi        Express API           Cookies
+  |                            |                          |                    |
+  |-- Logout ----------------->|                          |                    |
+  |                            |-- POST /auth/logout ----->|                    |
+  |                            |-- clear cookies ----------|------------------->|
+  |                            |-- redirect /login        |                    |
 ```
 
-## 5. The `session_hint` Cookie
+Client-side 401 handling calls `POST /api/auth/logout` (same-origin) to clear httpOnly cookies before redirecting.
 
-The `session_hint` cookie is a non-httpOnly cookie set by the backend alongside the `refresh_token`.
+## 4. Token refresh on 401
 
-- **What it is**: A fast, synchronous UI hint. It simply tells the frontend: "The user _probably_ has an active session."
-- **What it is NOT**: It is not a security token. It contains no sensitive data.
-- **Why it is safe**: Even if a user manually sets `session_hint=1`, it does not grant them access. The Next.js middleware might let them view the dashboard structure, but all sensitive data requires a valid `accessToken` or a valid `refresh_token` to obtain one. The hydration process will immediately fail, clearing the hint and redirecting them to login.
+```text
+Browser axios client                         Next.js route              Express API
+      |                                            |                         |
+      |-- GET /users/me (expired Bearer) --------->|                         |
+      |<-- 401 ------------------------------------|                         |
+      |-- POST /api/auth/refresh ----------------->|                         |
+      |                                            |-- POST /auth/refresh -->|
+      |                                            |<-- new refresh_token ---|
+      |                                            |-- update cookies        |
+      |<-- { accessToken } ------------------------|                         |
+      |-- retry original request ------------------|------------------------>|
+```
 
-## 6. Access Token in Memory Only
+The browser **never** calls `POST /auth/refresh` on the API origin directly. Refresh tokens live on the Next.js cookie domain; the BFF route forwards them.
 
-The `accessToken` is stored exclusively in the Zustand store (memory).
+## 5. Cookie reference
 
-- **Security**: This mitigates XSS attacks because the token cannot be read from `localStorage` or `sessionStorage` by malicious scripts.
-- **Trade-off**: On hard reload, the token is lost. The frontend must hit `/auth/session` using the `httpOnly` `refresh_token` to get a new `accessToken` before it can make authenticated API calls. The `session_hint` and layout skeleton are used to mask the UI latency during this process.
+### `refresh_token` (httpOnly, `path=/`, `sameSite=lax`)
 
-## 7. Middleware Guard and Limitations
+- Set by login server action or refresh BFF route
+- Used by `verifySession()`, `refreshAuthSession()`, and logout
+- **This is what `proxy.ts` checks** for route redirects
 
-The Next.js middleware guards protected routes based _only_ on the presence of the `session_hint` cookie.
+### `session_hint` (non-httpOnly, `path=/`)
 
-- **Benefit**: It prevents unauthenticated users from seeing a brief flash of the dashboard layout before being redirected.
-- **Limitation**: It does not cryptographically verify the session. If the `refresh_token` has expired but the `session_hint` remains (or was manually injected), the middleware will allow the request through. The React application will then attempt to hydrate, receive a 401 from `/auth/session`, and perform a clean redirect to login.
+- UI hint only — cleared client-side on logout via `clearSessionHint()`
+- **Not used by `proxy.ts`** (prevents redirect loops when hint is stale)
 
-## 8. Known Edge Cases
+## 6. Access token in memory
 
-- **Expired Refresh Token with Valid Hint**: The user hard reloads. Middleware allows the request. The UI shows the skeleton layout. The `/auth/session` request fails with 401. The frontend catches this, clears the `session_hint` cookie, and redirects to `/login`.
-- **Logout Network Failure**: If the `POST /auth/logout` call fails due to a network error, the frontend will still clear its memory, clear the query cache, clear the `session_hint` client-side, and redirect to `/login`. The user is effectively logged out of the frontend, and the backend refresh token will naturally expire.
-- **Hydration Mismatches**: A mismatch could occur if the server renders user-specific data (like a username) that the client does not yet have. To prevent this, auth-dependent components (like `Sidebar` and `UserAvatarDropdown`) are rendered on the client. The `session_hint` guarantees that these components wait for hydration before rendering their data.
+The `accessToken` is stored exclusively in Zustand (`auth.store.ts`).
+
+- **Security:** mitigates XSS — token is not in `localStorage`
+- **Trade-off:** lost on hard reload; restored via `verifySession()` → `AuthTokenBridge` in the authenticated layout
+- **Client queries:** gated by `useAuthReady()` until the bridge sets the token
+
+## 7. API client layout
+
+```text
+App/lib/api/
+├── errors.ts          # ApiError, getErrorMessage, parseApiErrorBody
+├── parse-response.ts  # unwrapApiData<T>()
+├── types.ts           # RequestOptions
+├── axios.client.ts    # Browser axios + 401 interceptor + localApi
+├── axios.server.ts    # Server-only axios instance
+├── client.ts          # Browser exports (import via @/lib/api)
+├── server.ts          # serverApi (import via @/lib/api.server)
+├── auth.server.ts     # loginWithCredentials, getSessionWithRefreshToken, etc.
+└── auth.ts            # Client auth helpers (login, logout, getSession)
+
+App/lib/api.ts         → re-exports client surface
+App/lib/api.server.ts  → re-exports serverApi as api
+```
+
+**Rules:**
+
+- Client components / hooks → `import { api } from '@/lib/api'`
+- Server Components / actions / route handlers → `import { api } from '@/lib/api.server'`
+- No raw `fetch()` in application code — use axios wrappers
+- Same-origin auth routes → `INTERNAL_API` in `lib/constants/internal-api.ts`
+
+## 8. Known edge cases
+
+- **Expired refresh token:** `verifySession()` clears cookies and redirects to `/login`. Proxy also blocks protected routes without `refresh_token`.
+- **Logout network failure:** Server action and client store always clear local cookies/state; user is logged out on the frontend.
+- **Cross-origin cookies:** Never rely on API-origin cookies in the browser. All auth cookie writes go through server actions or `/api/auth/*` routes.
+- **Assignment bypass endpoint:** `POST /auth/bypass` exists on the backend but is **not** called automatically. Use `/login` with seeded credentials.

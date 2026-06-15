@@ -610,30 +610,33 @@ Usage pattern:
 
 ## 7. API Client Design
 
-**`lib/api.ts`** — single fetch client, all components go through this.
+**Split axios clients** — browser vs server. See `docs/auth-flow.md` for auth BFF routes.
 
-```typescript
-// Interface contract
-class ApiClient {
-  get<T>(path: string, options?: RequestInit): Promise<T>;
-  post<T>(path: string, body: unknown, options?: RequestInit): Promise<T>;
-  put<T>(path: string, body: unknown, options?: RequestInit): Promise<T>;
-  patch<T>(path: string, body: unknown, options?: RequestInit): Promise<T>;
-  del<T>(path: string, options?: RequestInit): Promise<T>;
-}
+```text
+lib/api/
+├── axios.client.ts   # Browser: api, localApi, 401 refresh interceptor
+├── axios.server.ts   # Server-only axios instance
+├── server.ts         # serverApi (RSC, server actions, route handlers)
+├── auth.server.ts    # loginWithCredentials, getSessionWithRefreshToken, etc.
+├── errors.ts         # ApiError, getErrorMessage
+└── client.ts         # Re-exported via @/lib/api
+
+lib/api.ts            # Browser barrel
+lib/api.server.ts     # Server barrel (serverApi as api)
 ```
 
 Implementation rules:
 
 - Base URL: `process.env.NEXT_PUBLIC_API_URL` (e.g., `http://localhost:4000/api/v1`)
 - All methods return `Promise<T>` — unwrap from `{ success, data, message }` envelope
-- On non-2xx: parse error body, throw `ApiError extends Error` with `status` and `code`
-- Inject `Authorization: Bearer <token>` from `auth.store.getState().accessToken`
-- 401 handling: call `POST /auth/refresh`, update store token, retry original request once. If refresh fails: call `auth.store.getState().logout()`, redirect to `/login`
-- Request timeout: 15 seconds via `AbortController`
-- No `axios` — native `fetch` only
+- On non-2xx: throw `ApiError` with `status` and `code`
+- **Client** axios injects `Authorization: Bearer <token>` from `auth.store`
+- **401 handling (client):** `POST /api/auth/refresh` (same-origin BFF) → update store → retry once. On failure: logout + redirect `/login`
+- **Server** axios: pass `{ token: accessToken }` for authenticated RSC fetches
+- Request timeout: 15 seconds (axios `timeout`)
+- **Use axios only** — no raw `fetch()` in application code
 
-**`lib/endpoints.ts`** — all API paths as typed constants:
+**`lib/constants/api.ts`** — backend API paths as typed constants:
 
 ```typescript
 export const ENDPOINTS = {
