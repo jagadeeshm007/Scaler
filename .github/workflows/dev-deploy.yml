@@ -14,6 +14,11 @@ env:
   DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
   DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
 
+  # Frontend vars to pass build-time validation in CI
+  NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+  NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+  NEXT_PUBLIC_DEFAULT_USERNAME: ${{ vars.NEXT_PUBLIC_DEFAULT_USERNAME }}
+
 jobs:
   quality:
     name: Lint, Format & Build
