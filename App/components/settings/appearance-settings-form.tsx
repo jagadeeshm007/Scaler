@@ -7,11 +7,12 @@ import { toast } from 'sonner';
 import { BrandColorField } from '@/components/settings/brand-color-field';
 import { ThemeOptionCards } from '@/components/settings/theme-option-cards';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useUpdateSettings } from '@/hooks/mutations/use-settings-mutations';
 import { useUserProfile } from '@/hooks/queries/use-user-profile';
-import { normalizeHexColor } from '@/lib/brand-color';
+import { DEFAULT_BRAND_NAME, normalizeHexColor } from '@/lib/brand-color';
 import {
   DEFAULT_BRAND_COLOR_DARK,
   DEFAULT_BRAND_COLOR_LIGHT,
@@ -60,6 +61,7 @@ function AppearanceSettingsFormInner({ settings }: { settings: UserSettings | nu
   const [brandColorDark, setBrandColorDark] = useState(
     settings?.brand_color_dark ?? DEFAULT_BRAND_COLOR_DARK,
   );
+  const [brandName, setBrandName] = useState(settings?.brand_name ?? DEFAULT_BRAND_NAME);
 
   const handleDashboardThemeChange = (option: ThemeOption) => {
     setDashboardTheme(option);
@@ -99,6 +101,18 @@ function AppearanceSettingsFormInner({ settings }: { settings: UserSettings | nu
     );
   };
 
+  const handleBrandNameSave = () => {
+    if (!brandName.trim()) {
+      toast.error('Brand name cannot be empty');
+      return;
+    }
+
+    updateSettings.mutate(
+      { brand_name: brandName.trim() },
+      { onSuccess: () => toast.success('Brand name updated') },
+    );
+  };
+
   return (
     <div className="max-w-3xl space-y-6">
       <SettingsPanel
@@ -115,6 +129,28 @@ function AppearanceSettingsFormInner({ settings }: { settings: UserSettings | nu
         }
       >
         <ThemeOptionCards value={dashboardTheme} onChange={handleDashboardThemeChange} />
+      </SettingsPanel>
+
+      <SettingsPanel
+        title="Custom brand name"
+        description="Customize the brand name shown on your public booking pages and dashboard."
+        action={
+          <Button type="button" onClick={handleBrandNameSave} disabled={updateSettings.isPending}>
+            Update
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-2">
+          <label htmlFor="brand-name" className="text-sm font-medium text-foreground">
+            Brand Name
+          </label>
+          <Input
+            id="brand-name"
+            value={brandName}
+            onChange={(e) => setBrandName(e.target.value)}
+            placeholder="e.g. eith.in"
+          />
+        </div>
       </SettingsPanel>
 
       <SettingsPanel
@@ -175,6 +211,7 @@ export function AppearanceSettingsForm() {
     user?.settings?.brand_colors_enabled,
     user?.settings?.brand_color_light,
     user?.settings?.brand_color_dark,
+    user?.settings?.brand_name,
   ].join('-');
 
   return <AppearanceSettingsFormInner key={settingsKey} settings={user?.settings} />;

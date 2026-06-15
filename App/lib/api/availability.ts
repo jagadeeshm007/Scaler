@@ -1,6 +1,6 @@
 import { api } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/constants/api';
-import { scheduleSchema, type Schedule } from '@scaler/types';
+import { scheduleSchema, type Schedule } from '@bolt/types';
 import { z } from 'zod';
 
 export async function fetchAvailabilityList() {

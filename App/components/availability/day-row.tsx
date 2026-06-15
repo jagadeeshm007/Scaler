@@ -6,7 +6,7 @@ import { TimeRangePicker } from '@/components/availability/time-range-picker';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { DAY_NAMES } from '@/lib/constants/booking';
-import type { ScheduleAvailabilityInput } from '@scaler/types';
+import type { ScheduleAvailabilityInput } from '@bolt/types';
 import { cn } from '@/lib/utils';
 
 interface DayRowProps {

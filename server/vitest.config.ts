@@ -4,7 +4,7 @@ import path from 'path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@scaler/types': path.resolve(__dirname, '../packages/types/src'),
+      '@bolt/types': path.resolve(__dirname, '../packages/types/src'),
     },
   },
   test: {

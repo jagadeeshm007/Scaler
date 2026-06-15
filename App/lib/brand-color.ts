@@ -1,4 +1,4 @@
-import type { UserSettings } from '@scaler/types';
+import type { UserSettings } from '@bolt/types';
 
 import { DEFAULT_BRAND_COLOR_DARK, DEFAULT_BRAND_COLOR_LIGHT } from '@/lib/constants/theme';
 
@@ -7,6 +7,8 @@ export interface BrandColorInput {
   brand_color_light?: string;
   brand_color_dark?: string;
 }
+
+export const DEFAULT_BRAND_NAME = 'eith.com';
 
 const BRAND_CSS_PROPERTIES = ['--primary', '--primary-foreground', '--ring', '--accent'] as const;
 

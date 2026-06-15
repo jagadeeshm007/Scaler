@@ -1,8 +1,4 @@
-import {
-  createEventTypeSchema,
-  reorderEventTypesSchema,
-  updateEventTypeSchema,
-} from '@scaler/types';
+import { createEventTypeSchema, reorderEventTypesSchema, updateEventTypeSchema } from '@bolt/types';
 import { Router } from 'express';
 
 import { EventTypeController } from '../controllers/event-type.controller';

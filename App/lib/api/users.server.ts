@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { userProfileSchema, type UserProfile } from '@scaler/types';
+import { userProfileSchema, type UserProfile } from '@bolt/types';
 
 import { serverApi } from '@/lib/api/server';
 import { ENDPOINTS } from '@/lib/constants/api';

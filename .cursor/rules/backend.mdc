@@ -173,7 +173,7 @@ Create `packages/types/src/index.ts` that re-exports:
 - The `ApiResponse<T>` envelope type
 - All enum types (BookingStatus, LocationType, IntegrationProvider, etc.)
 
-Both `server/tsconfig.json` and `App/tsconfig.json` reference `packages/types` via path alias `@scaler/types`.
+Both `server/tsconfig.json` and `App/tsconfig.json` reference `packages/types` via path alias `@bolt/types`.
 
 This means at no point is a frontend developer guessing what shape an API returns. It is typed and validated at compile time.
 

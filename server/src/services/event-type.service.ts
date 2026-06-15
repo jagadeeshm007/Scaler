@@ -1,4 +1,4 @@
-import type { CreateEventTypeInput, UpdateEventTypeInput } from '@scaler/types';
+import type { CreateEventTypeInput, UpdateEventTypeInput } from '@bolt/types';
 import { Prisma } from '@prisma/client';
 import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';

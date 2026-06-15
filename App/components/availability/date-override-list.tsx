@@ -6,7 +6,7 @@ import { TimeRangePicker } from '@/components/availability/time-range-picker';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { formatDateLabel } from '@/lib/format';
-import type { DateOverrideInput } from '@scaler/types';
+import type { DateOverrideInput } from '@bolt/types';
 import { cn } from '@/lib/utils';
 
 interface DateOverrideListProps {

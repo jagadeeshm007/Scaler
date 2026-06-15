@@ -14,6 +14,7 @@ export const userSettingsSchema = z.object({
   id: z.string().optional(),
   user_id: z.string().optional(),
   theme: z.enum(['light', 'dark', 'system']),
+  brand_name: z.string().optional(),
   brand_colors_enabled: z.boolean(),
   brand_color_light: z.string(),
   brand_color_dark: z.string(),
@@ -24,6 +25,7 @@ export type UserSettings = z.infer<typeof userSettingsSchema>;
 export const updateUserSettingsSchema = z.object({
   body: z.object({
     theme: z.enum(['light', 'dark', 'system']).optional(),
+    brand_name: z.string().optional(),
     brand_colors_enabled: z.boolean().optional(),
     brand_color_light: z
       .string()

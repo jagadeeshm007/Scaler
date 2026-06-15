@@ -20,8 +20,8 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: 'Scaler — Scheduling Platform',
-  description: 'Cal.com clone scheduling platform',
+  title: 'calendar.eith.in — Scheduling Platform',
+  description: 'Scheduling platform',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

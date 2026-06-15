@@ -1,6 +1,6 @@
 import { api } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/constants/api';
-import { integrationSchema, type Integration } from '@scaler/types';
+import { integrationSchema, type Integration } from '@bolt/types';
 import { z } from 'zod';
 
 export async function fetchIntegrations() {

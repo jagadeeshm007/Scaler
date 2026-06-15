@@ -1,4 +1,4 @@
-import { loginSchema, bypassSchema, registerSchema } from '@scaler/types';
+import { loginSchema, bypassSchema, registerSchema } from '@bolt/types';
 import { Router } from 'express';
 
 import { AuthController } from '../controllers/auth.controller';

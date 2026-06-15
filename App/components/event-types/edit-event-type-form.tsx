@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateEventTypeSchema, type UpdateEventTypeInput } from '@scaler/types';
+import { updateEventTypeSchema, type UpdateEventTypeInput } from '@bolt/types';
 import { toast } from 'sonner';
 
 import { EventTypeActiveToggle } from '@/components/event-types/event-type-active-toggle';

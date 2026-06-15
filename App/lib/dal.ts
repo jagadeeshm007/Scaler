@@ -3,7 +3,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
-import type { AuthUser } from '@scaler/types';
+import type { AuthUser } from '@bolt/types';
 
 import {
   applyRotatedAuthCookies,

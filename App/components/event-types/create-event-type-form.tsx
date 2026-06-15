@@ -7,7 +7,7 @@ import { Circle, User, Users, RefreshCw, Building2 } from 'lucide-react';
 import { env } from '@/lib/env';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createEventTypeSchema, type CreateEventTypeInput } from '@scaler/types';
+import { createEventTypeSchema, type CreateEventTypeInput } from '@bolt/types';
 
 import { Button } from '@/components/ui/button';
 import {

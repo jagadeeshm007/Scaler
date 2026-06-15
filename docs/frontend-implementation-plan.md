@@ -66,9 +66,9 @@
 - All forms: uncontrolled inputs, performance, validation
 - Every form uses `zodResolver`
 
-**`zod`** — consumed from `@scaler/types` workspace package
+**`zod`** — consumed from `@bolt/types` workspace package
 
-- Schemas shared with backend. Import from `@scaler/types` not from `zod` directly for form schemas
+- Schemas shared with backend. Import from `@bolt/types` not from `zod` directly for form schemas
 - Replaces all manual validation logic
 
 ### Date / Time
@@ -326,7 +326,7 @@ App/
 │   └── ui.store.ts                       # Zustand: sidebarOpen, theme
 │
 └── types/
-    └── index.ts                          # re-export from @scaler/types
+    └── index.ts                          # re-export from @bolt/types
 ```
 
 ---
@@ -720,7 +720,7 @@ export const queryKeys = {
 
 ## 8. Forms Architecture
 
-All forms use: `react-hook-form` + `zodResolver` + schemas from `@scaler/types`.
+All forms use: `react-hook-form` + `zodResolver` + schemas from `@bolt/types`.
 
 **Standard form pattern:**
 
@@ -728,7 +728,7 @@ All forms use: `react-hook-form` + `zodResolver` + schemas from `@scaler/types`.
 'use client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createEventTypeSchema, type CreateEventTypeInput } from '@scaler/types';
+import { createEventTypeSchema, type CreateEventTypeInput } from '@bolt/types';
 
 export function EventTypeForm() {
   const form = useForm<CreateEventTypeInput>({
@@ -1009,7 +1009,7 @@ Files must be created in this order (no file may import from a file not yet crea
 [6]  App/components.json                        — shadcn configuration
 [7]  App/app/globals.css                        — @import "tailwindcss", @theme tokens
 [8]  App/lib/utils.ts                           — cn() helper (shadcn generates this)
-[9]  App/types/index.ts                         — re-exports from @scaler/types
+[9]  App/types/index.ts                         — re-exports from @bolt/types
 [10] App/lib/endpoints.ts                       — depends on nothing
 [11] App/lib/query-keys.ts                      — depends on nothing
 [12] App/lib/routes.ts                          — depends on nothing
@@ -1034,7 +1034,7 @@ Files must be created in this order (no file may import from a file not yet crea
 [31] App/components/layout/transition-link.tsx  — depends on: next/navigation
 [32] App/app/(unauthenticated)/(auth)/layout.tsx          — depends on: no sidebar
 [33] App/app/(unauthenticated)/(auth)/login/page.tsx      — depends on: lib/api.ts, store/auth.store.ts
-[34] App/app/(unauthenticated)/(auth)/signup/page.tsx     — depends on: lib/api.ts, @scaler/types
+[34] App/app/(unauthenticated)/(auth)/signup/page.tsx     — depends on: lib/api.ts, @bolt/types
 [35] App/app/(authenticated)/layout.tsx            — depends on: layout components, auth.store.ts
 [36] App/hooks/use-debounce.ts                  — depends on: react
 [37] App/hooks/use-media-query.ts               — depends on: react
@@ -1050,7 +1050,7 @@ Files must be created in this order (no file may import from a file not yet crea
 [47] App/components/event-types/event-type-card.tsx     — depends on: event-type-actions.tsx, mutations
 [48] App/components/event-types/event-type-list.tsx     — depends on: use-event-types.ts, event-type-card.tsx
 [49] App/components/event-types/add-event-type-dialog.tsx — depends on: components/ui/dialog, mutations
-[50] App/components/event-types/event-type-form.tsx     — depends on: RHF, @scaler/types, mutations
+[50] App/components/event-types/event-type-form.tsx     — depends on: RHF, @bolt/types, mutations
 [51] App/app/(authenticated)/event-types/loading.tsx       — depends on: event-type-skeleton.tsx
 [52] App/app/(authenticated)/event-types/error.tsx         — depends on: components/ui/button
 [53] App/app/(authenticated)/event-types/page.tsx          — depends on: query-client.ts, event-type-list.tsx
@@ -1093,7 +1093,7 @@ Files must be created in this order (no file may import from a file not yet crea
 [90] App/components/booking-page/event-info-panel.tsx — depends on: lucide-react, format.ts
 [91] App/components/booking-page/calendar-picker.tsx  — depends on: components/ui/calendar, nuqs, use-slots.ts
 [92] App/components/booking-page/time-slot-list.tsx   — depends on: use-slots.ts, nuqs, motion
-[93] App/components/booking-page/booking-form.tsx     — depends on: RHF, @scaler/types, use-create-booking.ts
+[93] App/components/booking-page/booking-form.tsx     — depends on: RHF, @bolt/types, use-create-booking.ts
 [94] App/components/booking-page/booking-confirmed.tsx — depends on: format.ts, motion
 [95] App/app/(unauthenticated)/(public)/[username]/[slug]/loading.tsx        — depends on: loading-skeleton.tsx
 [96] App/app/(unauthenticated)/(public)/[username]/[slug]/error.tsx          — depends on: components/ui/button
@@ -1111,8 +1111,8 @@ Files must be created in this order (no file may import from a file not yet crea
 [108] App/app/(authenticated)/apps/page.tsx           — depends on: query-client.ts, integration-list.tsx
 [109] App/components/settings/settings-nav.tsx     — depends on: routes.ts, lucide-react
 [110] App/components/settings/settings-card.tsx    — depends on: lucide-react
-[111] App/components/settings/profile-form.tsx     — depends on: RHF, @scaler/types, use-update-profile.ts
-[112] App/components/settings/general-settings-form.tsx — depends on: RHF, @scaler/types, use-update-profile.ts
+[111] App/components/settings/profile-form.tsx     — depends on: RHF, @bolt/types, use-update-profile.ts
+[112] App/components/settings/general-settings-form.tsx — depends on: RHF, @bolt/types, use-update-profile.ts
 [113] App/app/(authenticated)/settings/page.tsx       — depends on: settings-card.tsx
 [114] App/app/(authenticated)/settings/profile/page.tsx — depends on: settings-nav.tsx, profile-form.tsx
 [115] App/app/(authenticated)/settings/general/page.tsx — depends on: settings-nav.tsx, general-settings-form.tsx

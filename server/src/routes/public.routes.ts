@@ -1,4 +1,4 @@
-import { updateBookingStatusSchema } from '@scaler/types';
+import { updateBookingStatusSchema } from '@bolt/types';
 import { Router } from 'express';
 
 import { BookingController } from '../controllers/booking.controller';
@@ -188,6 +188,7 @@ router.get(
             timezone: true,
             settings: {
               select: {
+                brand_name: true,
                 brand_colors_enabled: true,
                 brand_color_light: true,
                 brand_color_dark: true,

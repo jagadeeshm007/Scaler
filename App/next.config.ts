@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
-  transpilePackages: ['@scaler/types'],
+  transpilePackages: ['@bolt/types'],
 };
 
 export default nextConfig;

@@ -1,6 +1,6 @@
 import { api } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/constants/api';
-import { bookingSchema, type Booking } from '@scaler/types';
+import { bookingSchema, type Booking } from '@bolt/types';
 import { z } from 'zod';
 
 export async function fetchBookings() {

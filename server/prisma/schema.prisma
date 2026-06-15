@@ -32,6 +32,7 @@ model UserSettings {
   id                 String   @id @default(uuid())
   user_id            String   @unique
   theme              String   @default("system")
+  brand_name         String   @default("eith.in")
   brand_colors_enabled Boolean @default(false)
   brand_color_light  String   @default("#111111")
   brand_color_dark   String   @default("#fafafa")

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import type { DateOverrideInput, ScheduleAvailabilityInput } from '@scaler/types';
+import type { DateOverrideInput, ScheduleAvailabilityInput } from '@bolt/types';
 
 import { DateOverrideList } from '@/components/availability/date-override-list';
 import { DateOverridePicker } from '@/components/availability/date-override-picker';

@@ -1,4 +1,4 @@
-export * from '@scaler/types';
+export * from '@bolt/types';
 
 // We also need ApiResponse because it's a generic type. The generic Zod schema apiResponseSchema was exported.
 export interface ApiResponse<T> {

@@ -5,7 +5,7 @@ import {
   type AuthPayload,
   type SessionResponse,
   sessionResponseSchema,
-} from '@scaler/types';
+} from '@bolt/types';
 import { z } from 'zod';
 
 export async function login(data: unknown) {

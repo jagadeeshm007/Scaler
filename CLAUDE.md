@@ -24,7 +24,7 @@ Scaler/
 └── CLAUDE.md             # This file
 ```
 
-**The `packages/types/` Contract**: This is the most critical piece of the architecture. Both `server/` and `App/` depend on `@scaler/types`. It contains Zod schemas that are used by the backend for API validation and by the frontend for form validation. The inferred TS types ensure the frontend always knows exactly what shape the API returns. No guessing, no `any`.
+**The `packages/types/` Contract**: This is the most critical piece of the architecture. Both `server/` and `App/` depend on `@bolt/types`. It contains Zod schemas that are used by the backend for API validation and by the frontend for form validation. The inferred TS types ensure the frontend always knows exactly what shape the API returns. No guessing, no `any`.
 
 ## 3. Dev Setup
 

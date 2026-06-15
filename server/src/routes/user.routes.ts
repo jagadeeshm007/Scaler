@@ -1,4 +1,4 @@
-import { updateUserSchema, updateUserSettingsSchema } from '@scaler/types';
+import { updateUserSchema, updateUserSettingsSchema } from '@bolt/types';
 import { Router } from 'express';
 
 import { UserController } from '../controllers/user.controller';

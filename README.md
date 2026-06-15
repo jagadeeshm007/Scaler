@@ -31,7 +31,7 @@ After running the database seed, use these credentials to sign in manually at `/
 | -------- | ------------------------------------------------------------------------------------------------------ |
 | Frontend | Next.js 16, React 19, Tailwind CSS v4, shadcn/ui, TanStack Query, Zustand, Axios, React Hook Form, Zod |
 | Backend  | Express 5, Prisma 7, PostgreSQL (Supabase), JWT, bcrypt, Pino                                          |
-| Shared   | `@scaler/types` — Zod schemas and TypeScript types used by both apps                                   |
+| Shared   | `@bolt/types` — Zod schemas and TypeScript types used by both apps                                     |
 | Tooling  | pnpm workspaces, Husky, ESLint, Prettier, Vitest                                                       |
 
 ---
@@ -61,7 +61,7 @@ flowchart TB
   end
 
   subgraph Shared
-    T["@scaler/types (Zod schemas)"]
+    T["@bolt/types (Zod schemas)"]
   end
 
   FE -->|REST + JWT| EX
@@ -76,7 +76,7 @@ Every API request follows strict layering:
 ```text
 HTTP Request
     → Router (route matching)
-    → Validate middleware (Zod from @scaler/types)
+    → Validate middleware (Zod from @bolt/types)
     → Auth middleware (JWT, when protected)
     → Controller (extract req, call service)
     → Service (business logic)

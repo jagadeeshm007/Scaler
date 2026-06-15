@@ -30,7 +30,7 @@ export const useUIStore = create<UIState & UIActions>()(
       setTimeFormat: (timeFormat) => set({ timeFormat }),
     }),
     {
-      name: 'scaler-theme',
+      name: 'app-theme',
       partialize: (state) => ({ theme: state.theme, timeFormat: state.timeFormat }),
     },
   ),

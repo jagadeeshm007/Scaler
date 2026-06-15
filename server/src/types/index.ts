@@ -1,2 +1,2 @@
 // Base types export
-export * from '@scaler/types';
+export * from '@bolt/types';

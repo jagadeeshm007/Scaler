@@ -1,5 +1,5 @@
 import 'server-only';
-import type { AuthUser } from '@scaler/types';
+import type { AuthUser, UserSettings } from '@bolt/types';
 
 export interface UserDTO {
   id: string;
@@ -8,6 +8,7 @@ export interface UserDTO {
   username: string;
   avatarUrl: string | null;
   timezone: string;
+  settings?: UserSettings;
 }
 
 export interface HostPublicDTO {
@@ -25,6 +26,7 @@ export function toUserDTO(user: AuthUser): UserDTO {
     username: user.username,
     avatarUrl: user.avatar_url ?? null,
     timezone: user.timezone,
+    settings: (user as unknown as UserDTO).settings,
   };
 }
 

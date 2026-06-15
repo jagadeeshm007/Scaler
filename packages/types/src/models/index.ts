@@ -18,6 +18,7 @@ export const userProfileSchema = authUserSchema.extend({
 export type UserProfile = z.infer<typeof userProfileSchema>;
 
 const publicHostSettingsSchema = z.object({
+  brand_name: z.string().optional(),
   brand_colors_enabled: z.boolean(),
   brand_color_light: z.string(),
   brand_color_dark: z.string(),

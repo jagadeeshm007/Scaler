@@ -8,9 +8,9 @@
     "lint": "pnpm --filter scaler-app lint && pnpm --filter server lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "pnpm --filter @scaler/types typecheck && pnpm --filter server typecheck && pnpm --filter scaler-app typecheck",
-    "build": "pnpm --filter @scaler/types build && pnpm --filter server build && pnpm --filter scaler-app build",
-    "build:types": "pnpm --filter @scaler/types build",
+    "typecheck": "pnpm --filter @bolt/types typecheck && pnpm --filter server typecheck && pnpm --filter scaler-app typecheck",
+    "build": "pnpm --filter @bolt/types build && pnpm --filter server build && pnpm --filter scaler-app build",
+    "build:types": "pnpm --filter @bolt/types build",
     "prepare": "husky"
   },
   "devDependencies": {

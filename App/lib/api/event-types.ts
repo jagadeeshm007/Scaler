@@ -9,7 +9,7 @@ import {
   type PublicEventType,
   type BlockedDatesData,
   type Slot,
-} from '@scaler/types';
+} from '@bolt/types';
 import { z } from 'zod';
 
 export async function fetchEventTypes() {

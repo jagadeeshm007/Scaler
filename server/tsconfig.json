@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@scaler/types": ["../packages/types/src"]
+      "@bolt/types": ["../packages/types/src"]
     }
   },
   "include": ["src/**/*", "api/**/*"],

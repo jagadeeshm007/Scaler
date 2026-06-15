@@ -6,7 +6,7 @@ import { fetchEventTypes } from '@/lib/api/event-types';
 import { useAuthReady } from '@/hooks/use-auth-ready';
 import { queryKeys } from '@/lib/constants/query-keys';
 
-import type { EventType } from '@scaler/types';
+import type { EventType } from '@bolt/types';
 
 interface UseEventTypesOptions {
   initialData?: EventType[];

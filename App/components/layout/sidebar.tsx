@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import type { UserDTO } from '@/lib/dto';
+import { DEFAULT_BRAND_NAME } from '@/lib/brand-color';
 
 const navItems = [
   { href: ROUTES.eventTypes, label: 'Event types', icon: EventTypeLinkIcon },
@@ -88,11 +89,13 @@ export function Sidebar({ className, onNavigate, user }: SidebarProps) {
       >
         {/* ── Header ── */}
         <div className="mb-4 flex flex-col items-center gap-3 px-1.5 lg:mb-5 lg:flex-row lg:items-center lg:justify-between lg:px-1">
-          {/* Logo — "Scaler" on lg, "SA" chip on md */}
+          {/* Logo — "text lg, "cal on md */}
           <span className="hidden text-base font-bold tracking-tight text-foreground lg:inline">
-            Scaler
+            {user?.settings?.brand_name || DEFAULT_BRAND_NAME}
           </span>
-          <span className="text-sm font-bold text-foreground lg:hidden">SA</span>
+          <span className="text-sm font-bold text-foreground lg:hidden">
+            {(user?.settings?.brand_name || DEFAULT_BRAND_NAME).substring(0, 2).toUpperCase()}
+          </span>
 
           {/* Avatar dropdown */}
           <UserAvatarDropdown avatarClassName="size-7 lg:size-8" user={user} />
@@ -154,7 +157,7 @@ export function Sidebar({ className, onNavigate, user }: SidebarProps) {
             />
           ))}
           <p className="hidden px-3 pt-3 text-xs text-muted-foreground lg:block">
-            © {new Date().getFullYear()} Scaler
+            © {new Date().getFullYear()} {user?.settings?.brand_name || DEFAULT_BRAND_NAME}
           </p>
         </div>
       </aside>

@@ -18,7 +18,7 @@ import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import { useUserProfile } from '@/hooks/queries/use-user-profile';
 
-import type { EventType } from '@scaler/types';
+import type { EventType } from '@bolt/types';
 
 interface EventTypeListProps {
   initialData?: EventType[];

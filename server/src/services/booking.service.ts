@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 import type { Booking, EventType, User } from '@prisma/client';
-import type { CreateBookingInput, UpdateBookingStatusInput } from '@scaler/types';
+import type { CreateBookingInput, UpdateBookingStatusInput } from '@bolt/types';
 import { ERROR_CODE, HTTP_STATUS, BOOKING_STATUS } from '../config/constants';
 import { eventBus, EVENTS } from '../lib/event-bus';
 import { prisma } from '../lib/prisma';

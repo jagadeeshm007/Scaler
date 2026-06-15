@@ -19,6 +19,7 @@ import { usePublicBooking } from '@/hooks/queries/use-bookings';
 import { useTimezone } from '@/hooks/use-timezone';
 import type { BookingLayout } from '@/components/booking-page/booking-view-switcher';
 import type { PublicEventType, Slot } from '@/types';
+import { DEFAULT_BRAND_NAME } from '@/lib/brand-color';
 
 interface BookingPageShellProps {
   eventType: PublicEventType;
@@ -178,7 +179,7 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
         {/* ── Footer branding ── */}
         <footer className="py-6 text-center">
           <span className="text-sm font-semibold tracking-widest text-muted-foreground">
-            Scaler
+            {eventType.user.settings?.brand_name || DEFAULT_BRAND_NAME}
           </span>
         </footer>
 

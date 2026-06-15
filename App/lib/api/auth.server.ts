@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { AuthUser } from '@scaler/types';
+import type { AuthUser } from '@bolt/types';
 
 import { serverAxios } from '@/lib/api/axios.server';
 import { parseApiErrorBody } from '@/lib/api/errors';

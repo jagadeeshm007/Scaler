@@ -15,16 +15,17 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
   const queryClient = new QueryClient();
 
   let initialTheme: ThemeOption = 'system';
+  let userProfile;
 
   try {
-    const userProfile = await fetchUserProfileServer(accessToken);
+    userProfile = await fetchUserProfileServer(accessToken);
     queryClient.setQueryData(queryKeys.user.me(), userProfile);
     initialTheme = userProfile.settings?.theme ?? 'system';
   } catch {
     queryClient.setQueryData(queryKeys.user.me(), { ...sessionUser, settings: null });
   }
 
-  const userDTO = toUserDTO(sessionUser);
+  const userDTO = toUserDTO(userProfile ?? sessionUser);
 
   return (
     <>

@@ -7,7 +7,7 @@ import {
   type UpdateUserInput,
   type UpdateUserSettingsInput,
   type UserProfile,
-} from '@scaler/types';
+} from '@bolt/types';
 
 export async function fetchUserProfile() {
   return api.get<UserProfile>(ENDPOINTS.users.me).then((res) => userProfileSchema.parse(res));

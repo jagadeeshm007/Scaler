@@ -6,6 +6,7 @@ import { UserAvatarDropdown } from '@/components/layout/user-avatar-dropdown';
 import { cn } from '@/lib/utils';
 
 import type { UserDTO } from '@/lib/dto';
+import { DEFAULT_BRAND_NAME } from '@/lib/brand-color';
 
 interface MobileHeaderProps {
   className?: string;
@@ -21,7 +22,9 @@ export function MobileHeader({ className, user }: MobileHeaderProps) {
 
   return (
     <header className={cn('flex h-14 items-center justify-between px-4 md:hidden', className)}>
-      <span className="text-lg font-bold tracking-tight text-foreground">Scaler</span>
+      <span className="text-lg font-bold tracking-tight text-foreground">
+        {user?.settings?.brand_name || DEFAULT_BRAND_NAME}
+      </span>
       <div className="flex items-center gap-3">
         <button
           type="button"
