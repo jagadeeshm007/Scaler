@@ -44,24 +44,26 @@ function NavItem({
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <TransitionLink
-          href={href}
-          onClick={onNavigate}
-          aria-label={label}
-          className={cn(
-            'flex items-center rounded-md text-sm font-medium transition-colors duration-100',
-            /* collapsed (md): fixed square · lg+: full row with label */
-            'size-9 shrink-0 justify-center lg:size-auto lg:w-full lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
-            active
-              ? 'bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:bg-primary/5 hover:text-primary',
-          )}
-        >
-          <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.25 : 1.75} />
-          <span className="hidden lg:inline">{label}</span>
-        </TransitionLink>
-      </TooltipTrigger>
+      <TooltipTrigger
+        render={
+          <TransitionLink
+            href={href}
+            onClick={onNavigate}
+            aria-label={label}
+            className={cn(
+              'flex items-center rounded-md text-sm font-medium transition-colors duration-100',
+              /* collapsed (md): fixed square · lg+: full row with label */
+              'size-9 shrink-0 justify-center lg:size-auto lg:w-full lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
+              active
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-primary/5 hover:text-primary',
+            )}
+          >
+            <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.25 : 1.75} />
+            <span className="hidden lg:inline">{label}</span>
+          </TransitionLink>
+        }
+      />
       {/* Tooltip only on collapsed (md, not lg) */}
       <TooltipContent
         side="right"
@@ -79,7 +81,7 @@ export function Sidebar({ className, onNavigate, user }: SidebarProps) {
   const username = user?.username ?? env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
 
   return (
-    <TooltipProvider delayDuration={200}>
+    <TooltipProvider delay={200}>
       <aside
         className={cn(
           /* no right border — page bg handles separation */
@@ -104,14 +106,16 @@ export function Sidebar({ className, onNavigate, user }: SidebarProps) {
         {/* ── Search (below header in collapsed, in header row on lg) ── */}
         <div className="mb-2 flex justify-center px-1 lg:hidden">
           <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                aria-label="Search"
-                className="flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-primary/5 hover:text-primary"
-              >
-                <Search className="size-4" />
-              </button>
+            <TooltipTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label="Search"
+                  className="flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-primary/5 hover:text-primary"
+                />
+              }
+            >
+              <Search className="size-4" />
             </TooltipTrigger>
             <TooltipContent
               side="right"

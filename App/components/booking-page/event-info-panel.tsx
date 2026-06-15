@@ -89,7 +89,7 @@ export function EventInfoPanel({
       )}
     >
       <div className="flex items-center gap-3">
-        <Avatar size="lg">
+        <Avatar className="size-10">
           <AvatarImage src={host.avatar_url ?? undefined} alt={host.full_name} />
           <AvatarFallback className="bg-pink-600 text-foreground">{initials}</AvatarFallback>
         </Avatar>
@@ -101,10 +101,9 @@ export function EventInfoPanel({
 
         {hasMultipleDurations && onDurationChange && !selectedSlot && (
           <ToggleGroup
-            type="single"
-            value={String(activeDuration)}
+            value={[String(activeDuration)]}
             onValueChange={(v) => {
-              if (v) onDurationChange(Number(v));
+              if (v[0]) onDurationChange(Number(v[0]));
             }}
             variant="outline"
             size="sm"

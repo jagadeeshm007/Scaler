@@ -121,10 +121,9 @@ export function WeekView({ eventType, timezone, onSlotSelect }: WeekViewProps) {
             </Button>
           )}
           <ToggleGroup
-            type="single"
-            value={fmt}
+            value={[fmt]}
             onValueChange={(v) => {
-              if (v) void setFmt(v as '12h' | '24h');
+              if (v[0]) void setFmt(v[0] as '12h' | '24h');
             }}
             variant="outline"
             size="sm"

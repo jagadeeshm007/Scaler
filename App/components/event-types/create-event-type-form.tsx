@@ -246,10 +246,10 @@ export function CreateEventTypeForm() {
               <Button
                 type="button"
                 variant="ghost"
-                asChild
+                render={<Link href={ROUTES.eventTypes} />}
                 className="text-muted-foreground hover:text-foreground"
               >
-                <Link href={ROUTES.eventTypes}>Close</Link>
+                Close
               </Button>
             </div>
           </form>

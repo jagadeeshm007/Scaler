@@ -92,28 +92,37 @@ router.get(
     interface RawOverride {
       date: Date;
       emoji: string | null;
+      is_available: boolean;
     }
     const rows = await prisma.$queryRaw<RawOverride[]>`
-      SELECT d.date, d.emoji
+      SELECT d.date, d.emoji, d.is_available
       FROM date_overrides d
       JOIN schedules s ON s.id = d.schedule_id
       WHERE s.user_id = ${user.id}
-        AND d.is_available = false
         AND d.date >= ${monthStart}
         AND d.date <= ${monthEnd}
     `;
 
     // Deduplicate by date (take first occurrence across multiple schedules)
-    const seen = new Set<string>();
-    const blocked = rows
-      .map((r) => ({ date: r.date.toISOString().slice(0, 10), emoji: r.emoji ?? '🔒' }))
-      .filter(({ date }) => {
-        if (seen.has(date)) {
-          return false;
+    const seenBlocked = new Set<string>();
+    const seenAvailable = new Set<string>();
+    const blocked: { date: string; emoji: string }[] = [];
+    const availableOverrides: string[] = [];
+
+    for (const r of rows) {
+      const dateStr = r.date.toISOString().slice(0, 10);
+      if (r.is_available) {
+        if (!seenAvailable.has(dateStr)) {
+          seenAvailable.add(dateStr);
+          availableOverrides.push(dateStr);
         }
-        seen.add(date);
-        return true;
-      });
+      } else {
+        if (!seenBlocked.has(dateStr)) {
+          seenBlocked.add(dateStr);
+          blocked.push({ date: dateStr, emoji: r.emoji ?? '🔒' });
+        }
+      }
+    }
 
     // Determine non-working weekdays from the user's default schedule
     const defaultSchedule = await prisma.schedule.findFirst({
@@ -128,6 +137,7 @@ router.get(
     return ApiResponse.success(res, 'Blocked dates retrieved successfully', {
       blocked,
       nonWorkingDays,
+      availableOverrides,
     });
   }),
 );

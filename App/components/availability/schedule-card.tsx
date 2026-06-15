@@ -63,11 +63,14 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <Button variant="outline" size="sm" className="hidden border-border sm:flex" asChild>
-          <Link href={ROUTES.availabilityEdit(schedule.id)}>
-            <Pencil className="size-3.5" />
-            Edit
-          </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="hidden border-border sm:flex"
+          render={<Link href={ROUTES.availabilityEdit(schedule.id)} />}
+        >
+          <Pencil className="size-3.5" />
+          Edit
         </Button>
 
         <DropdownMenu>

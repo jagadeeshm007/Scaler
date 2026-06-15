@@ -11,6 +11,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandCollection,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { COMMON_TIMEZONES } from '@/lib/constants/booking';
@@ -27,41 +28,50 @@ export function TimezoneSelector({ value, onChange, className }: TimezoneSelecto
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn('w-full justify-between border-border bg-card font-normal', className)}
-        >
-          <span className="truncate">{value.replace(/_/g, ' ')}</span>
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn('w-full justify-between border-border bg-card font-normal', className)}
+          />
+        }
+      >
+        <span className="truncate">{value.replace(/_/g, ' ')}</span>
+        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent
         className="w-[var(--radix-popover-trigger-width)] border-border bg-background p-0"
         align="start"
       >
-        <Command className="bg-background">
+        <Command
+          items={COMMON_TIMEZONES.map((tz) => ({ label: tz.replace(/_/g, ' '), value: tz }))}
+        >
           <CommandInput placeholder="Search timezone..." />
           <CommandList>
             <CommandEmpty>No timezone found.</CommandEmpty>
             <CommandGroup>
-              {COMMON_TIMEZONES.map((tz) => (
-                <CommandItem
-                  key={tz}
-                  value={tz}
-                  onSelect={() => {
-                    onChange(tz);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn('mr-2 size-4', value === tz ? 'opacity-100' : 'opacity-0')}
-                  />
-                  {tz.replace(/_/g, ' ')}
-                </CommandItem>
-              ))}
+              <CommandCollection>
+                {(item: { label: string; value: string }) => (
+                  <CommandItem
+                    key={item.value}
+                    value={item}
+                    onSelect={() => {
+                      onChange(item.value);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 size-4',
+                        value === item.value ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    {item.label}
+                  </CommandItem>
+                )}
+              </CommandCollection>
             </CommandGroup>
           </CommandList>
         </Command>

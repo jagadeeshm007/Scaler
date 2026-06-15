@@ -86,6 +86,7 @@ export type BlockedDate = z.infer<typeof blockedDateSchema>;
 export const blockedDatesDataSchema = z.object({
   blocked: z.array(blockedDateSchema),
   nonWorkingDays: z.array(z.number()),
+  availableOverrides: z.array(z.string()),
 });
 export type BlockedDatesData = z.infer<typeof blockedDatesDataSchema>;
 

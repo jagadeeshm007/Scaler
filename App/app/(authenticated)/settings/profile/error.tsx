@@ -24,8 +24,8 @@ export default function ProfileSettingsError({ error, reset }: ProfileSettingsEr
         <Button variant="outline" onClick={reset}>
           Try again
         </Button>
-        <Button asChild variant="ghost">
-          <Link href={ROUTES.settings}>Back to settings</Link>
+        <Button render={<Link href={ROUTES.settings} />} variant="ghost">
+          Back to settings
         </Button>
       </div>
     </div>

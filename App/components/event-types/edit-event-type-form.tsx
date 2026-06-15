@@ -444,8 +444,8 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button type="button" variant="outline" asChild>
-                  <Link href={ROUTES.eventTypes}>Back</Link>
+                <Button type="button" variant="outline" render={<Link href={ROUTES.eventTypes} />}>
+                  Back
                 </Button>
               </div>
             </form>

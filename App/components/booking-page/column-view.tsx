@@ -6,7 +6,7 @@ import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { ToggleGroup, ToggleGroupItem, ToggleGroupSeparator } from '@/components/ui/toggle-group';
 import { useWeekSlots } from '@/hooks/queries/use-week-slots';
 import { formatColumnDayHeader, formatTimeSlot, formatWeekRange } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -88,10 +88,9 @@ export function ColumnView({ eventType, timezone, onSlotSelect }: ColumnViewProp
             </Button>
           )}
           <ToggleGroup
-            type="single"
-            value={fmt}
+            value={[fmt]}
             onValueChange={(v) => {
-              if (v) void setFmt(v as '12h' | '24h');
+              if (v[0]) void setFmt(v[0] as '12h' | '24h');
             }}
             variant="outline"
             size="sm"
@@ -99,6 +98,7 @@ export function ColumnView({ eventType, timezone, onSlotSelect }: ColumnViewProp
             <ToggleGroupItem value="12h" aria-label="12h">
               12h
             </ToggleGroupItem>
+            <ToggleGroupSeparator />
             <ToggleGroupItem value="24h" aria-label="24h">
               24h
             </ToggleGroupItem>

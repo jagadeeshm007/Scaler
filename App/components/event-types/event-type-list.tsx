@@ -80,11 +80,12 @@ export function EventTypeList({ initialData }: EventTypeListProps = {}) {
               </button>
             )}
           </div>
-          <Button asChild className="h-8 px-3 text-sm font-medium">
-            <Link href={ROUTES.eventTypeNew}>
-              <Plus className="size-3.5" />
-              New
-            </Link>
+          <Button
+            render={<Link href={ROUTES.eventTypeNew} />}
+            className="h-8 px-3 text-sm font-medium"
+          >
+            <Plus className="size-3.5" />
+            New
           </Button>
         </>
       }
@@ -117,8 +118,11 @@ export function EventTypeList({ initialData }: EventTypeListProps = {}) {
                 : 'Create your first event type to start accepting bookings.'}
             </p>
             {!hasQuery && (
-              <Button asChild className="mt-5 h-8 px-4 text-sm font-medium">
-                <Link href={ROUTES.eventTypeNew}>Create</Link>
+              <Button
+                render={<Link href={ROUTES.eventTypeNew} />}
+                className="mt-5 h-8 px-4 text-sm font-medium"
+              >
+                Create
               </Button>
             )}
           </div>

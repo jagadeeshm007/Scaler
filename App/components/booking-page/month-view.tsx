@@ -67,6 +67,7 @@ export function MonthView({
   });
   const blockedDates = blockedData?.blocked ?? [];
   const nonWorkingDays = blockedData?.nonWorkingDays ?? [];
+  const availableOverrides = blockedData?.availableOverrides ?? [];
 
   const availableSlots = slots?.filter((s) => s.available) ?? [];
 
@@ -99,6 +100,7 @@ export function MonthView({
                 onMonthChange={setCalendarMonth}
                 blockedDates={blockedDates}
                 nonWorkingDays={nonWorkingDays}
+                availableOverrides={availableOverrides}
               />
             </div>
           </m.div>
@@ -119,10 +121,9 @@ export function MonthView({
               {dateStr ? formatDateLabel(dateStr) : 'Select a date'}
             </span>
             <ToggleGroup
-              type="single"
-              value={fmt}
+              value={[fmt]}
               onValueChange={(v) => {
-                if (v) void setFmt(v as '12h' | '24h');
+                if (v[0]) void setFmt(v[0] as '12h' | '24h');
               }}
               variant="outline"
               size="sm"

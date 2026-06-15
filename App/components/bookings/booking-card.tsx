@@ -133,11 +133,14 @@ export function BookingCard({
         {/* Mobile Join Button */}
         <div className="mt-3 flex items-center sm:hidden" onClick={(e) => e.stopPropagation()}>
           {booking.meeting_url ? (
-            <Button size="sm" variant="secondary" className="gap-2" asChild>
-              <a href={booking.meeting_url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="size-3.5" />
-                Join Google Meet
-              </a>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-2"
+              render={<a href={booking.meeting_url} target="_blank" rel="noopener noreferrer" />}
+            >
+              <ExternalLink className="size-3.5" />
+              Join Google Meet
             </Button>
           ) : null}
         </div>

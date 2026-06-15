@@ -22,7 +22,7 @@ import { Switch } from '@/components/ui/switch';
 import { logoutAction } from '@/actions/auth.actions';
 import { useAvailability } from '@/hooks/queries/use-availability';
 import { useUpdateSchedule } from '@/hooks/mutations/use-availability-mutations';
-import { useIsMdUp } from '@/hooks/use-media-query';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import { ROUTES } from '@/lib/constants/routes';
 import { formatThemeModeLabel } from '@/lib/theme';
 import { cn } from '@/lib/utils';
@@ -37,7 +37,7 @@ interface UserAvatarDropdownProps {
 
 export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdownProps) {
   const { toggleTheme, theme, resolvedTheme } = useThemeTransition();
-  const isMdUp = useIsMdUp();
+  const isMdUp = useMediaQuery('md');
   const [open, setOpen] = React.useState(false);
 
   const { data: schedules } = useAvailability();
@@ -165,7 +165,7 @@ export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdown
     // Mobile View: Bottom Sheet
     return (
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>{triggerButton}</SheetTrigger>
+        <SheetTrigger render={triggerButton} />
         <SheetContent
           side="bottom"
           showCloseButton={false}

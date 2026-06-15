@@ -202,12 +202,10 @@ export function BookingDetailPanel({
                 size="sm"
                 variant="ghost"
                 className="h-9 gap-2 rounded-none px-4 hover:bg-muted/50"
-                asChild
+                render={<a href={booking.meeting_url} target="_blank" rel="noopener noreferrer" />}
               >
-                <a href={booking.meeting_url} target="_blank" rel="noopener noreferrer">
-                  <Video className="size-4" />
-                  Join Video
-                </a>
+                <Video className="size-4" />
+                Join Video
               </Button>
               <div className="h-5 w-px bg-border" />
               <Button size="sm" variant="ghost" className="h-9 rounded-none px-3 hover:bg-muted/50">

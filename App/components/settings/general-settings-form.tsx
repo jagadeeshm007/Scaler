@@ -48,10 +48,9 @@ export function GeneralSettingsForm() {
       <div className="space-y-3">
         <Label>Time format</Label>
         <ToggleGroup
-          type="single"
-          value={timeFormat}
+          value={[timeFormat]}
           onValueChange={(value) => {
-            if (value) setTimeFormat(value as '12h' | '24h');
+            if (value[0]) setTimeFormat(value[0] as '12h' | '24h');
           }}
           variant="outline"
         >

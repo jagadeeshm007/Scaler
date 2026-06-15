@@ -64,10 +64,9 @@ export function TimeSlotList({ eventType, className }: TimeSlotListProps) {
           {date ? formatDateLabel(date) : 'Select a date'}
         </span>
         <ToggleGroup
-          type="single"
-          value={fmt}
+          value={[fmt]}
           onValueChange={(value) => {
-            if (value) void setFmt(value as '12h' | '24h');
+            if (value[0]) void setFmt(value[0] as '12h' | '24h');
           }}
           variant="outline"
           size="sm"
