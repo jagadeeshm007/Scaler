@@ -32,8 +32,9 @@ model UserSettings {
   id                 String   @id @default(uuid())
   user_id            String   @unique
   theme              String   @default("system")
+  brand_colors_enabled Boolean @default(false)
   brand_color_light  String   @default("#111111")
-  brand_color_dark   String   @default("#eeeeee")
+  brand_color_dark   String   @default("#fafafa")
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
 

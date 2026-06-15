@@ -21,7 +21,7 @@ export const useUIStore = create<UIState & UIActions>()(
   persist(
     (set, get) => ({
       sidebarOpen: false,
-      theme: 'dark',
+      theme: 'system',
       timeFormat: '12h',
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),

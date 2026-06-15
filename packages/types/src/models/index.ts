@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { dateOverrideSchema, scheduleAvailabilitySchema } from '../schemas/availability.schemas';
+import { userSettingsSchema } from '../schemas/user.schemas';
 
 export const authUserSchema = z.object({
   id: z.string(),
@@ -10,6 +11,17 @@ export const authUserSchema = z.object({
   timezone: z.string(),
 });
 export type AuthUser = z.infer<typeof authUserSchema>;
+
+export const userProfileSchema = authUserSchema.extend({
+  settings: userSettingsSchema.nullable().optional(),
+});
+export type UserProfile = z.infer<typeof userProfileSchema>;
+
+const publicHostSettingsSchema = z.object({
+  brand_colors_enabled: z.boolean(),
+  brand_color_light: z.string(),
+  brand_color_dark: z.string(),
+});
 
 export const authPayloadSchema = z.object({
   accessToken: z.string(),
@@ -47,13 +59,17 @@ export const eventTypeSchema = z.object({
 export type EventType = z.infer<typeof eventTypeSchema>;
 
 export const publicEventTypeSchema = eventTypeSchema.extend({
-  user: authUserSchema.pick({
-    id: true,
-    full_name: true,
-    username: true,
-    avatar_url: true,
-    timezone: true,
-  }),
+  user: authUserSchema
+    .pick({
+      id: true,
+      full_name: true,
+      username: true,
+      avatar_url: true,
+      timezone: true,
+    })
+    .extend({
+      settings: publicHostSettingsSchema.nullable().optional(),
+    }),
 });
 export type PublicEventType = z.infer<typeof publicEventTypeSchema>;
 

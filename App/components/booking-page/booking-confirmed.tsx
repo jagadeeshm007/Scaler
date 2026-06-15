@@ -262,7 +262,7 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{hostName}</span>
-                  <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-400">
+                  <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
                     Host
                   </span>
                 </div>
@@ -278,7 +278,7 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
               <InfoRow label="Rescheduled">
                 <a
                   href={`/booking/${booking.rescheduled_to_uid}`}
-                  className="text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1"
+                  className="inline-flex items-center gap-1 text-primary hover:text-primary/80 hover:underline"
                 >
                   View booking <ExternalLink className="size-3.5" />
                 </a>
@@ -402,7 +402,7 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{hostName}</span>
-                  <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-400">
+                  <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
                     Host
                   </span>
                 </div>
@@ -420,7 +420,7 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
                   href={booking.meeting_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline"
+                  className="inline-flex items-center gap-1 text-primary hover:text-primary/80 hover:underline"
                 >
                   {locationLabel}
                   <ExternalLink className="size-3.5" />

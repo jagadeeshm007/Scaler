@@ -33,13 +33,13 @@ export function GeneralSettingsForm() {
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
           onBlur={handleTimezoneBlur}
-          className="flex h-9 w-full rounded-md border border-border bg-card px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex h-9 w-full rounded-md border border-border bg-card px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
           placeholder="Asia/Kolkata"
         />
         <button
           type="button"
           onClick={resetTimezone}
-          className="text-xs text-blue-500 hover:underline"
+          className="text-xs text-primary hover:text-primary/80 hover:underline"
         >
           Detect from browser
         </button>

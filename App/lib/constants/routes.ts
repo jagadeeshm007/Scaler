@@ -11,6 +11,7 @@ export const ROUTES = {
   settings: '/settings',
   settingsProfile: '/settings/profile',
   settingsGeneral: '/settings/general',
+  settingsAppearance: '/settings/appearance',
   publicBooking: (username: string, slug: string) => `/${username}/${slug}`,
   publicBookingStatus: (uid: string) => `/booking/${uid}`,
 } as const;

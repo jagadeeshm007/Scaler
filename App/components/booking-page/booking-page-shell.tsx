@@ -8,6 +8,7 @@ import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
+import { BookingBrandColorProvider } from '@/components/booking-page/booking-brand-color-provider';
 import { BookingFormDialog } from '@/components/booking-page/booking-form-dialog';
 import { BookingViewSwitcher } from '@/components/booking-page/booking-view-switcher';
 import { ColumnView } from '@/components/booking-page/column-view';
@@ -60,6 +61,7 @@ export function BookingPageShell({ eventType }: BookingPageShellProps) {
 
   return (
     <LazyMotion features={domAnimation}>
+      <BookingBrandColorProvider eventType={eventType} />
       <div className="flex min-h-screen flex-col bg-background">
         {/* ── Top bar ── */}
         <header className="flex items-center justify-end px-6 py-4">

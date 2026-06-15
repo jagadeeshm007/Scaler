@@ -34,7 +34,7 @@ export function MobileBottomNav() {
                 className={cn(
                   'flex size-11 items-center justify-center rounded-full transition-colors',
                   active
-                    ? 'bg-accent text-foreground'
+                    ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >

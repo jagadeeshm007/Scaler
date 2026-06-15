@@ -24,6 +24,7 @@ import { useAvailability } from '@/hooks/queries/use-availability';
 import { useUpdateSchedule } from '@/hooks/mutations/use-availability-mutations';
 import { useIsMdUp } from '@/hooks/use-media-query';
 import { ROUTES } from '@/lib/constants/routes';
+import { formatThemeModeLabel } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { TransitionLink } from '@/components/layout/transition-link';
 
@@ -35,7 +36,7 @@ interface UserAvatarDropdownProps {
 }
 
 export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdownProps) {
-  const { toggleTheme, resolvedTheme } = useThemeTransition();
+  const { toggleTheme, theme, resolvedTheme } = useThemeTransition();
   const isMdUp = useIsMdUp();
   const [open, setOpen] = React.useState(false);
 
@@ -203,7 +204,7 @@ export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdown
               >
                 <span>Theme Mode</span>
                 <span className="ml-auto text-xs capitalize text-muted-foreground">
-                  {resolvedTheme === 'dark' ? 'dark' : 'light'}
+                  {formatThemeModeLabel(theme, resolvedTheme)}
                 </span>
               </Classic>
 
@@ -215,7 +216,7 @@ export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdown
               >
                 <div className="flex items-center gap-3">
                   <Plane
-                    className={cn('size-5 text-muted-foreground', isTodayOOO && 'text-blue-400')}
+                    className={cn('size-5 text-muted-foreground', isTodayOOO && 'text-primary')}
                   />
                   <span>Quick OOO</span>
                 </div>
@@ -305,7 +306,7 @@ export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdown
             >
               <span>Theme Mode</span>
               <span className="ml-auto text-xs capitalize text-muted-foreground">
-                {resolvedTheme === 'dark' ? 'dark' : 'light'}
+                {formatThemeModeLabel(theme, resolvedTheme)}
               </span>
             </Classic>
           </DropdownMenuItem>
@@ -320,9 +321,7 @@ export function UserAvatarDropdown({ avatarClassName, user }: UserAvatarDropdown
             disabled={!defaultSchedule}
           >
             <div className="flex items-center gap-2">
-              <Plane
-                className={cn('size-4 text-muted-foreground', isTodayOOO && 'text-blue-400')}
-              />
+              <Plane className={cn('size-4 text-muted-foreground', isTodayOOO && 'text-primary')} />
               <span>Quick OOO</span>
             </div>
             <div className="pointer-events-none" onClick={(e) => e.stopPropagation()}>

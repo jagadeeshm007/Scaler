@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 const NAV_ITEMS = [
   { href: ROUTES.settingsProfile, label: 'Profile' },
   { href: ROUTES.settingsGeneral, label: 'General' },
+  { href: ROUTES.settingsAppearance, label: 'Appearance' },
 ] as const;
 
 export function SettingsNav() {

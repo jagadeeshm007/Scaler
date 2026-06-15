@@ -186,6 +186,13 @@ router.get(
             username: true,
             avatar_url: true,
             timezone: true,
+            settings: {
+              select: {
+                brand_colors_enabled: true,
+                brand_color_light: true,
+                brand_color_dark: true,
+              },
+            },
           },
         },
       },

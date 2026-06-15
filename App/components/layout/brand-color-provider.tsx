@@ -2,28 +2,38 @@
 
 import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
+
 import { useUserProfile } from '@/hooks/queries/use-user-profile';
+import { applyBrandColors } from '@/lib/brand-color';
+import type { ThemeOption } from '@/lib/constants/theme';
+import { useUIStore } from '@/store/ui.store';
 
 export function BrandColorProvider() {
   const { data: user } = useUserProfile();
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    // We expect user settings to be attached via the relation query
-    const settings = (user as unknown as { settings?: Record<string, string> })?.settings;
-    if (!settings) return;
+    applyBrandColors(document.documentElement, user?.settings ?? null, resolvedTheme);
+  }, [user?.settings, resolvedTheme]);
 
-    const root = document.documentElement;
-    const brandColorLight = settings.brand_color_light || '#111111';
-    const brandColorDark = settings.brand_color_dark || '#eeeeee';
+  return null;
+}
 
-    // Apply the correct color based on the resolved theme
-    if (resolvedTheme === 'dark') {
-      root.style.setProperty('--primary', brandColorDark);
-    } else {
-      root.style.setProperty('--primary', brandColorLight);
-    }
-  }, [user, resolvedTheme]);
+interface ThemeHydratorProps {
+  initialTheme?: ThemeOption;
+}
+
+export function ThemeHydrator({ initialTheme = 'system' }: ThemeHydratorProps) {
+  const { data: user } = useUserProfile();
+  const { setTheme } = useTheme();
+  const setUITheme = useUIStore((state) => state.setTheme);
+
+  const theme = user?.settings?.theme ?? initialTheme;
+
+  useEffect(() => {
+    setTheme(theme);
+    setUITheme(theme);
+  }, [theme, setTheme, setUITheme]);
 
   return null;
 }

@@ -5,6 +5,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "prepare": "pnpm run build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts"
   },

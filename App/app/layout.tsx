@@ -1,6 +1,7 @@
 import { Inter } from 'next/font/google';
 
 import '@/lib/env';
+import { ThemeScript } from '@/components/layout/theme-script';
 import { Toaster } from '@/components/ui/sonner';
 
 import { Providers } from './providers';
@@ -25,7 +26,10 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body
         className={`${inter.variable} font-sans min-h-screen overflow-x-hidden bg-background text-foreground`}
       >

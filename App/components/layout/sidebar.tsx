@@ -53,8 +53,8 @@ function NavItem({
             /* collapsed (md): fixed square · lg+: full row with label */
             'size-9 shrink-0 justify-center lg:size-auto lg:w-full lg:justify-start lg:gap-3 lg:px-3 lg:py-2',
             active
-              ? 'bg-accent text-accent-foreground'
-              : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground',
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted-foreground hover:bg-primary/5 hover:text-primary',
           )}
         >
           <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.25 : 1.75} />
@@ -105,7 +105,7 @@ export function Sidebar({ className, onNavigate, user }: SidebarProps) {
               <button
                 type="button"
                 aria-label="Search"
-                className="flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground"
+                className="flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-primary/5 hover:text-primary"
               >
                 <Search className="size-4" />
               </button>

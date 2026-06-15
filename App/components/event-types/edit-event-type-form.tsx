@@ -482,7 +482,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
               </EventTypeBadge>
             )}
           </div>
-          <p className="mt-4 text-center text-xs text-blue-400">
+          <p className="mt-4 text-center text-xs text-primary">
             Save changes to preview all updates.
           </p>
         </aside>

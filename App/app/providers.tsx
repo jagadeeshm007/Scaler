@@ -7,6 +7,7 @@ import { ThemeProvider } from 'next-themes';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { SystemThemeWatcher } from '@/components/layout/system-theme-watcher';
 import { getQueryClient } from '@/lib/query-client';
 
 interface ProvidersProps {
@@ -19,7 +20,15 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          enableColorScheme
+          storageKey="theme"
+          disableTransitionOnChange
+        >
+          <SystemThemeWatcher />
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </NuqsAdapter>

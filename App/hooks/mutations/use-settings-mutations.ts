@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { connectIntegration, disconnectIntegration } from '@/lib/api/apps';
 import { updateUserProfile, updateUserSettings } from '@/lib/api/users';
 import { queryKeys } from '@/lib/constants/query-keys';
-import type { AuthUser, UpdateUserInput } from '@/types';
+import type { UpdateUserInput, UpdateUserSettingsInput, UserProfile } from '@/types';
 
 export function useConnectIntegration() {
   return useMutation({
@@ -36,9 +36,9 @@ export function useUpdateProfile() {
     mutationFn: (data: UpdateUserInput) => updateUserProfile(data),
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.user.me() });
-      const previous = queryClient.getQueryData<AuthUser>(queryKeys.user.me());
+      const previous = queryClient.getQueryData<UserProfile>(queryKeys.user.me());
       if (previous) {
-        queryClient.setQueryData<AuthUser>(queryKeys.user.me(), { ...previous, ...data });
+        queryClient.setQueryData<UserProfile>(queryKeys.user.me(), { ...previous, ...data });
       }
       return { previous };
     },
@@ -54,20 +54,18 @@ export function useUpdateProfile() {
 export function useUpdateSettings() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => updateUserSettings(data),
+    mutationFn: (data: UpdateUserSettingsInput) => updateUserSettings(data),
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.user.me() });
-      const previous = queryClient.getQueryData<AuthUser>(queryKeys.user.me());
-      if (previous) {
-        // Optimistically update settings
-        const newSettings = {
-          ...(previous as unknown as { settings: Record<string, string> }).settings,
-          ...(data as Record<string, string>),
-        };
-        queryClient.setQueryData<AuthUser>(queryKeys.user.me(), {
+      const previous = queryClient.getQueryData<UserProfile>(queryKeys.user.me());
+      if (previous?.settings) {
+        queryClient.setQueryData<UserProfile>(queryKeys.user.me(), {
           ...previous,
-          settings: newSettings,
-        } as AuthUser);
+          settings: {
+            ...previous.settings,
+            ...data,
+          },
+        });
       }
       return { previous };
     },

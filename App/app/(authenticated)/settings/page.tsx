@@ -32,10 +32,10 @@ export default function SettingsPage() {
               description="Language, timezone, and time format preferences"
             />
             <SettingsCard
-              href={ROUTES.settingsGeneral}
+              href={ROUTES.settingsAppearance}
               icon={Palette}
               title="Appearance"
-              description="Customize how Scaler looks on your device"
+              description="Dashboard theme and custom brand colors"
             />
           </div>
         </section>

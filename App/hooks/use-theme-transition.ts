@@ -3,6 +3,7 @@
 import { useTheme } from 'next-themes';
 import { useUIStore } from '@/store/ui.store';
 import { useUpdateSettings } from '@/hooks/mutations/use-settings-mutations';
+import type { ThemeOption } from '@/lib/constants/theme';
 
 export type ThemeTransitionType =
   | 'CIRCLE'
@@ -19,7 +20,7 @@ interface UseThemeTransitionOptions {
 }
 
 export function useThemeTransition(options: UseThemeTransitionOptions = {}) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme: preference, setTheme, resolvedTheme } = useTheme();
   const updateSettings = useUpdateSettings();
   const uiStore = useUIStore();
 
@@ -29,9 +30,14 @@ export function useThemeTransition(options: UseThemeTransitionOptions = {}) {
   const toggleTheme = async (
     event?: React.MouseEvent<HTMLElement> | HTMLElement | { clientX: number; clientY: number },
   ) => {
-    const nextTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+    const nextTheme: ThemeOption = resolvedTheme === 'dark' ? 'light' : 'dark';
 
-    // Type definition for Document.startViewTransition
+    const applyTheme = () => {
+      setTheme(nextTheme);
+      uiStore.setTheme(nextTheme);
+      updateSettings.mutate({ theme: nextTheme });
+    };
+
     const doc = document as unknown as {
       startViewTransition?: (callback: () => Promise<void> | void) => {
         ready: Promise<void>;
@@ -42,9 +48,7 @@ export function useThemeTransition(options: UseThemeTransitionOptions = {}) {
 
     // If View Transitions API is not supported, fallback to simple toggle
     if (!doc.startViewTransition) {
-      setTheme(nextTheme);
-      uiStore.setTheme(nextTheme);
-      updateSettings.mutate({ theme: nextTheme });
+      applyTheme();
       return;
     }
 
@@ -88,9 +92,7 @@ export function useThemeTransition(options: UseThemeTransitionOptions = {}) {
     // 4. Start view transition
     const transition = doc.startViewTransition(async () => {
       const wasDark = document.documentElement.classList.contains('dark');
-      setTheme(nextTheme);
-      uiStore.setTheme(nextTheme);
-      updateSettings.mutate({ theme: nextTheme });
+      applyTheme();
 
       // Wait for next-themes to actually write the class update to <html>
       await new Promise<void>((resolve) => {
@@ -176,7 +178,7 @@ export function useThemeTransition(options: UseThemeTransitionOptions = {}) {
 
   return {
     toggleTheme,
-    theme,
+    theme: preference,
     resolvedTheme,
   };
 }

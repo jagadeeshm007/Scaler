@@ -78,6 +78,11 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
 }
 
 @layer utilities {

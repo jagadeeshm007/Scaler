@@ -151,8 +151,7 @@ export function BookingDetailPanel({
                   </Avatar>
                   <div>
                     <p className="font-medium">
-                      {hostName}{' '}
-                      <span className="ml-1 text-xs font-normal text-blue-400">Host</span>
+                      {hostName} <span className="ml-1 text-xs font-normal text-primary">Host</span>
                     </p>
                     <p className="text-xs text-muted-foreground">{hostEmail}</p>
                   </div>
@@ -185,7 +184,7 @@ export function BookingDetailPanel({
                     href={booking.meeting_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
+                    className="text-primary hover:text-primary/80 hover:underline"
                   >
                     {booking.meeting_url}
                   </a>
