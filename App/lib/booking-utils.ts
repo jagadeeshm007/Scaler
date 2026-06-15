@@ -1,11 +1,9 @@
 import { isPast, parseISO } from 'date-fns';
 
-import type { BookingStatusTab } from '@/lib/constants';
+import type { BookingStatusTab } from '@/lib/constants/booking';
 import type { Booking } from '@/types';
 
 export function filterBookingsByTab(bookings: Booking[], tab: BookingStatusTab): Booking[] {
-  const now = new Date();
-
   switch (tab) {
     case 'upcoming':
       return bookings.filter(
@@ -19,7 +17,7 @@ export function filterBookingsByTab(bookings: Booking[], tab: BookingStatusTab):
     case 'past':
       return bookings.filter((b) => b.status !== 'CANCELLED' && isPast(parseISO(b.end_time)));
     case 'cancelled':
-      return bookings.filter((b) => b.status === 'CANCELLED');
+      return bookings.filter((b) => b.status === 'CANCELLED' || b.status === 'RESCHEDULED');
     default:
       return bookings;
   }

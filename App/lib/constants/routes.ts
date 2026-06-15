@@ -1,0 +1,17 @@
+export const ROUTES = {
+  login: '/login',
+  signup: '/signup',
+  eventTypes: '/event-types',
+  eventTypeNew: '/event-types/new',
+  eventTypeEdit: (id: string) => `/event-types/${id}/edit`,
+  bookings: '/bookings',
+  availability: '/availability',
+  availabilityEdit: (id: string) => `/availability/${id}`,
+  apps: '/apps',
+  settings: '/settings',
+  settingsProfile: '/settings/profile',
+  settingsGeneral: '/settings/general',
+  settingsAppearance: '/settings/appearance',
+  publicBooking: (username: string, slug: string) => `/${username}/${slug}`,
+  publicBookingStatus: (uid: string) => `/booking/${uid}`,
+} as const;

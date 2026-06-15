@@ -1,8 +1,7 @@
-import { loginSchema, bypassSchema, registerSchema } from '@scaler/types';
+import { loginSchema, bypassSchema, registerSchema } from '@bolt/types';
 import { Router } from 'express';
 
 import { AuthController } from '../controllers/auth.controller';
-import { requireAuth } from '../middleware/auth';
 import { authRateLimiter } from '../middleware/rate-limit';
 import { validate } from '../middleware/validate';
 
@@ -13,8 +12,9 @@ router.post('/register', authRateLimiter, validate(registerSchema), AuthControll
 router.post('/login', authRateLimiter, validate(loginSchema), AuthController.login);
 router.post('/bypass', validate(bypassSchema), AuthController.bypass);
 router.post('/refresh', AuthController.refresh);
+router.get('/session', AuthController.session);
 
 // Protected auth routes
-router.post('/logout', requireAuth, AuthController.logout);
+router.post('/logout', AuthController.logout);
 
 export { router as authRoutes };

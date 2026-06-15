@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { env } from '@/lib/env';
 import {
   Calendar,
   Clock,
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateEventTypeSchema, type UpdateEventTypeInput } from '@scaler/types';
+import { updateEventTypeSchema, type UpdateEventTypeInput } from '@bolt/types';
 import { toast } from 'sonner';
 
 import { EventTypeActiveToggle } from '@/components/event-types/event-type-active-toggle';
@@ -35,6 +36,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
@@ -48,9 +50,9 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useDeleteEventType, useUpdateEventType } from '@/hooks/mutations/use-event-type-mutations';
 import { formatDuration } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/auth.store';
+import { useUserProfile } from '@/hooks/queries/use-user-profile';
 import type { EventType } from '@/types';
 
 const LOCATION_OPTIONS = [
@@ -91,7 +93,7 @@ interface EditEventTypeFormProps {
 
 export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
+  const { data: user } = useUserProfile();
   const username = user?.username ?? '';
   const updateMutation = useUpdateEventType();
   const deleteMutation = useDeleteEventType();
@@ -110,14 +112,19 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
       duration_mins: eventType.duration_mins,
       location_type: eventType.location_type,
       is_hidden: eventType.is_hidden,
+      theme_config: (eventType.theme_config as { party_mode_enabled?: boolean } | null) ?? {
+        party_mode_enabled: true,
+      },
     },
   });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const appUrl = env.NEXT_PUBLIC_APP_URL;
   const publicUrl = `${appUrl}${ROUTES.publicBooking(username, eventType.slug)}`;
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedTitle = form.watch('title');
   const watchedDuration = form.watch('duration_mins') ?? eventType.duration_mins;
   const watchedHidden = form.watch('is_hidden') ?? false;
+  const watchedLocation = form.watch('location_type');
 
   useEffect(() => {
     if (!allowMultiple) {
@@ -170,13 +177,13 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
       {/* Header bar */}
-      <div className="flex items-center justify-between gap-4 border-b border-neutral-800 px-4 py-3 md:px-6">
-        <h1 className="truncate text-lg font-semibold text-white">
+      <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 md:px-6">
+        <h1 className="truncate text-lg font-semibold text-foreground">
           {watchedTitle || eventType.title}
         </h1>
         <div className="flex shrink-0 items-center gap-3">
           <div className="hidden items-center gap-2 sm:flex">
-            <span className="text-sm text-neutral-400">Hidden</span>
+            <span className="text-sm text-muted-foreground">Hidden</span>
             <EventTypeActiveToggle
               checked={watchedHidden}
               onCheckedChange={(checked) => form.setValue('is_hidden', checked)}
@@ -211,7 +218,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
             type="submit"
             form="edit-event-type-form"
             disabled={updateMutation.isPending}
-            className="h-9 rounded-full bg-white px-4 text-sm font-medium text-black hover:bg-neutral-200"
+            className="h-9 rounded-full px-4 text-sm font-medium"
           >
             Save
           </Button>
@@ -220,7 +227,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar nav */}
-        <aside className="hidden w-56 shrink-0 overflow-y-auto border-r border-neutral-800 px-3 py-4 lg:block">
+        <aside className="hidden w-56 shrink-0 overflow-y-auto border-r border-border px-3 py-4 lg:block">
           {SIDEBAR_SECTIONS.map(({ group, items }) => (
             <div key={group} className="mb-4">
               <p className="mb-1 px-2 text-xs font-medium text-neutral-600">{group}</p>
@@ -236,8 +243,8 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                     className={cn(
                       'flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors',
                       active
-                        ? 'bg-neutral-800 text-white'
-                        : 'text-neutral-500 hover:bg-neutral-800/40 hover:text-neutral-300',
+                        ? 'bg-accent text-foreground'
+                        : 'text-muted-foreground hover:bg-accent/40 hover:text-neutral-300',
                       disabled && 'cursor-not-allowed opacity-40',
                     )}
                   >
@@ -265,7 +272,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input className="border-neutral-800 bg-neutral-950" {...field} />
+                      <Input className="border-border bg-background" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -280,7 +287,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        className="min-h-24 resize-none border-neutral-800 bg-neutral-950"
+                        className="min-h-24 resize-none border-border bg-background"
                         placeholder="A brief description of this event"
                         {...field}
                         value={field.value ?? ''}
@@ -298,13 +305,15 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                   <FormItem>
                     <FormLabel>URL</FormLabel>
                     <FormControl>
-                      <div className="flex h-10 overflow-hidden rounded-md border border-neutral-800 bg-neutral-950">
-                        <span className="flex shrink-0 items-center border-r border-neutral-800 px-3 text-sm text-neutral-500">
-                          {appUrl.replace(/^https?:\/\//, '')}/{username}/
+                      <div className="flex w-full flex-col sm:h-10 sm:flex-row overflow-hidden rounded-md border border-border bg-background focus-within:ring-2 focus-within:ring-white/20">
+                        <span className="flex shrink-0 sm:max-w-[60%] items-center border-b sm:border-b-0 sm:border-r border-border px-3 py-2 sm:py-0 text-sm text-muted-foreground overflow-hidden">
+                          <span className="whitespace-nowrap overflow-hidden w-full text-left [mask-image:linear-gradient(to_right,black_calc(100%-1rem),transparent_100%)]">
+                            {appUrl.replace(/^https?:\/\//, '')}/{username}/
+                          </span>
                         </span>
                         <input
                           {...field}
-                          className="min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none"
+                          className="min-w-0 flex-1 bg-transparent px-3 py-2 sm:py-0 text-sm text-foreground outline-none"
                         />
                       </div>
                     </FormControl>
@@ -326,11 +335,11 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                             type="number"
                             min={1}
                             disabled={allowMultiple}
-                            className="border-neutral-800 bg-neutral-950 pr-20"
+                            className="border-border bg-background pr-20"
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value))}
                           />
-                          <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-neutral-500">
+                          <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
                             Minutes
                           </span>
                         </div>
@@ -340,10 +349,10 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                   )}
                 />
 
-                <div className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3">
+                <div className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-white">Allow multiple durations</p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-sm font-medium text-foreground">Allow multiple durations</p>
+                    <p className="text-xs text-muted-foreground">
                       Let bookers choose from several time options.
                     </p>
                   </div>
@@ -362,8 +371,8 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                           className={cn(
                             'inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs transition-colors',
                             selected
-                              ? 'border-white bg-white text-black'
-                              : 'border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-600',
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-border bg-background text-muted-foreground hover:border-neutral-600',
                           )}
                         >
                           <Clock className="size-3" />
@@ -383,11 +392,11 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                     <FormLabel>Location</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="border-neutral-800 bg-neutral-950">
+                        <SelectTrigger className="border-border bg-background">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="border-neutral-800 bg-neutral-900">
+                      <SelectContent className="border-border bg-card">
                         {LOCATION_OPTIONS.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
@@ -400,12 +409,33 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="theme_config.party_mode_enabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-xl border border-border bg-background p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm text-foreground">Party Mode</FormLabel>
+                      <FormDescription className="text-xs text-muted-foreground">
+                        Play confetti animation upon successful booking.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value ?? true}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
               <div className="flex items-center gap-3 sm:hidden">
                 <FormField
                   control={form.control}
                   name="is_hidden"
                   render={({ field }) => (
-                    <FormItem className="flex flex-1 items-center justify-between rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3">
+                    <FormItem className="flex flex-1 items-center justify-between rounded-lg border border-border bg-background px-4 py-3">
                       <FormLabel>Hidden</FormLabel>
                       <FormControl>
                         <EventTypeActiveToggle
@@ -419,8 +449,8 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button type="button" variant="outline" asChild>
-                  <Link href={ROUTES.eventTypes}>Back</Link>
+                <Button type="button" variant="outline" render={<Link href={ROUTES.eventTypes} />}>
+                  Back
                 </Button>
               </div>
             </form>
@@ -428,29 +458,28 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
         </div>
 
         {/* Preview panel */}
-        <aside className="hidden w-80 shrink-0 overflow-y-auto border-l border-neutral-800 bg-neutral-900/50 p-4 xl:block">
+        <aside className="hidden w-80 shrink-0 overflow-y-auto border-l border-border bg-card/50 p-4 xl:block">
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-600">
             Preview
           </p>
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-            <p className="text-sm font-medium text-white">{user?.full_name ?? 'Host'}</p>
-            <h2 className="mt-3 text-lg font-semibold text-white">
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <p className="text-sm font-medium text-foreground">{user?.full_name ?? 'Host'}</p>
+            <h2 className="mt-3 text-lg font-semibold text-foreground">
               {watchedTitle || 'Event title'}
             </h2>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {previewDurations.map((mins) => (
                 <span
                   key={mins}
-                  className="inline-flex items-center gap-1 text-xs text-neutral-400"
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground"
                 >
                   <Clock className="size-3" />
                   {formatDuration(mins)}
                 </span>
               ))}
             </div>
-            <p className="mt-2 text-xs text-neutral-500">
-              {LOCATION_OPTIONS.find((l) => l.value === form.watch('location_type'))?.label ??
-                'Location'}
+            <p className="mt-2 text-xs text-muted-foreground">
+              {LOCATION_OPTIONS.find((l) => l.value === watchedLocation)?.label ?? 'Location'}
             </p>
             {watchedHidden && (
               <EventTypeBadge variant="hidden" className="mt-3">
@@ -458,7 +487,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
               </EventTypeBadge>
             )}
           </div>
-          <p className="mt-4 text-center text-xs text-blue-400">
+          <p className="mt-4 text-center text-xs text-primary">
             Save changes to preview all updates.
           </p>
         </aside>

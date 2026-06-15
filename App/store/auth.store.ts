@@ -1,71 +1,25 @@
 import { create } from 'zustand';
 
-import { api } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
-import type { AuthPayload, AuthUser } from '@/types';
+import { localApi } from '@/lib/api';
+import { INTERNAL_API } from '@/lib/constants/internal-api';
+import { clearSessionHint } from '@/lib/session-hint';
 
 interface AuthState {
-  user: AuthUser | null;
   accessToken: string | null;
-  isAuthenticated: boolean;
-  isHydrating: boolean;
-  hasHydrated: boolean;
+  setAccessToken: (token: string) => void;
+  logout: () => Promise<void>;
 }
 
-interface AuthActions {
-  setAuth: (user: AuthUser, token: string) => void;
-  setToken: (token: string) => void;
-  logout: () => void;
-  hydrate: () => Promise<void>;
-  retryHydrate: () => Promise<void>;
-}
-
-export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
-  user: null,
+export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
-  isAuthenticated: false,
-  isHydrating: false,
-  hasHydrated: false,
-
-  setAuth: (user, token) =>
-    set({
-      user,
-      accessToken: token,
-      isAuthenticated: true,
-      isHydrating: false,
-      hasHydrated: true,
-    }),
-
-  setToken: (token) => set({ accessToken: token }),
-
-  logout: () =>
-    set({
-      user: null,
-      accessToken: null,
-      isAuthenticated: false,
-      isHydrating: false,
-      hasHydrated: true,
-    }),
-
-  hydrate: async () => {
-    if (get().hasHydrated || get().isHydrating) return;
-    set({ isHydrating: true });
+  setAccessToken: (accessToken) => set({ accessToken }),
+  logout: async () => {
+    set({ accessToken: null });
+    clearSessionHint();
     try {
-      const data = await api.post<AuthPayload>(ENDPOINTS.auth.bypass, {});
-      set({
-        user: data.user,
-        accessToken: data.accessToken,
-        isAuthenticated: true,
-        isHydrating: false,
-        hasHydrated: true,
-      });
+      await localApi.post(INTERNAL_API.auth.logout);
     } catch {
-      set({ isHydrating: false, hasHydrated: true });
+      // Local state is already cleared; redirect handles the rest.
     }
-  },
-
-  retryHydrate: async () => {
-    set({ hasHydrated: false, isHydrating: false });
-    await get().hydrate();
   },
 }));

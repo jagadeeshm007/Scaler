@@ -22,16 +22,16 @@ export function SettingsCard({
     <Link
       href={href}
       className={cn(
-        'group flex flex-col gap-3 rounded-xl border border-neutral-800 bg-neutral-900 p-5 transition-colors hover:border-neutral-700 hover:bg-neutral-800/60',
+        'group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-border hover:bg-accent/60',
         className,
       )}
     >
-      <div className="flex size-10 items-center justify-center rounded-full bg-neutral-800 transition-colors group-hover:bg-neutral-700">
+      <div className="flex size-10 items-center justify-center rounded-full bg-accent transition-colors group-hover:bg-neutral-700">
         <Icon className="size-5 text-neutral-300" />
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
-        <p className="mt-1 text-sm text-neutral-500">{description}</p>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
     </Link>
   );

@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import type { ReorderEventTypesInput } from '@scaler/types';
+import type { ReorderEventTypesInput } from '@bolt/types';
 import { EventTypeService } from '../services/event-type.service';
 import { ApiResponse } from '../utils/api-response';
 import { asyncHandler } from '../utils/async-handler';

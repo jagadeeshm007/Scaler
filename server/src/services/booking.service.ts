@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 import type { Booking, EventType, User } from '@prisma/client';
-import type { CreateBookingInput, UpdateBookingStatusInput } from '@scaler/types';
+import type { CreateBookingInput, UpdateBookingStatusInput } from '@bolt/types';
 import { ERROR_CODE, HTTP_STATUS, BOOKING_STATUS } from '../config/constants';
 import { eventBus, EVENTS } from '../lib/event-bus';
 import { prisma } from '../lib/prisma';
@@ -99,6 +99,8 @@ export class BookingService {
           end_time: endTime,
           status,
           meeting_url: meetingUrl,
+          additional_guests: data.additional_guests ?? [],
+          ...(data.reschedule_from_uid ? { rescheduled_from_uid: data.reschedule_from_uid } : {}),
         },
         include: {
           event_type: true,
@@ -110,6 +112,14 @@ export class BookingService {
     if (data.reschedule_from_uid) {
       const previousBooking = await this.getBookingByUid(data.reschedule_from_uid);
 
+      if (previousBooking.status === BOOKING_STATUS.RESCHEDULED) {
+        throw new AppError(
+          'This booking has already been rescheduled. Please refresh the page.',
+          HTTP_STATUS.CONFLICT,
+          ERROR_CODE.CONFLICT,
+        );
+      }
+
       if (previousBooking.event_type_id !== booking.event_type_id) {
         throw new AppError(
           'Cannot reschedule to a different event type',
@@ -120,7 +130,10 @@ export class BookingService {
 
       await prisma.booking.update({
         where: { id: previousBooking.id },
-        data: { status: BOOKING_STATUS.RESCHEDULED },
+        data: {
+          status: BOOKING_STATUS.RESCHEDULED,
+          rescheduled_to_uid: booking.uid,
+        },
       });
 
       eventBus.emit(EVENTS.BOOKING_RESCHEDULED, {
@@ -193,6 +206,14 @@ export class BookingService {
     timezone: string,
     isHost: boolean,
   ): Promise<Booking> {
+    if (fullBooking.status === BOOKING_STATUS.RESCHEDULED) {
+      throw new AppError(
+        'Cannot modify a booking that has already been rescheduled.',
+        HTTP_STATUS.CONFLICT,
+        ERROR_CODE.CONFLICT,
+      );
+    }
+
     const updated = await prisma.booking.update({
       where: { id: fullBooking.id },
       data: {

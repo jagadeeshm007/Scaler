@@ -15,8 +15,10 @@ export function useTimezone(defaultTimezone?: string) {
   const [isDetected, setIsDetected] = useState(false);
 
   useEffect(() => {
-    setTimezone(defaultTimezone ?? detectTimezone());
-    setIsDetected(true);
+    queueMicrotask(() => {
+      setTimezone(defaultTimezone ?? detectTimezone());
+      setIsDetected(true);
+    });
   }, [defaultTimezone]);
 
   const resetTimezone = useCallback(() => {

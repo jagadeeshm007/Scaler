@@ -3,9 +3,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { api } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
-import { queryKeys } from '@/lib/query-keys';
+import {
+  createEventType,
+  updateEventType,
+  deleteEventType,
+  reorderEventTypes,
+} from '@/lib/api/event-types';
+import { queryKeys } from '@/lib/constants/query-keys';
 import type {
   CreateEventTypeInput,
   EventType,
@@ -16,8 +20,7 @@ import type {
 export function useCreateEventType() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateEventTypeInput) =>
-      api.post<EventType>(ENDPOINTS.eventTypes.create, data),
+    mutationFn: (data: CreateEventTypeInput) => createEventType(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.eventTypes.all() });
       toast.success('Event type created');
@@ -30,7 +33,7 @@ export function useUpdateEventType() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateEventTypeInput }) =>
-      api.patch<EventType>(ENDPOINTS.eventTypes.update(id), data),
+      updateEventType(id, data),
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.eventTypes.list() });
       const previous = queryClient.getQueryData<EventType[]>(queryKeys.eventTypes.list());
@@ -50,7 +53,7 @@ export function useUpdateEventType() {
 export function useDeleteEventType() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.del<void>(ENDPOINTS.eventTypes.delete(id)),
+    mutationFn: (id: string) => deleteEventType(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.eventTypes.list() });
       const previous = queryClient.getQueryData<EventType[]>(queryKeys.eventTypes.list());
@@ -71,8 +74,7 @@ export function useDeleteEventType() {
 export function useReorderEventTypes() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: ReorderEventTypesInput) =>
-      api.patch<EventType[]>(ENDPOINTS.eventTypes.reorder, data),
+    mutationFn: (data: ReorderEventTypesInput) => reorderEventTypes(data),
     onMutate: async ({ ids }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.eventTypes.list() });
       const previous = queryClient.getQueryData<EventType[]>(queryKeys.eventTypes.list());

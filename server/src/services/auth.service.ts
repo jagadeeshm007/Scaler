@@ -1,7 +1,7 @@
 import { compare, hash } from 'bcrypt';
 
 import type { User } from '@prisma/client';
-import type { LoginInput, RegisterInput } from '@scaler/types';
+import type { LoginInput, RegisterInput } from '@bolt/types';
 import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';
@@ -86,7 +86,7 @@ export class AuthService {
 
   /**
    * Bypasses auth by immediately logging in as the pre-seeded demo user
-   * Used specifically for the Scaler assignment requirements ("No Login Required").
+   * Used specifically for the assignment requirements ("No Login Required").
    */
   static async bypass(): Promise<{
     accessToken: string;

@@ -19,6 +19,8 @@ import type { BlockedDate } from '@/types';
 const BlockedDatesContext = React.createContext<Map<string, string>>(new Map());
 /** Set of day_of_week numbers (0=Sun…6=Sat) that have no schedule */
 const NonWorkingDaysContext = React.createContext<Set<number>>(new Set());
+/** Set of YYYY-MM-DD date strings that have available overrides */
+const AvailableOverridesContext = React.createContext<Set<string>>(new Set());
 
 /* ─── Month caption with integrated < > navigation ─────────────────── */
 
@@ -28,8 +30,10 @@ function BookingMonthCaption({ calendarMonth }: { calendarMonth: CalendarMonth }
   return (
     <div className="mb-5 flex items-center justify-between px-1">
       <p className="text-base">
-        <span className="font-semibold text-white">{format(calendarMonth.date, 'MMMM')}</span>{' '}
-        <span className="font-normal text-neutral-400">{format(calendarMonth.date, 'yyyy')}</span>
+        <span className="font-semibold text-foreground">{format(calendarMonth.date, 'MMMM')}</span>{' '}
+        <span className="font-normal text-muted-foreground">
+          {format(calendarMonth.date, 'yyyy')}
+        </span>
       </p>
 
       <div className="flex items-center gap-0.5">
@@ -40,8 +44,8 @@ function BookingMonthCaption({ calendarMonth }: { calendarMonth: CalendarMonth }
           onClick={() => previousMonth && goToMonth(previousMonth)}
           className={cn(
             'flex size-7 items-center justify-center rounded-md',
-            'text-neutral-400 transition-colors',
-            'hover:bg-neutral-800 hover:text-white',
+            'text-muted-foreground transition-colors',
+            'hover:bg-accent hover:text-foreground',
             'disabled:pointer-events-none disabled:opacity-30',
           )}
         >
@@ -54,8 +58,8 @@ function BookingMonthCaption({ calendarMonth }: { calendarMonth: CalendarMonth }
           onClick={() => nextMonth && goToMonth(nextMonth)}
           className={cn(
             'flex size-7 items-center justify-center rounded-md',
-            'text-neutral-400 transition-colors',
-            'hover:bg-neutral-800 hover:text-white',
+            'text-muted-foreground transition-colors',
+            'hover:bg-accent hover:text-foreground',
             'disabled:pointer-events-none disabled:opacity-30',
           )}
         >
@@ -78,6 +82,7 @@ function BookingDayButton({
   const ref = React.useRef<HTMLButtonElement>(null);
   const blockedMap = React.useContext(BlockedDatesContext);
   const nonWorkingSet = React.useContext(NonWorkingDaysContext);
+  const overridesSet = React.useContext(AvailableOverridesContext);
 
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus();
@@ -87,9 +92,11 @@ function BookingDayButton({
 
   const dateStr = format(day.date, 'yyyy-MM-dd');
   const blockedEmoji = blockedMap.get(dateStr);
+  const isAvailableOverride = overridesSet.has(dateStr);
   const isHoliday = Boolean(blockedEmoji);
   // Non-working weekdays get transparent bg; past/other disabled dates get dark box
-  const isNonWorkingWeekday = !isHoliday && nonWorkingSet.has(day.date.getDay());
+  const isNonWorkingWeekday =
+    !isHoliday && !isAvailableOverride && nonWorkingSet.has(day.date.getDay());
 
   return (
     <button
@@ -99,7 +106,7 @@ function BookingDayButton({
         'relative flex aspect-square w-full min-h-[44px] select-none items-center justify-center rounded-lg text-[15px] font-medium transition-colors duration-150',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
         // Default: interactive working day
-        'cursor-pointer bg-neutral-800 text-neutral-200 hover:bg-white hover:text-neutral-900',
+        'cursor-pointer bg-accent text-card-foreground hover:bg-primary hover:text-primary-foreground',
         // Non-working weekday: transparent, faded — no box at all
         isNonWorkingWeekday &&
           'cursor-default bg-transparent text-neutral-600 hover:bg-transparent hover:text-neutral-600 pointer-events-none',
@@ -107,13 +114,14 @@ function BookingDayButton({
         modifiers.disabled &&
           !isNonWorkingWeekday &&
           !isHoliday &&
-          'cursor-not-allowed bg-neutral-900 text-neutral-600 hover:bg-neutral-900 hover:text-neutral-600',
+          'cursor-not-allowed bg-card text-neutral-600 hover:bg-card hover:text-neutral-600',
         // Holiday: show emoji, subtle dark bg, no hover
-        isHoliday && 'cursor-default bg-neutral-900 hover:bg-neutral-900 pointer-events-none',
+        isHoliday && 'cursor-default bg-card hover:bg-card pointer-events-none',
         // Today ring (not selected)
         modifiers.today && !modifiers.selected && 'ring-1 ring-inset ring-neutral-400',
         // Selected
-        modifiers.selected && 'bg-white font-semibold text-neutral-900 hover:bg-neutral-100',
+        modifiers.selected &&
+          'bg-primary font-semibold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground',
         className,
       )}
     >
@@ -141,6 +149,8 @@ interface BookingCalendarProps {
   blockedDates?: BlockedDate[];
   /** day_of_week numbers (0=Sun … 6=Sat) with no active schedule slots */
   nonWorkingDays?: number[];
+  /** Array of YYYY-MM-DD date strings that have available overrides */
+  availableOverrides?: string[];
   className?: string;
 }
 
@@ -152,6 +162,7 @@ export function BookingCalendar({
   onMonthChange,
   blockedDates = [],
   nonWorkingDays = [],
+  availableOverrides = [],
   className,
 }: BookingCalendarProps) {
   const blockedMap = React.useMemo(
@@ -160,52 +171,70 @@ export function BookingCalendar({
   );
 
   const nonWorkingSet = React.useMemo(() => new Set(nonWorkingDays), [nonWorkingDays]);
+  const overridesSet = React.useMemo(() => new Set(availableOverrides), [availableOverrides]);
 
   // Combine all disabled matchers: past dates, non-working weekdays, holiday dates
   const disabledMatchers = React.useMemo<Matcher[]>(() => {
     const matchers: Matcher[] = [];
     if (disabled) matchers.push(disabled as Matcher);
-    if (nonWorkingDays.length > 0) matchers.push({ dayOfWeek: nonWorkingDays });
+
+    if (nonWorkingDays.length > 0) {
+      matchers.push((date: Date) => {
+        // If it's a non-working day
+        if (nonWorkingDays.includes(date.getDay())) {
+          // Check if there is an explicit available override
+          const dateStr = format(date, 'yyyy-MM-dd');
+          if (overridesSet.has(dateStr)) {
+            return false; // Do NOT disable
+          }
+          return true; // Disable by default
+        }
+        return false;
+      });
+    }
+
     blockedDates.forEach(({ date }) => matchers.push(new Date(`${date}T12:00:00`)));
     return matchers;
-  }, [disabled, nonWorkingDays, blockedDates]);
+  }, [disabled, nonWorkingDays, blockedDates, overridesSet]);
 
   return (
     <NonWorkingDaysContext.Provider value={nonWorkingSet}>
-      <BlockedDatesContext.Provider value={blockedMap}>
-        <DayPicker
-          mode="single"
-          selected={selected}
-          onSelect={onSelect}
-          disabled={disabledMatchers}
-          month={month}
-          onMonthChange={onMonthChange}
-          showOutsideDays={false}
-          captionLayout="label"
-          className={cn('w-full select-none p-0', className)}
-          classNames={{
-            months: 'w-full',
-            month: 'w-full',
-            nav: 'hidden',
-            month_caption: '',
-            caption_label: 'hidden',
-            month_grid: 'w-full',
-            weekdays: 'flex',
-            weekday:
-              'flex-1 pb-3 text-center text-xs font-medium uppercase tracking-wide text-neutral-500 select-none',
-            week: 'mt-2 flex gap-2',
-            day: 'flex-1 p-0',
-            outside: 'pointer-events-none',
-            disabled: '',
-            selected: '',
-            today: '',
-          }}
-          components={{
-            MonthCaption: BookingMonthCaption,
-            DayButton: BookingDayButton,
-          }}
-        />
-      </BlockedDatesContext.Provider>
+      <AvailableOverridesContext.Provider value={overridesSet}>
+        <BlockedDatesContext.Provider value={blockedMap}>
+          <DayPicker
+            mode="single"
+            selected={selected}
+            onSelect={onSelect}
+            disabled={disabledMatchers}
+            month={month}
+            onMonthChange={onMonthChange}
+            showOutsideDays={false}
+            captionLayout="label"
+            className={cn('w-full select-none p-0', className)}
+            classNames={{
+              months: 'w-full',
+              month: 'w-full',
+              nav: 'hidden',
+              month_caption: '',
+              caption_label: 'hidden',
+              month_grid: 'w-full',
+              weekdays: 'flex',
+              weekday:
+                'flex-1 pb-3 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground select-none',
+              week: 'mt-2 flex gap-2',
+              day: 'flex-1 p-0',
+              outside: 'pointer-events-none',
+              disabled: '',
+              selected: '',
+              today: '',
+            }}
+            components={{
+              MonthCaption: BookingMonthCaption,
+              DayButton: BookingDayButton,
+            }}
+          />
+        </BlockedDatesContext.Provider>
+      </AvailableOverridesContext.Provider>
     </NonWorkingDaysContext.Provider>
   );
 }

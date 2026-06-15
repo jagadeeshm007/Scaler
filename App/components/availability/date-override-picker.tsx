@@ -49,18 +49,17 @@ export function DateOverridePicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className={cn('gap-2 border-neutral-800 bg-neutral-900', className)}
-        >
-          <CalendarIcon className="size-4" />
-          Add date override
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button variant="outline" className={cn('gap-2 border-border bg-card', className)} />
+        }
+      >
+        <CalendarIcon className="size-4" />
+        Add date override
       </PopoverTrigger>
-      <PopoverContent className="w-auto border-neutral-800 bg-neutral-950 p-0" align="start">
+      <PopoverContent className="w-auto border-border bg-background p-0" align="start">
         <Calendar mode="range" selected={range} onSelect={setRange} numberOfMonths={1} />
-        <div className="border-t border-neutral-800 p-3">
+        <div className="border-t border-border p-3">
           <Button size="sm" className="w-full" onClick={handleApply} disabled={!range?.from}>
             Add selected dates
           </Button>

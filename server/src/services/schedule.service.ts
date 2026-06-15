@@ -1,5 +1,5 @@
 import type { Schedule, ScheduleAvailability, DateOverride } from '@prisma/client';
-import type { CreateScheduleInput, UpdateScheduleInput } from '@scaler/types';
+import type { CreateScheduleInput, UpdateScheduleInput } from '@bolt/types';
 import { ERROR_CODE, HTTP_STATUS } from '../config/constants';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../utils/app-error';

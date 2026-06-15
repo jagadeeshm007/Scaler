@@ -18,7 +18,7 @@ globs: ["**/*"]
 - **Encryption**: Node.js `crypto` module (AES-256-GCM for OAuth tokens)
 
 ### Frontend
-- **Framework**: Next.js 15 App Router
+- **Framework**: Next.js 16 App Router (`proxy.ts` replaces `middleware.ts`)
 - **Language**: TypeScript strict mode
 - **Styling**: Tailwind CSS v4 (user-configurable theme — light/dark)
 - **UI Library**: shadcn/ui
@@ -57,15 +57,17 @@ Scaler/
 │   │   └── index.ts      # Entry point
 │   ├── .env.example
 │   ├── package.json
+│   ├── package.json
 │   └── tsconfig.json
-├── App/                  # Next.js 15 frontend
-│   ├── src/
-│   │   ├── app/          # App Router pages
-│   │   ├── components/   # React components
-│   │   ├── hooks/        # TanStack Query hooks
-│   │   ├── lib/          # API client, utils
-│   │   ├── stores/       # Zustand stores
-│   │   └── types/        # Frontend types
+├── App/                  # Next.js 16 frontend
+│   ├── app/              # App Router pages + route groups
+│   ├── components/       # React components
+│   ├── hooks/            # TanStack Query hooks
+│   ├── lib/              # axios API clients, dal, utils
+│   ├── actions/          # Server actions
+│   ├── proxy.ts          # Optimistic route guard
+│   ├── store/            # Zustand stores
+│   ├── types/            # Frontend types
 │   ├── package.json
 │   └── tsconfig.json
 ├── task/

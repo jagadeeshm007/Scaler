@@ -23,8 +23,25 @@ model User {
   credentials   Credential[]
   refreshTokens RefreshToken[]
   hostBookings  Booking[]      @relation("HostBookings")
+  settings      UserSettings?
 
   @@map("users")
+}
+
+model UserSettings {
+  id                 String   @id @default(uuid())
+  user_id            String   @unique
+  theme              String   @default("system")
+  brand_name         String   @default("eith.in")
+  brand_colors_enabled Boolean @default(false)
+  brand_color_light  String   @default("#111111")
+  brand_color_dark   String   @default("#fafafa")
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
 }
 
 model EventType {
@@ -45,6 +62,9 @@ model EventType {
   requires_confirmation Boolean @default(false)
   buffer_before_mins    Int     @default(0)
   buffer_after_mins     Int     @default(0)
+
+  // Configuration (UI, Theme, Extensions)
+  theme_config Json? @default("{}")
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
@@ -122,6 +142,10 @@ model Booking {
   end_time            DateTime
   status              String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, RESCHEDULED
   cancellation_reason String?
+
+  rescheduled_from_uid String?
+  rescheduled_to_uid   String?
+  additional_guests    String[] @default([])
 
   meeting_url    String?
   integration_id String? // ID from external calendar if synced

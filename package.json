@@ -8,9 +8,9 @@
     "lint": "pnpm --filter scaler-app lint && pnpm --filter server lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "pnpm --filter server typecheck",
-    "build": "pnpm --filter @scaler/types build && pnpm --filter server build && pnpm --filter scaler-app build",
-    "build:types": "pnpm --filter @scaler/types build",
+    "typecheck": "pnpm --filter @bolt/types typecheck && pnpm --filter server typecheck && pnpm --filter scaler-app typecheck",
+    "build": "pnpm --filter @bolt/types build && pnpm --filter server build && pnpm --filter scaler-app build",
+    "build:types": "pnpm --filter @bolt/types build",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -21,5 +21,9 @@
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "prettier": "^3.2.5"
+  },
+  "overrides": {
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3"
   }
 }

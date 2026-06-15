@@ -84,27 +84,26 @@ export function EventInfoPanel({
   return (
     <aside
       className={cn(
-        'flex flex-col gap-6 border-b border-neutral-800 p-7 lg:w-[320px] lg:shrink-0 lg:border-b-0 lg:border-r',
+        'flex flex-col gap-6 border-b border-border p-7 lg:w-[320px] lg:shrink-0 lg:border-b-0 lg:border-r',
         className,
       )}
     >
       <div className="flex items-center gap-3">
-        <Avatar size="lg">
+        <Avatar className="size-10">
           <AvatarImage src={host.avatar_url ?? undefined} alt={host.full_name} />
-          <AvatarFallback className="bg-pink-600 text-white">{initials}</AvatarFallback>
+          <AvatarFallback className="bg-pink-600 text-foreground">{initials}</AvatarFallback>
         </Avatar>
-        <span className="text-sm text-neutral-400">{host.full_name}</span>
+        <span className="text-sm text-muted-foreground">{host.full_name}</span>
       </div>
 
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-white">{eventType.title}</h1>
+        <h1 className="text-2xl font-semibold text-foreground">{eventType.title}</h1>
 
         {hasMultipleDurations && onDurationChange && !selectedSlot && (
           <ToggleGroup
-            type="single"
-            value={String(activeDuration)}
+            value={[String(activeDuration)]}
             onValueChange={(v) => {
-              if (v) onDurationChange(Number(v));
+              if (v[0]) onDurationChange(Number(v[0]));
             }}
             variant="outline"
             size="sm"
@@ -119,10 +118,10 @@ export function EventInfoPanel({
         )}
 
         {eventType.description && (
-          <p className="text-sm text-neutral-400">{eventType.description}</p>
+          <p className="text-sm text-muted-foreground">{eventType.description}</p>
         )}
 
-        <ul className="space-y-3 text-sm text-neutral-400">
+        <ul className="space-y-3 text-sm text-muted-foreground">
           <LazyMotion features={domAnimation}>
             <AnimatePresence mode="wait" initial={false}>
               {/* ── Reschedule mode ── */}
@@ -139,11 +138,11 @@ export function EventInfoPanel({
                   <li className="flex items-start gap-2">
                     <CalendarDays className="mt-0.5 size-4 shrink-0 text-neutral-600" />
                     <div>
-                      <p className="mb-0.5 text-xs text-neutral-500">Former time</p>
-                      <p className="text-neutral-500 line-through">
+                      <p className="mb-0.5 text-xs text-muted-foreground">Former time</p>
+                      <p className="text-muted-foreground line-through">
                         {formatBookingDate(rescheduleBooking.start_time, timezone)}
                       </p>
-                      <p className="text-neutral-500 line-through">
+                      <p className="text-muted-foreground line-through">
                         {formatBookingTimeRange(
                           rescheduleBooking.start_time,
                           rescheduleBooking.end_time,
@@ -155,12 +154,12 @@ export function EventInfoPanel({
                   {/* New time — visible once a slot is picked */}
                   {selectedSlot && (
                     <li className="flex items-start gap-2">
-                      <CalendarDays className="mt-0.5 size-4 shrink-0 text-neutral-500" />
+                      <CalendarDays className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                       <div>
-                        <p className="font-medium text-white">
+                        <p className="font-medium text-foreground">
                           {formatBookingDate(selectedSlot.startTime, timezone)}
                         </p>
-                        <p className="text-neutral-400">
+                        <p className="text-muted-foreground">
                           {formatBookingTimeRange(
                             selectedSlot.startTime,
                             selectedSlot.endTime,
@@ -171,7 +170,7 @@ export function EventInfoPanel({
                     </li>
                   )}
                   <li className="flex items-center gap-2">
-                    <Clock className="size-4 shrink-0 text-neutral-500" />
+                    <Clock className="size-4 shrink-0 text-muted-foreground" />
                     <span>{formatDuration(activeDuration)}</span>
                   </li>
                 </m.div>
@@ -186,11 +185,11 @@ export function EventInfoPanel({
                   className="space-y-3"
                 >
                   <li className="flex items-center gap-2">
-                    <CalendarDays className="size-4 shrink-0 text-neutral-500" />
+                    <CalendarDays className="size-4 shrink-0 text-muted-foreground" />
                     <span>{formatBookingDate(selectedSlot.startTime, timezone)}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Clock className="size-4 shrink-0 text-neutral-500" />
+                    <Clock className="size-4 shrink-0 text-muted-foreground" />
                     <span>
                       {formatBookingTimeRange(
                         selectedSlot.startTime,
@@ -200,7 +199,7 @@ export function EventInfoPanel({
                     </span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Clock className="size-4 shrink-0 text-neutral-500" />
+                    <Clock className="size-4 shrink-0 text-muted-foreground" />
                     <span>{formatDuration(activeDuration)}</span>
                   </li>
                 </m.div>
@@ -234,13 +233,13 @@ export function EventInfoPanel({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 h-auto px-2 py-0.5 text-sm text-neutral-400 hover:text-white"
+                    className="-ml-2 h-auto px-2 py-0.5 text-sm text-muted-foreground hover:text-foreground"
                   >
                     {shortTz} ›
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="max-h-64 overflow-y-auto border-neutral-700 bg-neutral-900"
+                  className="max-h-64 overflow-y-auto border-border bg-card"
                   align="start"
                 >
                   {COMMON_TIMEZONES.map((tz) => (
@@ -248,7 +247,7 @@ export function EventInfoPanel({
                       key={tz}
                       className={cn(
                         'cursor-pointer text-sm',
-                        tz === timezone && 'font-medium text-white',
+                        tz === timezone && 'font-medium text-foreground',
                       )}
                       onClick={() => onTimezoneChange(tz)}
                     >

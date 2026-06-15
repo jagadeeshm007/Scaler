@@ -33,13 +33,13 @@ export function GeneralSettingsForm() {
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
           onBlur={handleTimezoneBlur}
-          className="flex h-9 w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 text-sm text-white outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex h-9 w-full rounded-md border border-border bg-card px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
           placeholder="Asia/Kolkata"
         />
         <button
           type="button"
           onClick={resetTimezone}
-          className="text-xs text-blue-500 hover:underline"
+          className="text-xs text-primary hover:text-primary/80 hover:underline"
         >
           Detect from browser
         </button>
@@ -48,17 +48,16 @@ export function GeneralSettingsForm() {
       <div className="space-y-3">
         <Label>Time format</Label>
         <ToggleGroup
-          type="single"
-          value={timeFormat}
+          value={[timeFormat]}
           onValueChange={(value) => {
-            if (value) setTimeFormat(value as '12h' | '24h');
+            if (value[0]) setTimeFormat(value[0] as '12h' | '24h');
           }}
           variant="outline"
         >
           <ToggleGroupItem value="12h">12-hour (1:00pm)</ToggleGroupItem>
           <ToggleGroupItem value="24h">24-hour (13:00)</ToggleGroupItem>
         </ToggleGroup>
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-muted-foreground">
           Controls how times are displayed across the dashboard and booking pages.
         </p>
       </div>

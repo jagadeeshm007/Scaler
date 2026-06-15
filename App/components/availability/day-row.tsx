@@ -5,8 +5,8 @@ import { Copy, Plus, Trash2 } from 'lucide-react';
 import { TimeRangePicker } from '@/components/availability/time-range-picker';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { DAY_NAMES } from '@/lib/constants';
-import type { ScheduleAvailabilityInput } from '@scaler/types';
+import { DAY_NAMES } from '@/lib/constants/booking';
+import type { ScheduleAvailabilityInput } from '@bolt/types';
 import { cn } from '@/lib/utils';
 
 interface DayRowProps {
@@ -37,13 +37,13 @@ export function DayRow({
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 border-b border-neutral-800 py-4 sm:flex-row sm:items-start',
+        'flex flex-col gap-3 border-b border-border py-4 sm:flex-row sm:items-start',
         className,
       )}
     >
       <div className="flex w-full items-center gap-3 sm:w-36">
         <Switch checked={isActive} onCheckedChange={onToggle} />
-        <span className="text-sm font-medium text-white">{DAY_NAMES[dayOfWeek]}</span>
+        <span className="text-sm font-medium text-foreground">{DAY_NAMES[dayOfWeek]}</span>
       </div>
 
       <div className="flex flex-1 flex-col gap-2">

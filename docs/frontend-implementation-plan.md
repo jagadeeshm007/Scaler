@@ -66,9 +66,9 @@
 - All forms: uncontrolled inputs, performance, validation
 - Every form uses `zodResolver`
 
-**`zod`** — consumed from `@scaler/types` workspace package
+**`zod`** — consumed from `@bolt/types` workspace package
 
-- Schemas shared with backend. Import from `@scaler/types` not from `zod` directly for form schemas
+- Schemas shared with backend. Import from `@bolt/types` not from `zod` directly for form schemas
 - Replaces all manual validation logic
 
 ### Date / Time
@@ -155,14 +155,25 @@ App/
 │   ├── not-found.tsx                     # 404 page (SC)
 │   ├── providers.tsx                     # CC: QueryClientProvider + NuqsAdapter + ThemeProvider
 │   │
-│   ├── (unauthorised)/
-│   │   ├── layout.tsx                    # Minimal layout: no sidebar, no auth guard (SC)
-│   │   ├── login/
-│   │   │   └── page.tsx                  # Login form page (CC - RHF form)
-│   │   └── signup/
-│   │       └── page.tsx                  # Register form page (CC - RHF form)
+│   ├── (unauthenticated)/
+│   │   ├── (auth)/
+│   │   │   ├── layout.tsx                # Minimal layout: no sidebar, no auth guard (SC)
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx              # Login form page (CC - RHF form)
+│   │   │   └── signup/
+│   │   │       └── page.tsx              # Register form page (CC - RHF form)
+│   │   │
+│   │   └── (public)/
+│   │       └── [username]/
+│   │           └── [slug]/
+│   │               ├── page.tsx          # SC: fetch event type server-side, render booking UI
+│   │               ├── loading.tsx       # SC: booking page skeleton
+│   │               ├── error.tsx         # CC: booking page error (not found, etc.)
+│   │               └── confirmed/
+│   │                   ├── page.tsx      # SC: fetch booking by id, render confirmation card
+│   │                   └── loading.tsx   # SC: confirmation skeleton
 │   │
-│   ├── (authorised)/
+│   ├── (authenticated)/
 │   │   ├── layout.tsx                    # CC: auth guard + sidebar + mobile header
 │   │   │
 │   │   ├── event-types/
@@ -206,15 +217,6 @@ App/
 │   │       └── general/
 │   │           ├── page.tsx              # SC: render GeneralSettingsForm (CC)
 │   │           └── loading.tsx           # SC: form skeleton
-│   │
-│   └── [username]/
-│       └── [slug]/
-│           ├── page.tsx                  # SC: fetch event type server-side, render booking UI
-│           ├── loading.tsx               # SC: booking page skeleton
-│           ├── error.tsx                 # CC: booking page error (not found, etc.)
-│           └── confirmed/
-│               ├── page.tsx              # SC: fetch booking by id, render confirmation card
-│               └── loading.tsx           # SC: confirmation skeleton
 │
 ├── components/
 │   ├── ui/                               # shadcn managed — never edit manually
@@ -324,33 +326,33 @@ App/
 │   └── ui.store.ts                       # Zustand: sidebarOpen, theme
 │
 └── types/
-    └── index.ts                          # re-export from @scaler/types
+    └── index.ts                          # re-export from @bolt/types
 ```
 
 ---
 
 ## 3. Routing Architecture
 
-| Route                          | Type | Auth | Data fetched         | Suspense                             | Error.tsx |
-| ------------------------------ | ---- | ---- | -------------------- | ------------------------------------ | --------- |
-| `/login`                       | CC   | No   | none                 | No                                   | No        |
-| `/signup`                      | CC   | No   | none                 | No                                   | No        |
-| `/event-types`                 | SC   | Yes  | event types list     | `<EventTypeList>`                    | Yes       |
-| `/event-types/new`             | CC   | Yes  | none (form only)     | No                                   | No        |
-| `/event-types/[id]/edit`       | SC   | Yes  | event type by id     | `<EventTypeForm>`                    | Yes       |
-| `/bookings`                    | SC   | Yes  | bookings (paginated) | `<BookingList>`                      | Yes       |
-| `/availability`                | SC   | Yes  | schedules list       | `<ScheduleList>`                     | Yes       |
-| `/availability/[id]`           | SC   | Yes  | schedule by id       | `<ScheduleEditor>`                   | Yes       |
-| `/apps`                        | SC   | Yes  | integrations list    | `<IntegrationList>`                  | Yes       |
-| `/settings`                    | SC   | Yes  | none (static grid)   | No                                   | No        |
-| `/settings/profile`            | SC   | Yes  | user/me              | `<ProfileForm>`                      | Yes       |
-| `/settings/general`            | SC   | Yes  | user/me              | `<GeneralSettingsForm>`              | Yes       |
-| `/[username]/[slug]`           | SC   | No   | event type (public)  | `<CalendarPicker>`, `<TimeSlotList>` | Yes       |
-| `/[username]/[slug]/confirmed` | SC   | No   | booking by id        | `<BookingConfirmedCard>`             | Yes       |
+| Route                    | Type | Auth | Data fetched         | Suspense                             | Error.tsx |
+| ------------------------ | ---- | ---- | -------------------- | ------------------------------------ | --------- |
+| `/login`                 | CC   | No   | none                 | No                                   | No        |
+| `/signup`                | CC   | No   | none                 | No                                   | No        |
+| `/event-types`           | SC   | Yes  | event types list     | `<EventTypeList>`                    | Yes       |
+| `/event-types/new`       | CC   | Yes  | none (form only)     | No                                   | No        |
+| `/event-types/[id]/edit` | SC   | Yes  | event type by id     | `<EventTypeForm>`                    | Yes       |
+| `/bookings`              | SC   | Yes  | bookings (paginated) | `<BookingList>`                      | Yes       |
+| `/availability`          | SC   | Yes  | schedules list       | `<ScheduleList>`                     | Yes       |
+| `/availability/[id]`     | SC   | Yes  | schedule by id       | `<ScheduleEditor>`                   | Yes       |
+| `/apps`                  | SC   | Yes  | integrations list    | `<IntegrationList>`                  | Yes       |
+| `/settings`              | SC   | Yes  | none (static grid)   | No                                   | No        |
+| `/settings/profile`      | SC   | Yes  | user/me              | `<ProfileForm>`                      | Yes       |
+| `/settings/general`      | SC   | Yes  | user/me              | `<GeneralSettingsForm>`              | Yes       |
+| `/[username]/[slug]`     | SC   | No   | event type (public)  | `<CalendarPicker>`, `<TimeSlotList>` | Yes       |
+| `/booking/[uid]`         | SC   | No   | booking by id        | `<BookingConfirmedCard>`             | Yes       |
 
-**Route conflict**: The `[username]/[slug]` catch-all at root level and `(authorised)` route groups coexist because Next.js resolves route groups first. Named routes (`/bookings`, `/event-types`, etc.) match before dynamic segments.
+**Route conflict**: The `[username]/[slug]` catch-all at root level and `(authenticated)` route groups coexist because Next.js resolves route groups first. Named routes (`/bookings`, `/event-types`, etc.) match before dynamic segments.
 
-**Auth guard**: The `(authorised)/layout.tsx` is a CC that reads `auth.store`. On mount, if `isAuthenticated` is false, it calls `POST /auth/bypass` to log in as the seeded default user, then stores the token. This satisfies the "No Login Required" assignment requirement while preserving full JWT auth for future use.
+**Auth guard**: The `(authenticated)/layout.tsx` is a CC that reads `auth.store`. On mount, if `isAuthenticated` is false, it calls `POST /auth/bypass` to log in as the seeded default user, then stores the token. This satisfies the "No Login Required" assignment requirement while preserving full JWT auth for future use.
 
 ---
 
@@ -439,7 +441,7 @@ interface AuthActions {
 ```
 
 - `accessToken` stored in Zustand memory only — never `localStorage`, never `sessionStorage`
-- `hydrate()` called once in `(authorised)/layout.tsx` on mount
+- `hydrate()` called once in `(authenticated)/layout.tsx` on mount
 - `hydrate()` calls `POST /auth/bypass` → stores returned user + token
 
 **`store/ui.store.ts`**
@@ -608,30 +610,33 @@ Usage pattern:
 
 ## 7. API Client Design
 
-**`lib/api.ts`** — single fetch client, all components go through this.
+**Split axios clients** — browser vs server. See `docs/auth-flow.md` for auth BFF routes.
 
-```typescript
-// Interface contract
-class ApiClient {
-  get<T>(path: string, options?: RequestInit): Promise<T>;
-  post<T>(path: string, body: unknown, options?: RequestInit): Promise<T>;
-  put<T>(path: string, body: unknown, options?: RequestInit): Promise<T>;
-  patch<T>(path: string, body: unknown, options?: RequestInit): Promise<T>;
-  del<T>(path: string, options?: RequestInit): Promise<T>;
-}
+```text
+lib/api/
+├── axios.client.ts   # Browser: api, localApi, 401 refresh interceptor
+├── axios.server.ts   # Server-only axios instance
+├── server.ts         # serverApi (RSC, server actions, route handlers)
+├── auth.server.ts    # loginWithCredentials, getSessionWithRefreshToken, etc.
+├── errors.ts         # ApiError, getErrorMessage
+└── client.ts         # Re-exported via @/lib/api
+
+lib/api.ts            # Browser barrel
+lib/api.server.ts     # Server barrel (serverApi as api)
 ```
 
 Implementation rules:
 
 - Base URL: `process.env.NEXT_PUBLIC_API_URL` (e.g., `http://localhost:4000/api/v1`)
 - All methods return `Promise<T>` — unwrap from `{ success, data, message }` envelope
-- On non-2xx: parse error body, throw `ApiError extends Error` with `status` and `code`
-- Inject `Authorization: Bearer <token>` from `auth.store.getState().accessToken`
-- 401 handling: call `POST /auth/refresh`, update store token, retry original request once. If refresh fails: call `auth.store.getState().logout()`, redirect to `/login`
-- Request timeout: 15 seconds via `AbortController`
-- No `axios` — native `fetch` only
+- On non-2xx: throw `ApiError` with `status` and `code`
+- **Client** axios injects `Authorization: Bearer <token>` from `auth.store`
+- **401 handling (client):** `POST /api/auth/refresh` (same-origin BFF) → update store → retry once. On failure: logout + redirect `/login`
+- **Server** axios: pass `{ token: accessToken }` for authenticated RSC fetches
+- Request timeout: 15 seconds (axios `timeout`)
+- **Use axios only** — no raw `fetch()` in application code
 
-**`lib/endpoints.ts`** — all API paths as typed constants:
+**`lib/constants/api.ts`** — backend API paths as typed constants:
 
 ```typescript
 export const ENDPOINTS = {
@@ -715,7 +720,7 @@ export const queryKeys = {
 
 ## 8. Forms Architecture
 
-All forms use: `react-hook-form` + `zodResolver` + schemas from `@scaler/types`.
+All forms use: `react-hook-form` + `zodResolver` + schemas from `@bolt/types`.
 
 **Standard form pattern:**
 
@@ -723,7 +728,7 @@ All forms use: `react-hook-form` + `zodResolver` + schemas from `@scaler/types`.
 'use client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createEventTypeSchema, type CreateEventTypeInput } from '@scaler/types';
+import { createEventTypeSchema, type CreateEventTypeInput } from '@bolt/types';
 
 export function EventTypeForm() {
   const form = useForm<CreateEventTypeInput>({
@@ -736,16 +741,16 @@ export function EventTypeForm() {
 
 ### Forms to build
 
-| Form                   | Zod schema                         | Special behaviour                                     |
-| ---------------------- | ---------------------------------- | ----------------------------------------------------- |
-| `LoginForm`            | `loginSchema.shape.body`           | Auto-login via bypass on mount in (authorised) layout |
-| `RegisterForm`         | `registerSchema.shape.body`        | Confirm password field (local schema extension only)  |
-| `EventTypeForm`        | `createEventTypeSchema.shape.body` | Slug auto-generated from title with 500ms debounce    |
-| `EventTypeForm` (edit) | `updateEventTypeSchema.shape.body` | Populated from existing event type                    |
-| `CreateScheduleForm`   | `createScheduleSchema.shape.body`  | 7 day rows managed as field array                     |
-| `UpdateScheduleForm`   | `updateScheduleSchema.shape.body`  | Day rows + date overrides as field arrays             |
-| `BookingForm`          | `createBookingSchema.shape.body`   | timezone auto-detected via `useTimezone` hook         |
-| `ProfileForm`          | `updateUserSchema.shape.body`      | Avatar URL set via upload (future: base64 or S3 URL)  |
+| Form                   | Zod schema                         | Special behaviour                                        |
+| ---------------------- | ---------------------------------- | -------------------------------------------------------- |
+| `LoginForm`            | `loginSchema.shape.body`           | Auto-login via bypass on mount in (authenticated) layout |
+| `RegisterForm`         | `registerSchema.shape.body`        | Confirm password field (local schema extension only)     |
+| `EventTypeForm`        | `createEventTypeSchema.shape.body` | Slug auto-generated from title with 500ms debounce       |
+| `EventTypeForm` (edit) | `updateEventTypeSchema.shape.body` | Populated from existing event type                       |
+| `CreateScheduleForm`   | `createScheduleSchema.shape.body`  | 7 day rows managed as field array                        |
+| `UpdateScheduleForm`   | `updateScheduleSchema.shape.body`  | Day rows + date overrides as field arrays                |
+| `BookingForm`          | `createBookingSchema.shape.body`   | timezone auto-detected via `useTimezone` hook            |
+| `ProfileForm`          | `updateUserSchema.shape.body`      | Avatar URL set via upload (future: base64 or S3 URL)     |
 
 ### EventTypeForm slug field behaviour
 
@@ -785,7 +790,7 @@ page.tsx (SC)
         └── On slot click: setSelectedSlot(slot) in local state
             └── <BookingForm> (CC) — slides in with motion
                 ├── useCreateBooking mutation
-                └── On success: router.push('/[username]/[slug]/confirmed?bookingId=X')
+                └── On success: router.push('/booking/[uid]?isSuccessBookingPage=true')
 ```
 
 ### Calendar section
@@ -955,7 +960,7 @@ const variants = reduced ? {} : { initial: ..., animate: ..., exit: ... };
 The layout structure:
 
 ```tsx
-// (authorised)/layout.tsx
+// (authenticated)/layout.tsx
 <div className="flex min-h-screen bg-neutral-950">
   <Sidebar className="hidden md:flex" /> {/* desktop */}
   <MobileHeader className="md:hidden" /> {/* mobile top bar */}
@@ -1004,7 +1009,7 @@ Files must be created in this order (no file may import from a file not yet crea
 [6]  App/components.json                        — shadcn configuration
 [7]  App/app/globals.css                        — @import "tailwindcss", @theme tokens
 [8]  App/lib/utils.ts                           — cn() helper (shadcn generates this)
-[9]  App/types/index.ts                         — re-exports from @scaler/types
+[9]  App/types/index.ts                         — re-exports from @bolt/types
 [10] App/lib/endpoints.ts                       — depends on nothing
 [11] App/lib/query-keys.ts                      — depends on nothing
 [12] App/lib/routes.ts                          — depends on nothing
@@ -1027,10 +1032,10 @@ Files must be created in this order (no file may import from a file not yet crea
 [29] App/components/layout/mobile-bottom-nav.tsx — depends on: routes.ts, lucide-react
 [30] App/components/layout/page-transition.tsx  — depends on: motion
 [31] App/components/layout/transition-link.tsx  — depends on: next/navigation
-[32] App/app/(unauthorised)/layout.tsx          — depends on: no sidebar
-[33] App/app/(unauthorised)/login/page.tsx      — depends on: lib/api.ts, store/auth.store.ts
-[34] App/app/(unauthorised)/signup/page.tsx     — depends on: lib/api.ts, @scaler/types
-[35] App/app/(authorised)/layout.tsx            — depends on: layout components, auth.store.ts
+[32] App/app/(unauthenticated)/(auth)/layout.tsx          — depends on: no sidebar
+[33] App/app/(unauthenticated)/(auth)/login/page.tsx      — depends on: lib/api.ts, store/auth.store.ts
+[34] App/app/(unauthenticated)/(auth)/signup/page.tsx     — depends on: lib/api.ts, @bolt/types
+[35] App/app/(authenticated)/layout.tsx            — depends on: layout components, auth.store.ts
 [36] App/hooks/use-debounce.ts                  — depends on: react
 [37] App/hooks/use-media-query.ts               — depends on: react
 [38] App/hooks/use-timezone.ts                  — depends on: react
@@ -1045,12 +1050,12 @@ Files must be created in this order (no file may import from a file not yet crea
 [47] App/components/event-types/event-type-card.tsx     — depends on: event-type-actions.tsx, mutations
 [48] App/components/event-types/event-type-list.tsx     — depends on: use-event-types.ts, event-type-card.tsx
 [49] App/components/event-types/add-event-type-dialog.tsx — depends on: components/ui/dialog, mutations
-[50] App/components/event-types/event-type-form.tsx     — depends on: RHF, @scaler/types, mutations
-[51] App/app/(authorised)/event-types/loading.tsx       — depends on: event-type-skeleton.tsx
-[52] App/app/(authorised)/event-types/error.tsx         — depends on: components/ui/button
-[53] App/app/(authorised)/event-types/page.tsx          — depends on: query-client.ts, event-type-list.tsx
-[54] App/app/(authorised)/event-types/new/page.tsx      — depends on: event-type-form.tsx
-[55] App/app/(authorised)/event-types/[id]/edit/page.tsx — depends on: event-type-form.tsx, use-event-type.ts
+[50] App/components/event-types/event-type-form.tsx     — depends on: RHF, @bolt/types, mutations
+[51] App/app/(authenticated)/event-types/loading.tsx       — depends on: event-type-skeleton.tsx
+[52] App/app/(authenticated)/event-types/error.tsx         — depends on: components/ui/button
+[53] App/app/(authenticated)/event-types/page.tsx          — depends on: query-client.ts, event-type-list.tsx
+[54] App/app/(authenticated)/event-types/new/page.tsx      — depends on: event-type-form.tsx
+[55] App/app/(authenticated)/event-types/[id]/edit/page.tsx — depends on: event-type-form.tsx, use-event-type.ts
 [56] App/hooks/queries/use-bookings.ts           — depends on: lib/api.ts, query-keys.ts
 [57] App/hooks/queries/use-booking.ts            — depends on: lib/api.ts, query-keys.ts
 [58] App/hooks/mutations/use-cancel-booking.ts   — depends on: lib/api.ts, query-keys.ts
@@ -1061,9 +1066,9 @@ Files must be created in this order (no file may import from a file not yet crea
 [63] App/components/bookings/booking-detail-panel.tsx — depends on: components/ui/sheet
 [64] App/components/bookings/cancel-booking-dialog.tsx — depends on: components/ui/dialog, use-cancel-booking.ts
 [65] App/components/bookings/booking-list.tsx    — depends on: use-bookings.ts, booking-card.tsx, booking-filters.tsx
-[66] App/app/(authorised)/bookings/loading.tsx   — depends on: booking-skeleton.tsx
-[67] App/app/(authorised)/bookings/error.tsx     — depends on: components/ui/button
-[68] App/app/(authorised)/bookings/page.tsx      — depends on: query-client.ts, booking-list.tsx
+[66] App/app/(authenticated)/bookings/loading.tsx   — depends on: booking-skeleton.tsx
+[67] App/app/(authenticated)/bookings/error.tsx     — depends on: components/ui/button
+[68] App/app/(authenticated)/bookings/page.tsx      — depends on: query-client.ts, booking-list.tsx
 [69] App/hooks/queries/use-availability.ts       — depends on: lib/api.ts, query-keys.ts
 [70] App/hooks/queries/use-schedule.ts           — depends on: lib/api.ts, query-keys.ts
 [71] App/hooks/mutations/use-create-schedule.ts  — depends on: lib/api.ts, query-keys.ts
@@ -1077,10 +1082,10 @@ Files must be created in this order (no file may import from a file not yet crea
 [79] App/components/availability/schedule-editor.tsx — depends on: day-row.tsx, date-override-picker.tsx, timezone-selector.tsx, use-update-schedule.ts
 [80] App/components/availability/schedule-card.tsx   — depends on: components/ui/dropdown-menu, format.ts
 [81] App/components/availability/schedule-list.tsx   — depends on: use-availability.ts, schedule-card.tsx
-[82] App/app/(authorised)/availability/loading.tsx   — depends on: loading-skeleton.tsx
-[83] App/app/(authorised)/availability/error.tsx     — depends on: components/ui/button
-[84] App/app/(authorised)/availability/page.tsx      — depends on: query-client.ts, schedule-list.tsx
-[85] App/app/(authorised)/availability/[id]/page.tsx — depends on: query-client.ts, schedule-editor.tsx
+[82] App/app/(authenticated)/availability/loading.tsx   — depends on: loading-skeleton.tsx
+[83] App/app/(authenticated)/availability/error.tsx     — depends on: components/ui/button
+[84] App/app/(authenticated)/availability/page.tsx      — depends on: query-client.ts, schedule-list.tsx
+[85] App/app/(authenticated)/availability/[id]/page.tsx — depends on: query-client.ts, schedule-editor.tsx
 [86] App/hooks/queries/use-public-event-type.ts  — depends on: lib/api.ts, query-keys.ts
 [87] App/hooks/queries/use-slots.ts              — depends on: lib/api.ts, query-keys.ts
 [88] App/hooks/mutations/use-create-booking.ts   — depends on: lib/api.ts, query-keys.ts
@@ -1088,12 +1093,12 @@ Files must be created in this order (no file may import from a file not yet crea
 [90] App/components/booking-page/event-info-panel.tsx — depends on: lucide-react, format.ts
 [91] App/components/booking-page/calendar-picker.tsx  — depends on: components/ui/calendar, nuqs, use-slots.ts
 [92] App/components/booking-page/time-slot-list.tsx   — depends on: use-slots.ts, nuqs, motion
-[93] App/components/booking-page/booking-form.tsx     — depends on: RHF, @scaler/types, use-create-booking.ts
+[93] App/components/booking-page/booking-form.tsx     — depends on: RHF, @bolt/types, use-create-booking.ts
 [94] App/components/booking-page/booking-confirmed.tsx — depends on: format.ts, motion
-[95] App/app/[username]/[slug]/loading.tsx        — depends on: loading-skeleton.tsx
-[96] App/app/[username]/[slug]/error.tsx          — depends on: components/ui/button
-[97] App/app/[username]/[slug]/page.tsx           — depends on: lib/api.ts, all booking-page components
-[98] App/app/[username]/[slug]/confirmed/page.tsx — depends on: use-booking.ts, booking-confirmed.tsx
+[95] App/app/(unauthenticated)/(public)/[username]/[slug]/loading.tsx        — depends on: loading-skeleton.tsx
+[96] App/app/(unauthenticated)/(public)/[username]/[slug]/error.tsx          — depends on: components/ui/button
+[97] App/app/(unauthenticated)/(public)/[username]/[slug]/page.tsx           — depends on: lib/api.ts, all booking-page components
+[98] App/app/(unauthenticated)/(public)/[username]/[slug]/confirmed/page.tsx — depends on: use-booking.ts, booking-confirmed.tsx
 [99] App/hooks/queries/use-integrations.ts        — depends on: lib/api.ts, query-keys.ts
 [100] App/hooks/queries/use-user-profile.ts        — depends on: lib/api.ts, query-keys.ts
 [101] App/hooks/mutations/use-connect-integration.ts — depends on: lib/api.ts
@@ -1101,16 +1106,16 @@ Files must be created in this order (no file may import from a file not yet crea
 [103] App/hooks/mutations/use-update-profile.ts    — depends on: lib/api.ts, query-keys.ts
 [104] App/components/integrations/integration-card.tsx — depends on: use-connect-integration.ts, use-disconnect-integration.ts
 [105] App/components/integrations/integration-list.tsx  — depends on: use-integrations.ts, integration-card.tsx
-[106] App/app/(authorised)/apps/loading.tsx        — depends on: loading-skeleton.tsx
-[107] App/app/(authorised)/apps/error.tsx          — depends on: components/ui/button
-[108] App/app/(authorised)/apps/page.tsx           — depends on: query-client.ts, integration-list.tsx
+[106] App/app/(authenticated)/apps/loading.tsx        — depends on: loading-skeleton.tsx
+[107] App/app/(authenticated)/apps/error.tsx          — depends on: components/ui/button
+[108] App/app/(authenticated)/apps/page.tsx           — depends on: query-client.ts, integration-list.tsx
 [109] App/components/settings/settings-nav.tsx     — depends on: routes.ts, lucide-react
 [110] App/components/settings/settings-card.tsx    — depends on: lucide-react
-[111] App/components/settings/profile-form.tsx     — depends on: RHF, @scaler/types, use-update-profile.ts
-[112] App/components/settings/general-settings-form.tsx — depends on: RHF, @scaler/types, use-update-profile.ts
-[113] App/app/(authorised)/settings/page.tsx       — depends on: settings-card.tsx
-[114] App/app/(authorised)/settings/profile/page.tsx — depends on: settings-nav.tsx, profile-form.tsx
-[115] App/app/(authorised)/settings/general/page.tsx — depends on: settings-nav.tsx, general-settings-form.tsx
+[111] App/components/settings/profile-form.tsx     — depends on: RHF, @bolt/types, use-update-profile.ts
+[112] App/components/settings/general-settings-form.tsx — depends on: RHF, @bolt/types, use-update-profile.ts
+[113] App/app/(authenticated)/settings/page.tsx       — depends on: settings-card.tsx
+[114] App/app/(authenticated)/settings/profile/page.tsx — depends on: settings-nav.tsx, profile-form.tsx
+[115] App/app/(authenticated)/settings/general/page.tsx — depends on: settings-nav.tsx, general-settings-form.tsx
 ```
 
 ---
@@ -1317,7 +1322,7 @@ In 2026, all major browsers support the View Transitions API. It produces smooth
 
 ### Why Zustand for auth (not cookies / localStorage)
 
-Access tokens are stored in Zustand memory only. This prevents XSS attacks from reading tokens via `localStorage`. The `httpOnly` refresh token cookie (set by the server) handles persistence across page reloads — the `(authorised)/layout.tsx` calls `POST /auth/bypass` on mount to hydrate the token.
+Access tokens are stored in Zustand memory only. This prevents XSS attacks from reading tokens via `localStorage`. The `httpOnly` refresh token cookie (set by the server) handles persistence across page reloads — the `(authenticated)/layout.tsx` calls `POST /auth/bypass` on mount to hydrate the token.
 
 ### Why nuqs for URL state (not useState)
 

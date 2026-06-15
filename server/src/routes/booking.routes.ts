@@ -1,4 +1,4 @@
-import { createBookingSchema, updateBookingStatusSchema } from '@scaler/types';
+import { createBookingSchema, updateBookingStatusSchema } from '@bolt/types';
 import { Router } from 'express';
 
 import { BookingController } from '../controllers/booking.controller';

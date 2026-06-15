@@ -9,12 +9,13 @@ A highly robust, production-ready scheduling platform. Features dynamic availabi
 > 📄 **See the detailed [Backend Implementation Plan](file:///home/jagadeesh/Desktop/task/Scaler/docs/backend-implementation-plan.md) for architectural specifics.**
 > 🎨 **See the detailed [Frontend Implementation Plan](file:///home/jagadeesh/Desktop/task/Scaler/docs/frontend-implementation-plan.md) for all frontend decisions.**
 > 🎨 **See the [Design Tokens](file:///home/jagadeesh/Desktop/task/Scaler/docs/design-tokens.md) for the complete color palette, typography, and component inventory.**
+> 🔐 **See the [Authentication Flow](file:///home/jagadeesh/Desktop/task/Scaler/docs/auth-flow.md) for JWT, cookies, DAL, and API client architecture.**
 
 ## 2. Monorepo Structure
 
 ```
 Scaler/
-├── App/                  # Next.js 15 App Router + Tailwind v4 + shadcn/ui
+├── App/                  # Next.js 16 App Router + Tailwind v4 + shadcn/ui
 ├── server/               # Express 4.x + Prisma + PostgreSQL
 ├── packages/
 │   └── types/            # Shared Zod schemas and TS interfaces
@@ -23,7 +24,7 @@ Scaler/
 └── CLAUDE.md             # This file
 ```
 
-**The `packages/types/` Contract**: This is the most critical piece of the architecture. Both `server/` and `App/` depend on `@scaler/types`. It contains Zod schemas that are used by the backend for API validation and by the frontend for form validation. The inferred TS types ensure the frontend always knows exactly what shape the API returns. No guessing, no `any`.
+**The `packages/types/` Contract**: This is the most critical piece of the architecture. Both `server/` and `App/` depend on `@bolt/types`. It contains Zod schemas that are used by the backend for API validation and by the frontend for form validation. The inferred TS types ensure the frontend always knows exactly what shape the API returns. No guessing, no `any`.
 
 ## 3. Dev Setup
 
@@ -51,9 +52,9 @@ cd App && npm run dev       # http://localhost:3000
 - **Express 4.x (Backend)**: Chosen over Next.js API routes for stricter architectural layering (Routes → Controllers → Services → DB) and better background job handling.
 - **Prisma + Supabase**: Strongly typed ORM paired with a connection-pooled PostgreSQL instance.
 - **Dynamic App Store**: Integrations are NOT hardcoded in `.env`. They are defined in the database, allowing admin to add new OAuth providers without code deploys. Credentials are encrypted at rest via AES-256-GCM.
-- **TanStack Query + Zustand (Frontend)**: Server state is managed by React Query. Client UI state (like auth bypass) is managed by Zustand.
+- **TanStack Query + Zustand (Frontend)**: Server state is managed by React Query. Client auth UI state (in-memory access token) is managed by Zustand.
 - **Zod Validation**: Used everywhere. Middlewares validate requests before they hit controllers. React Hook Form validates inputs before they hit network.
-- **Auth Bypass**: Full JWT implementation exists, but frontend automatically logs in as the seeded default user to meet assignment requirements.
+- **JWT Auth (Frontend)**: Login via server actions stores httpOnly `refresh_token` on the Next.js origin. `verifySession()` in `lib/dal.ts` is the security boundary. `proxy.ts` provides optimistic route redirects only.
 
 ## 5. Full-Stack Type Safety
 
@@ -92,17 +93,17 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 - [x] Phase 8: Database Seed
 - [x] Phase 8.5: Backend Audit & Testing
 - [ ] Phase 9: Frontend Implementation
-  - [ ] Phase 9.0: App scaffold (Next.js 15 init, Tailwind v4, shadcn/ui, env)
-  - [ ] Phase 9.1: Foundation (lib/api.ts, stores, query client, layout)
-  - [ ] Phase 9.2: Event Types module
-  - [ ] Phase 9.3: Bookings module
-  - [ ] Phase 9.4: Availability module
-  - [ ] Phase 9.5: Public Booking Page (most critical)
+  - [x] Phase 9.0: App scaffold (Next.js 16 init, Tailwind v4, shadcn/ui, env)
+  - [x] Phase 9.1: Foundation (lib/api, stores, query client, layout, auth DAL)
+  - [x] Phase 9.2: Event Types module
+  - [x] Phase 9.3: Bookings module
+  - [x] Phase 9.4: Availability module
+  - [x] Phase 9.5: Public Booking Page (most critical)
   - [ ] Phase 9.6: Settings & Integrations
 
 ## 9. Known Constraints & Assumptions
 
-- Assignment specifies "No Login Required" for admin side. We assume a default seeded user (`jagadeesh.m@deeptaai.com`) exists and is automatically authenticated by the frontend.
+- Seeded demo user (`jagadeesh.m@deeptaai.com` / `demo123!`) is available at `/login`. Backend also exposes `POST /auth/bypass` for assignment demos, but the dashboard uses real JWT login/session flow.
 - Dates are strictly UTC in DB. Timezone conversion happens at the edge/frontend.
 - Cal.com reference UI is the single source of truth for design.
 
@@ -124,5 +125,13 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 6. **NEVER** commit secrets, `.env` files, or `console.log` statements.
 7. **NEVER** fetch data without a loading skeleton and error boundary.
 8. **NEVER** hardcode magic strings/numbers — use `constants.ts`.
-9. **NEVER** use inline styles or raw CSS — use Tailwind utilities.
+9. **NEVER** use inline styles, raw CSS, or hardcoded tailwind colors (`bg-neutral-900`, `text-black`, etc.) — use Tailwind semantic utilities (`bg-background`, `text-foreground`, `bg-card`).
 10. **NEVER** skip pagination on a list query.
+
+## 12. Strict Validation Requirements (Must Follow)
+
+Before completing any task, you **MUST** run the following commands and ensure zero errors:
+
+1. **Formatting**: `pnpm run format` across the entire workspace to ensure all Prettier/Tailwind rules are applied perfectly.
+2. **Linting**: `pnpm run lint` across the Next.js app and the Express server, ensuring 0 ESLint warnings or errors remain.
+3. **Typechecking**: `pnpm run typecheck` to execute `tsc --noEmit` on the strict TS configurations. No errors should be found anywhere in the app or server.

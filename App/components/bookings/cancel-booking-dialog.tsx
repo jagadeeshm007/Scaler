@@ -48,9 +48,9 @@ export function CancelBookingDialog({ booking, open, onOpenChange }: CancelBooki
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="border-neutral-800 bg-neutral-950 sm:max-w-md">
+      <DialogContent className="border-border bg-background sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">Cancel booking</DialogTitle>
+          <DialogTitle className="text-foreground">Cancel booking</DialogTitle>
           <DialogDescription>
             Are you sure you want to cancel this booking with {booking?.guest_name}?
           </DialogDescription>
@@ -64,7 +64,7 @@ export function CancelBookingDialog({ booking, open, onOpenChange }: CancelBooki
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
-            className="border-neutral-800 bg-neutral-900"
+            className="border-border bg-card"
           />
         </div>
 

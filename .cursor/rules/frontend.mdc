@@ -1,5 +1,5 @@
 ---
-description: Frontend-specific rules for the Next.js 15 application
+description: Frontend-specific rules for the Next.js 16 application
 globs: ["App/**/*"]
 ---
 
@@ -62,13 +62,12 @@ App/src/app/(authorised)/
 
 ## API Communication
 
-- All API calls go through `lib/api.ts` (typed fetch wrapper)
-- The API client:
-  - Adds Authorization header automatically from auth store
-  - Handles token refresh on 401 responses
-  - Parses responses into `ApiResponse<T>` type
-  - Base URL from `NEXT_PUBLIC_API_URL` env var
-- **No direct `fetch()` calls in components** — always use TanStack Query hooks
+- **Client code** (hooks, client components): `import { api } from '@/lib/api'` — axios with auth header + 401 refresh via `/api/auth/refresh`
+- **Server code** (RSC, server actions, route handlers): `import { api } from '@/lib/api.server'` — axios `serverApi`, pass `{ token }` when needed
+- **Never use raw `fetch()`** in application code — use the axios wrappers in `lib/api/`
+- **No direct HTTP calls in components** — always use TanStack Query hooks or server-side `api`/`serverApi`
+- Base URL: `NEXT_PUBLIC_API_URL` (e.g. `http://localhost:4000/api/v1`)
+- Same-origin auth routes: `INTERNAL_API` in `lib/constants/internal-api.ts`
 
 ## Data Fetching Pattern
 
@@ -568,18 +567,30 @@ const [status, setStatus] = useQueryState(
 
 URL state to use nuqs for: booking filter tab, booking page number, selected date on booking page, event types search query.
 
-## Auth Bypass Pattern
+## Auth Pattern
 
-The `(authorised)/layout.tsx` must call `POST /auth/bypass` on first render to auto-login as the seeded default user. This satisfies the "No Login Required" assignment requirement.
+Authentication uses JWT with httpOnly `refresh_token` cookies on the **Next.js origin**.
+
+| File | Role |
+| ---- | ---- |
+| `proxy.ts` | Optimistic redirect if `refresh_token` cookie missing on protected routes |
+| `lib/dal.ts` | `verifySession()` — real auth check in RSC; redirects to `/login` |
+| `actions/auth.actions.ts` | Login/register/logout server actions |
+| `app/api/auth/refresh` | Same-origin token refresh for browser axios interceptor |
+| `app/api/auth/logout` | Same-origin cookie clear for client logout |
+| `components/auth/auth-token-bridge.tsx` | Syncs server `accessToken` into Zustand on hydrate |
+| `store/auth.store.ts` | In-memory `accessToken` only |
 
 ```typescript
-// (authorised)/layout.tsx (CC)
-'use client';
-const { hydrate, isAuthenticated } = useAuthStore();
-useEffect(() => { if (!isAuthenticated) void hydrate(); }, []);
+// (authenticated)/layout.tsx (SC)
+const { accessToken, user } = await verifySession();
+// ...
+<AuthTokenBridge accessToken={accessToken} />
 ```
 
-`hydrate()` in `auth.store.ts` calls `POST /auth/bypass`, stores the returned access token in Zustand memory, and sets `isAuthenticated: true`.
+Client queries use `useAuthReady()` — enabled only after `AuthTokenBridge` sets the token.
+
+See `docs/auth-flow.md` for full sequence diagrams.
 
 ## TanStack Query + Server Components
 
@@ -592,10 +603,11 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
 
 export default async function Page() {
+  const { accessToken } = await verifySession();
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.eventTypes.list(),
-    queryFn: () => serverFetchEventTypes(),
+    queryFn: () => api.get<EventType[]>('/event-types', { token: accessToken }),
   });
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

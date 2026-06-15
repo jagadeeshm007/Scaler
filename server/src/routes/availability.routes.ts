@@ -1,4 +1,4 @@
-import { createScheduleSchema, updateScheduleSchema } from '@scaler/types';
+import { createScheduleSchema, updateScheduleSchema } from '@bolt/types';
 import { Router } from 'express';
 
 import { AvailabilityController } from '../controllers/availability.controller';

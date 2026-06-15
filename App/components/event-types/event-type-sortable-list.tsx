@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -48,14 +48,16 @@ export function EventTypeSortableList({
   const reorderMutation = useReorderEventTypes();
 
   useEffect(() => {
-    setOrderedItems(items);
+    queueMicrotask(() => {
+      setOrderedItems(items);
+    });
   }, [items]);
 
   const activeItem = activeId ? orderedItems.find((item) => item.id === activeId) : null;
   const isListDragging = activeId !== null;
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 1 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
@@ -73,40 +75,47 @@ export function EventTypeSortableList({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    clearDragState();
 
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id) {
+      clearDragState();
+      return;
+    }
 
     const oldIndex = orderedItems.findIndex((item) => item.id === active.id);
     const newIndex = orderedItems.findIndex((item) => item.id === over.id);
-    if (oldIndex < 0 || newIndex < 0) return;
+    if (oldIndex < 0 || newIndex < 0) {
+      clearDragState();
+      return;
+    }
 
     const nextItems = arrayMove(orderedItems, oldIndex, newIndex);
     setOrderedItems(nextItems);
-    reorderMutation.mutate({ ids: nextItems.map((item) => item.id) });
+
+    // Defer the massive layout reset and the React Query mutation
+    // until exactly after the CSS drop animation completes.
+    setTimeout(() => {
+      clearDragState();
+      reorderMutation.mutate({ ids: nextItems.map((item) => item.id) });
+    }, DROP_ANIMATION.duration);
   };
 
   const handleDragCancel = () => {
     clearDragState();
   };
 
+  const itemIds = useMemo(() => orderedItems.map((item) => item.id), [orderedItems]);
+
   return (
     <DndContext
+      id="event-types-sortable-list"
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div
-        className={cn(
-          isListDragging ? 'flex flex-col gap-2 md:gap-2.5' : 'divide-y divide-neutral-800',
-        )}
-      >
-        <SortableContext
-          items={orderedItems.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
-        >
+      <div className="flex flex-col">
+        <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
           {orderedItems.map((eventType) => (
             <SortableEventTypeCard
               key={eventType.id}
@@ -122,7 +131,7 @@ export function EventTypeSortableList({
         {activeItem ? (
           <div
             className={cn(
-              'cursor-grabbing overflow-hidden rounded-lg border border-neutral-800',
+              'cursor-grabbing overflow-hidden rounded-lg border border-border shadow-md bg-card',
               SURFACE.innerList,
             )}
             style={activeWidth ? { width: activeWidth } : undefined}

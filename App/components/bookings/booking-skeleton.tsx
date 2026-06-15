@@ -6,7 +6,7 @@ export function BookingSkeleton() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-4 rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-4"
+          className="flex items-center gap-4 rounded-lg border border-border bg-card px-4 py-4"
         >
           <Skeleton className="hidden h-14 w-14 shrink-0 sm:block" />
           <div className="flex flex-1 flex-col gap-2">

@@ -2,10 +2,9 @@
 
 import { useQueries } from '@tanstack/react-query';
 
-import { api } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
-import { queryKeys } from '@/lib/query-keys';
-import type { Slot } from '@/types';
+import { fetchSlots } from '@/lib/api/event-types';
+import { queryKeys } from '@/lib/constants/query-keys';
+import { Slot } from '@/types';
 
 interface UseWeekSlotsParams {
   eventTypeId: string;
@@ -18,10 +17,7 @@ export function useWeekSlots({ eventTypeId, dates, timezone, enabled = true }: U
   const results = useQueries({
     queries: dates.map((date) => ({
       queryKey: queryKeys.slots.byDate(eventTypeId, date, timezone),
-      queryFn: () =>
-        api.get<Slot[]>(
-          `${ENDPOINTS.slots}?eventTypeId=${eventTypeId}&date=${date}&timezone=${encodeURIComponent(timezone)}`,
-        ),
+      queryFn: () => fetchSlots(eventTypeId, date, timezone),
       enabled: enabled && Boolean(eventTypeId && date && timezone),
       staleTime: 30_000,
       refetchOnWindowFocus: false,

@@ -23,18 +23,18 @@ export function IntegrationCard({ integration }: IntegrationCardProps) {
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 rounded-xl border border-neutral-800 bg-neutral-900 p-5',
+        'flex flex-col gap-4 rounded-xl border border-border bg-card p-5',
         integration.is_connected && 'border-green-500/30',
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-neutral-800">
-            <Plug className="size-5 text-neutral-400" />
+          <div className="flex size-10 items-center justify-center rounded-lg bg-accent">
+            <Plug className="size-5 text-muted-foreground" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">{integration.name}</h3>
-            <p className="text-xs text-neutral-500">{integration.category}</p>
+            <h3 className="text-sm font-semibold text-foreground">{integration.name}</h3>
+            <p className="text-xs text-muted-foreground">{integration.category}</p>
           </div>
         </div>
         {integration.is_connected && (
@@ -43,7 +43,7 @@ export function IntegrationCard({ integration }: IntegrationCardProps) {
       </div>
 
       {integration.description && (
-        <p className="text-sm text-neutral-400">{integration.description}</p>
+        <p className="text-sm text-muted-foreground">{integration.description}</p>
       )}
 
       <div className="mt-auto">

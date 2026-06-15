@@ -1,11 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarDays, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { createBookingSchema } from '@scaler/types';
+import { CalendarDays, Loader2, X, UserPlus } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -22,14 +21,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateBooking } from '@/hooks/mutations/use-booking-mutations';
 import { getErrorMessage } from '@/lib/api';
 import { formatBookingDate, formatBookingTimeRange } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import type { Booking, CreateBookingInput, PublicEventType, Slot } from '@/types';
 
-const bookingFormSchema = createBookingSchema.shape.body.pick({
-  guest_name: true,
-  guest_email: true,
-  guest_notes: true,
+const bookingFormSchema = z.object({
+  guest_name: z.string().min(2, 'Name must be at least 2 characters'),
+  guest_email: z.string().email('Invalid email address'),
+  guest_notes: z.string().optional().nullable(),
+  additional_guests: z
+    .array(z.object({ email: z.string().email('Invalid email address') }))
+    .optional()
+    .default([]),
 });
 
 type BookingFormValues = z.infer<typeof bookingFormSchema>;
@@ -52,20 +55,41 @@ export function BookingForm({
   className,
 }: BookingFormProps) {
   const router = useRouter();
-  const idempotencyKeyRef = useRef(crypto.randomUUID());
+  const searchParams = useSearchParams();
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
   const [submitError, setSubmitError] = useState<string | null>(null);
   const createBooking = useCreateBooking();
 
   const isReschedule = Boolean(rescheduleBooking);
+  const prefillName = searchParams.get('name') ?? '';
+  const prefillEmail = searchParams.get('email') ?? searchParams.get('rescheduledBy') ?? '';
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
-      guest_name: rescheduleBooking?.guest_name ?? '',
-      guest_email: rescheduleBooking?.guest_email ?? '',
+      guest_name: rescheduleBooking?.guest_name ?? prefillName,
+      guest_email: rescheduleBooking?.guest_email ?? prefillEmail,
       guest_notes: '',
+      additional_guests:
+        // @ts-expect-error - Prisma client in App might not have additional_guests typed yet
+        rescheduleBooking?.additional_guests?.map((email: string) => ({ email })) ?? [],
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    name: 'additional_guests',
+    control: form.control,
+  });
+
+  useEffect(() => {
+    if (rescheduleBooking) {
+      form.reset({
+        ...form.getValues(),
+        guest_name: rescheduleBooking.guest_name,
+        guest_email: rescheduleBooking.guest_email,
+      });
+    }
+  }, [rescheduleBooking, form]);
 
   const isPending = createBooking.isPending;
 
@@ -79,6 +103,7 @@ export function BookingForm({
       guest_name: values.guest_name,
       guest_email: values.guest_email,
       guest_notes: values.guest_notes ?? null,
+      additional_guests: values.additional_guests?.map((g) => g.email) ?? [],
       timezone,
       ...(rescheduleBooking ? { reschedule_from_uid: rescheduleBooking.uid } : {}),
     };
@@ -86,14 +111,25 @@ export function BookingForm({
     try {
       const booking = await createBooking.mutateAsync({
         data: body,
-        idempotencyKey: idempotencyKeyRef.current,
+        idempotencyKey,
       });
 
       sessionStorage.setItem(`booking-${booking.id}`, JSON.stringify(booking));
       sessionStorage.setItem(`booking-uid-${booking.uid}`, JSON.stringify(booking));
-      router.push(
-        `${ROUTES.bookingConfirmed(eventType.user.username, eventType.slug)}?uid=${booking.uid}`,
-      );
+
+      const searchParams = new URLSearchParams({
+        isSuccessBookingPage: 'true',
+        email: booking.guest_email,
+        name: booking.guest_name,
+        eventTypeSlug: eventType.slug,
+        uid: booking.uid,
+      });
+
+      if (rescheduleBooking) {
+        searchParams.set('formerTime', rescheduleBooking.start_time.toString());
+      }
+
+      router.push(`${ROUTES.publicBookingStatus(booking.uid)}?${searchParams.toString()}`);
     } catch (error) {
       setSubmitError(getErrorMessage(error, 'Failed to create booking'));
     }
@@ -105,13 +141,13 @@ export function BookingForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 p-4">
           {/* New time header — shown in reschedule mode */}
           {isReschedule && (
-            <div className="flex items-start gap-2 rounded-lg border border-neutral-700 bg-neutral-800/50 px-3 py-2.5 text-sm">
-              <CalendarDays className="mt-0.5 size-4 shrink-0 text-neutral-400" />
+            <div className="flex items-start gap-2 rounded-lg border border-border bg-accent/50 px-3 py-2.5 text-sm">
+              <CalendarDays className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
               <div>
-                <p className="font-medium text-white">
+                <p className="font-medium text-foreground">
                   {formatBookingDate(slot.startTime, timezone)}
                 </p>
-                <p className="text-neutral-400">
+                <p className="text-muted-foreground">
                   {formatBookingTimeRange(slot.startTime, slot.endTime, timezone)}
                 </p>
               </div>
@@ -125,7 +161,16 @@ export function BookingForm({
               <FormItem>
                 <FormLabel>Your name *</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" disabled={isPending} {...field} />
+                  <Input
+                    placeholder="John Doe"
+                    disabled={isPending}
+                    readOnly={isReschedule}
+                    className={cn(
+                      isReschedule &&
+                        'bg-accent/60 text-muted-foreground opacity-70 pointer-events-none select-none focus-visible:ring-0',
+                    )}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -143,6 +188,11 @@ export function BookingForm({
                     type="email"
                     placeholder="john@example.com"
                     disabled={isPending}
+                    readOnly={isReschedule}
+                    className={cn(
+                      isReschedule &&
+                        'bg-accent/60 text-muted-foreground opacity-70 pointer-events-none select-none focus-visible:ring-0',
+                    )}
                     {...field}
                   />
                 </FormControl>
@@ -150,6 +200,66 @@ export function BookingForm({
               </FormItem>
             )}
           />
+
+          <div className="space-y-3">
+            {fields.length === 0 ? (
+              <button
+                type="button"
+                onClick={() => append({ email: '' })}
+                disabled={isPending}
+                className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md transition-colors"
+              >
+                <UserPlus className="size-4" />
+                Add guests
+              </button>
+            ) : (
+              <>
+                <p className="inline-flex items-center gap-2 font-medium text-base/4.5 text-foreground sm:text-sm/4">
+                  Add guests
+                </p>
+                {fields.map((field, index) => (
+                  <FormField
+                    key={field.id}
+                    control={form.control}
+                    name={`additional_guests.${index}.email`}
+                    render={({ field: inputField }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type="email"
+                              placeholder="Email"
+                              disabled={isPending}
+                              className="pr-10"
+                              {...inputField}
+                            />
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => remove(index)}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground focus:outline-none rounded-md"
+                            >
+                              <X className="size-4" />
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onClick={() => append({ email: '' })}
+                  disabled={isPending}
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md transition-colors"
+                >
+                  <UserPlus className="size-4" />
+                  Add another
+                </button>
+              </>
+            )}
+          </div>
 
           <FormField
             control={form.control}
@@ -183,7 +293,7 @@ export function BookingForm({
               variant="ghost"
               onClick={onBack}
               disabled={isPending}
-              className="text-neutral-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               Back
             </Button>

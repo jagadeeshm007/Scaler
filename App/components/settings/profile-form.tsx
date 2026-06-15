@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { updateUserSchema } from '@scaler/types';
+import { updateUserSchema } from '@bolt/types';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,7 @@ export function ProfileForm({ user: userProp }: ProfileFormProps) {
 
   const initials = user.full_name
     .split(' ')
-    .map((part) => part[0])
+    .map((part: string) => part[0])
     .join('')
     .slice(0, 2)
     .toUpperCase();
@@ -53,13 +53,15 @@ export function ProfileForm({ user: userProp }: ProfileFormProps) {
     <Form {...form}>
       <form onSubmit={onSubmit} className="max-w-lg space-y-6">
         <div className="flex items-center gap-4">
-          <Avatar size="lg">
+          <Avatar className="size-16">
             <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
-            <AvatarFallback className="bg-pink-600 text-white">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-pink-600 text-foreground text-xl">
+              {initials}
+            </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium text-white">{user.full_name}</p>
-            <p className="text-sm text-neutral-500">@{user.username}</p>
+            <p className="text-sm font-medium text-foreground">{user.full_name}</p>
+            <p className="text-sm text-muted-foreground">@{user.username}</p>
           </div>
         </div>
 
@@ -110,9 +112,9 @@ export function ProfileForm({ user: userProp }: ProfileFormProps) {
           )}
         />
 
-        <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-4">
-          <p className="text-sm font-medium text-white">Email</p>
-          <p className="mt-1 text-sm text-neutral-400">{user.email}</p>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-sm font-medium text-foreground">Email</p>
+          <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
         </div>
 
         <Button type="submit" disabled={updateProfile.isPending}>

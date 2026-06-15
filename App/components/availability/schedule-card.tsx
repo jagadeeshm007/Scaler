@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDayRange } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import type { Schedule } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -37,15 +37,15 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-4 border-b border-neutral-800 px-4 py-4 last:border-0',
+        'flex items-start justify-between gap-4 border-b border-border px-4 py-4 last:border-0 sm:items-center',
         className,
       )}
     >
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href={ROUTES.availabilityEdit(schedule.id)}
-            className="truncate font-medium text-white hover:underline"
+            className="truncate font-medium text-foreground hover:underline"
           >
             {schedule.name}
           </Link>
@@ -56,16 +56,21 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
             </Badge>
           ) : null}
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">{getScheduleSummary(schedule)}</p>
-        <p className="text-xs text-muted-foreground">{schedule.timezone.replace(/_/g, ' ')}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{getScheduleSummary(schedule)}</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          {schedule.timezone.replace(/_/g, ' ')}
+        </p>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <Button variant="outline" size="sm" className="border-neutral-800" asChild>
-          <Link href={ROUTES.availabilityEdit(schedule.id)}>
-            <Pencil className="size-3.5" />
-            Edit
-          </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="hidden border-border sm:flex"
+          render={<Link href={ROUTES.availabilityEdit(schedule.id)} />}
+        >
+          <Pencil className="size-3.5" />
+          Edit
         </Button>
 
         <DropdownMenu>
@@ -75,7 +80,7 @@ export function ScheduleCard({ schedule, onDelete, className }: ScheduleCardProp
               <span className="sr-only">Schedule actions</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="border-neutral-800 bg-neutral-950">
+          <DropdownMenuContent align="end" className="border-border bg-background">
             {!schedule.is_default && onDelete ? (
               <DropdownMenuItem
                 className="text-red-500 focus:text-red-500"

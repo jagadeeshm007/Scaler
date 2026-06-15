@@ -15,7 +15,7 @@ export const EventTypeSearch = forwardRef<HTMLInputElement, EventTypeSearchProps
   function EventTypeSearch({ value, onChange, className }, ref) {
     return (
       <div className={cn('relative', className)}>
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-neutral-500" />
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <input
           ref={ref}
           id="event-type-search"
@@ -23,7 +23,7 @@ export const EventTypeSearch = forwardRef<HTMLInputElement, EventTypeSearchProps
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search event type..."
-          className="h-10 w-full rounded-xl border border-neutral-800 bg-[#1a1a1a] py-2 pr-4 pl-10 text-sm text-white placeholder:text-neutral-500 focus:border-neutral-700 focus:outline-none"
+          className="h-10 w-full rounded-xl border border-border bg-muted py-2 pr-4 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
         />
       </div>
     );

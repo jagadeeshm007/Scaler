@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
 
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 
 const items = [
@@ -23,7 +23,7 @@ export function MobileBottomNav() {
     <>
       {/* Floating pill nav */}
       <div className="pointer-events-none fixed inset-x-0 bottom-5 z-40 flex justify-center px-16 md:hidden">
-        <nav className="pointer-events-auto flex items-center gap-0.5 rounded-full border border-neutral-800 bg-neutral-900/95 px-1.5 py-1 shadow-2xl backdrop-blur-md">
+        <nav className="pointer-events-auto flex items-center gap-0.5 rounded-full border border-border bg-card/95 px-1.5 py-1 shadow-2xl backdrop-blur-md">
           {items.map(({ href, icon: Icon, label }) => {
             const active = pathname.startsWith(href);
             return (
@@ -33,7 +33,9 @@ export function MobileBottomNav() {
                 aria-label={label}
                 className={cn(
                   'flex size-11 items-center justify-center rounded-full transition-colors',
-                  active ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:text-neutral-300',
+                  active
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 <Icon className="size-5" strokeWidth={active ? 2.25 : 2} />
@@ -47,7 +49,7 @@ export function MobileBottomNav() {
       <Link
         href={ROUTES.eventTypeNew}
         aria-label="Create new event type"
-        className="fixed right-4 bottom-5 z-50 flex size-[52px] items-center justify-center rounded-full bg-white text-black shadow-2xl transition-transform hover:scale-105 active:scale-95 md:hidden"
+        className="fixed right-4 bottom-5 z-50 flex size-[52px] items-center justify-center rounded-full bg-primary text-primary-foreground shadow-2xl transition-transform hover:scale-105 active:scale-95 md:hidden"
       >
         <Plus className="size-6" strokeWidth={2.5} />
       </Link>
