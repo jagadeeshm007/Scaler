@@ -8,9 +8,10 @@ import { EventTypeCard } from '@/components/event-types/event-type-card';
 import { EventTypeSortableList } from '@/components/event-types/event-type-sortable-list';
 import { EventTypeSearch } from '@/components/event-types/event-type-search';
 import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
-import { PageSection, SURFACE } from '@/components/shared/page-section';
+import { PageShell } from '@/components/layout/page-shell';
+import { CardListSkeleton } from '@/components/shared/skeletons/card-list-skeleton';
+import { SURFACE } from '@/components/shared/page-section';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useEventTypes } from '@/hooks/queries/use-event-types';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
@@ -34,11 +35,12 @@ export function EventTypeList() {
 
   if (isLoading) {
     return (
-      <PageSection className="flex min-h-full flex-1 flex-col pb-24 md:pb-6">
-        <Skeleton className="hidden h-16 w-full shrink-0 rounded-none md:block" />
-        <Skeleton className="mx-4 mt-4 h-10 w-[calc(100%-2rem)] shrink-0 rounded-md md:hidden" />
-        <Skeleton className="mx-4 mt-4 mb-4 h-72 shrink-0 rounded-xl md:mx-6 md:mt-5 md:mb-6" />
-      </PageSection>
+      <PageShell
+        title="Event types"
+        description="Configure different events for people to book on your calendar."
+      >
+        <CardListSkeleton count={6} />
+      </PageShell>
     );
   }
 
@@ -46,17 +48,11 @@ export function EventTypeList() {
   const isEmpty = filtered.length === 0;
 
   return (
-    <PageSection className="flex min-h-full flex-1 flex-col pb-24 md:pb-6">
-      {/* Desktop: title + search + New — inside outer card */}
-      <div className="hidden shrink-0 items-start justify-between gap-4 px-6 pt-6 pb-5 md:flex">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">Event types</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Configure different events for people to book on your calendar.
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
+    <PageShell
+      title="Event types"
+      description="Configure different events for people to book on your calendar."
+      actions={
+        <>
           <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -83,14 +79,10 @@ export function EventTypeList() {
               New
             </Link>
           </Button>
-        </div>
-      </div>
-
-      {/* Mobile: search only — inside outer card */}
-      <div className="shrink-0 px-4 pt-4 pb-3 md:hidden">
-        <EventTypeSearch value={query} onChange={setQuery} />
-      </div>
-
+        </>
+      }
+      mobileHeader={<EventTypeSearch value={query} onChange={setQuery} />}
+    >
       {/* Inner list card — content height only; outer card fills the rest */}
       <div
         className={cn(
@@ -137,6 +129,6 @@ export function EventTypeList() {
           />
         )}
       </div>
-    </PageSection>
+    </PageShell>
   );
 }

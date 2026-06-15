@@ -123,6 +123,8 @@ export interface Booking {
   end_time: string;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'RESCHEDULED';
   cancellation_reason: string | null;
+  rescheduled_from_uid?: string | null;
+  rescheduled_to_uid?: string | null;
   meeting_url: string | null;
   event_type: EventType;
   host?: AuthUser;

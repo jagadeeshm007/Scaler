@@ -273,11 +273,10 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
                 <p className="text-muted-foreground">{booking.guest_email}</p>
               </div>
             </InfoRow>
-            {/* @ts-expect-error - scheduled_to_uid might not be explicitly strongly typed without prisma generate yet */}
+
             {booking.rescheduled_to_uid && (
               <InfoRow label="Rescheduled">
                 <a
-                  /* @ts-expect-error - scheduled_to_uid might not be explicitly strongly typed without prisma generate yet */
                   href={`/booking/${booking.rescheduled_to_uid}`}
                   className="text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1"
                 >
@@ -350,10 +349,9 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
               <InfoRow label="Rescheduled by">
                 <div>
                   <p className="font-medium">{booking.guest_email}</p>
-                  {/* @ts-expect-error - rescheduled_from_uid might not be explicitly strongly typed yet */}
+
                   {booking.rescheduled_from_uid ? (
                     <a
-                      /* @ts-expect-error - rescheduled_from_uid is not yet strictly typed in Prisma client */
                       href={ROUTES.publicBookingStatus(booking.rescheduled_from_uid)}
                       className="mt-0.5 inline-flex items-center gap-1 text-muted-foreground hover:text-primary hover:underline"
                     >

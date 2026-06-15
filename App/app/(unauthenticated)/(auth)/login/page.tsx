@@ -28,6 +28,16 @@ export default function LoginPage() {
     router.push(ROUTES.eventTypes);
   });
 
+  const handleBypass = async () => {
+    try {
+      const data = await api.post<AuthPayload>(ENDPOINTS.auth.bypass, {});
+      setAuth(data.user, data.accessToken);
+      router.push(ROUTES.eventTypes);
+    } catch (err) {
+      console.error('Bypass failed:', err);
+    }
+  };
+
   return (
     <Card className="border-border bg-card p-6">
       <h1 className="text-xl font-semibold">Login</h1>
@@ -46,6 +56,14 @@ export default function LoginPage() {
         />
         <Button type="submit" className="w-full">
           Login
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full border-border bg-card text-foreground hover:bg-accent"
+          onClick={handleBypass}
+        >
+          Bypass Login
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-muted-foreground">

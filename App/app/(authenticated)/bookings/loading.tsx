@@ -1,9 +1,15 @@
-import { Loader } from '@/components/ui/loader';
+import { PageShell } from '@/components/layout/page-shell';
+import { TableSkeleton } from '@/components/shared/skeletons/table-skeleton';
 
 export default function BookingsLoading() {
   return (
-    <div className="flex flex-1 min-h-[85vh] w-full items-center justify-center">
-      <Loader variant="grid" className="text-primary" />
-    </div>
+    <PageShell
+      title="Bookings"
+      description="See upcoming and past events booked through your event types."
+    >
+      <div className="mx-4 mb-4 md:mx-6 md:mb-6">
+        <TableSkeleton rows={6} />
+      </div>
+    </PageShell>
   );
 }

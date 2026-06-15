@@ -17,7 +17,7 @@ export function filterBookingsByTab(bookings: Booking[], tab: BookingStatusTab):
     case 'past':
       return bookings.filter((b) => b.status !== 'CANCELLED' && isPast(parseISO(b.end_time)));
     case 'cancelled':
-      return bookings.filter((b) => b.status === 'CANCELLED');
+      return bookings.filter((b) => b.status === 'CANCELLED' || b.status === 'RESCHEDULED');
     default:
       return bookings;
   }

@@ -29,7 +29,7 @@ export function PageSection({ children, className }: PageSectionProps) {
   return (
     <section
       className={cn(
-        'overflow-hidden border shadow-sm',
+        'w-full min-w-0 overflow-hidden border shadow-sm',
         SURFACE.section,
         SURFACE.sectionBorder,
         RADIUS.section,

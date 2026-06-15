@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { api } from '@/lib/api';
 import { ENDPOINTS } from '@/lib/endpoints';
-import type { AuthPayload, AuthUser } from '@/types';
+import type { AuthUser } from '@/types';
 
 interface AuthState {
   user: AuthUser | null;
@@ -51,16 +51,36 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     if (get().hasHydrated || get().isHydrating) return;
     set({ isHydrating: true });
     try {
-      const data = await api.post<AuthPayload>(ENDPOINTS.auth.bypass, {});
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+      const refreshRes = await fetch(`${API_BASE}${ENDPOINTS.auth.refresh}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!refreshRes.ok) throw new Error('Refresh failed');
+
+      const refreshData = await refreshRes.json();
+      const accessToken = refreshData.data.accessToken;
+
+      set({ accessToken });
+
+      const user = await api.get<AuthUser>(ENDPOINTS.users.me);
+
       set({
-        user: data.user,
-        accessToken: data.accessToken,
+        user,
+        accessToken,
         isAuthenticated: true,
         isHydrating: false,
         hasHydrated: true,
       });
     } catch {
-      set({ isHydrating: false, hasHydrated: true });
+      set({
+        isHydrating: false,
+        hasHydrated: true,
+        isAuthenticated: false,
+        accessToken: null,
+        user: null,
+      });
     }
   },
 
