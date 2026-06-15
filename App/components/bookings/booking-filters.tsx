@@ -4,7 +4,7 @@ import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BOOKING_STATUS_TABS, type BookingStatusTab } from '@/lib/constants';
+import { BOOKING_STATUS_TABS, type BookingStatusTab } from '@/lib/constants/booking';
 import { cn } from '@/lib/utils';
 
 const statusParser = parseAsStringLiteral(BOOKING_STATUS_TABS).withDefault('upcoming');

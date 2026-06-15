@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateBooking } from '@/hooks/mutations/use-booking-mutations';
 import { getErrorMessage } from '@/lib/api';
 import { formatBookingDate, formatBookingTimeRange } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import type { Booking, CreateBookingInput, PublicEventType, Slot } from '@/types';
 

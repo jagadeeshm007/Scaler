@@ -1,0 +1,58 @@
+---
+description: Best practices for using TanStack Query v5 alongside Zustand
+globs: ["**/*.tsx", "**/*.ts"]
+---
+
+# TanStack Query v5 + Zustand Best Practices
+
+## 1. Skeleton Checks: Use `isPending`, NOT `isLoading`
+In TanStack Query v5, `isLoading` is actually `isPending && isFetching`. `isPending` is the correct flag to indicate "no data yet, first fetch in flight".
+- **Rule:** Use `isPending` for your primary skeleton fallback conditions.
+- **Why:** This ensures that when a user revisits a page and cache exists, `isPending` is `false`, and the real content shows instantly without layout shift (even if `isFetching` is true silently in the background).
+
+```tsx
+const { data, isPending, error } = useQuery({ queryKey: ["bookings"], queryFn: fetchBookings });
+
+if (isPending) return <Skeleton />;
+```
+
+## 2. Global StaleTime
+Always set a sensible `staleTime` globally in `QueryClientProvider` to prevent network calls on every single tab switch or navigation.
+- **Rule:** Set `staleTime: 60 * 1000` (1 minute) for dashboard data to avoid over-fetching on rapid navigation.
+
+## 3. Prefetching
+Implement prefetching on sidebar/nav hover to cache data before the route swap happens, further eliminating skeleton flashes.
+
+```tsx
+<Link
+  href="/bookings"
+  onMouseEnter={() =>
+    queryClient.prefetchQuery({ queryKey: ["bookings"], queryFn: fetchBookings })
+  }
+>
+```
+
+## 4. Separation of Concerns: Zustand vs TanStack Query
+- **Rule:** **Do NOT** store server data (e.g., bookings, event types) in Zustand. That causes sync bugs and duplicates TanStack Query's job.
+- **TanStack Query** owns server state.
+- **Zustand** owns **UI state** (sidebar state, active tabs/filters) and **Auth state**.
+- **Integration:** Store the active UI filter in Zustand, and pass it as a variable into the TanStack Query hook and `queryKey` array.
+
+```tsx
+const { bookingsTab } = useUIStore();
+const { data, isPending } = useQuery({
+  queryKey: ["bookings", bookingsTab],
+  queryFn: () => fetchBookings(bookingsTab),
+});
+```
+
+## 5. Handling Errors Gracefully
+If a background refetch fails, `error` is true but `data` might still hold the old cached value and `isPending` is `false`.
+- **Rule:** Do NOT blow away good cached content with an error screen on transient network blips.
+- **Instead:** Only show full error state if you have NO data to show.
+
+```tsx
+if (isPending) return <Skeleton />;
+if (error && !data) return <ErrorState />; // only error-out if we have nothing to show
+return <RealContent data={data} stale={isFetching && !!error} />;
+```

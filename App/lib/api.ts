@@ -1,9 +1,12 @@
-import { ENDPOINTS } from '@/lib/endpoints';
-import { useAuthStore } from '@/store/auth.store';
-import type { ApiErrorBody, ApiResponse } from '@/types';
+import axios, { type AxiosError } from 'axios';
+import { env } from '@/lib/env';
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
-const TIMEOUT_MS = 15_000;
+import { ENDPOINTS } from '@/lib/constants/api';
+import { useAuthStore } from '@/store/auth.store';
+import type { ApiResponse } from '@/types';
+
+const API_BASE = env.NEXT_PUBLIC_API_URL;
 
 export class ApiError extends Error {
   status: number;
@@ -17,29 +20,6 @@ export class ApiError extends Error {
   }
 }
 
-interface RequestOptions extends Omit<RequestInit, 'body'> {
-  body?: unknown;
-  idempotencyKey?: string;
-}
-
-function extractApiErrorMessage(body: ApiErrorBody): string {
-  if (body.message) return body.message;
-
-  if (typeof body.error === 'string') return body.error;
-
-  if (body.error && typeof body.error === 'object') {
-    const firstFieldError = body.error.errors?.[0]?.message;
-    if (firstFieldError) return firstFieldError;
-  }
-
-  return 'Request failed';
-}
-
-function extractApiErrorCode(body: ApiErrorBody): string | undefined {
-  if (typeof body.error === 'object' && body.error?.code) return body.error.code;
-  return body.code;
-}
-
 /** Normalize unknown thrown values into a user-facing string. */
 export function getErrorMessage(error: unknown, fallback = 'Something went wrong'): string {
   if (error instanceof ApiError) return error.message;
@@ -48,81 +28,162 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
   return fallback;
 }
 
-async function parseError(response: Response): Promise<ApiError> {
-  try {
-    const body = (await response.json()) as ApiErrorBody;
-    return new ApiError(extractApiErrorMessage(body), response.status, extractApiErrorCode(body));
-  } catch {
-    return new ApiError(response.statusText || 'Request failed', response.status);
-  }
-}
+export const axiosInstance = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+  timeout: 15_000,
+});
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { body, idempotencyKey, headers: customHeaders, ...rest } = options;
+axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = useAuthStore.getState().accessToken;
+  // Ensure headers object exists
+  if (!config.headers) {
+    config.headers = {} as typeof config.headers;
+  }
 
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(idempotencyKey ? { 'X-Idempotency-Key': idempotencyKey } : {}),
-    ...customHeaders,
-  };
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  // Set default JSON content type
+  if (!config.headers['Content-Type']) {
+    config.headers['Content-Type'] = 'application/json';
+  }
 
-  const execute = async (retry = true): Promise<T> => {
-    const response = await fetch(`${API_BASE}${path}`, {
-      ...rest,
-      headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      credentials: 'include',
-      signal: controller.signal,
-    });
+  return config;
+});
 
-    if (response.status === 401 && retry && token) {
-      try {
-        const refreshRes = await fetch(`${API_BASE}${ENDPOINTS.auth.refresh}`, {
-          method: 'POST',
-          credentials: 'include',
-        });
-        if (refreshRes.ok) {
-          const refreshData = (await refreshRes.json()) as ApiResponse<{ accessToken: string }>;
-          useAuthStore.getState().setToken(refreshData.data.accessToken);
-          return execute(false);
-        }
-      } catch {
-        // fall through to logout
-      }
-      useAuthStore.getState().logout();
-      if (typeof window !== 'undefined') window.location.href = '/login';
-      throw new ApiError('Session expired', 401);
+let isRefreshing = false;
+let pendingQueue: ((token: string) => void)[] = [];
+
+axiosInstance.interceptors.response.use(
+  (response: AxiosResponse) => {
+    if (response.status === 204) return undefined;
+    return response.data?.data ?? response.data;
+  },
+  async (error: AxiosError<unknown>) => {
+    const original = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+      idempotencyKey?: string;
+    };
+
+    // Extract error nicely
+    let message = 'Request failed';
+    let code: string | undefined;
+
+    if (error.response?.data) {
+      const body = error.response.data as Record<string, unknown>;
+      message =
+        (body.message as string) ||
+        (body.error as { errors?: { message: string }[] })?.errors?.[0]?.message ||
+        (body.error as string) ||
+        message;
+      code = (body.error as { code?: string })?.code || (body.code as string);
     }
 
-    if (!response.ok) throw await parseError(response);
+    if (error.response?.status === 401 && !original._retry) {
+      if (
+        original.url?.includes('/auth/logout') ||
+        original.url?.includes('/auth/login') ||
+        original.url?.includes('/auth/refresh')
+      ) {
+        return Promise.reject(new ApiError(message, 401, code));
+      }
 
-    if (response.status === 204) return undefined as T;
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          pendingQueue.push((token: string) => {
+            if (token) {
+              original.headers.Authorization = `Bearer ${token}`;
+              resolve(axiosInstance(original));
+            } else {
+              reject(new ApiError('Session expired', 401));
+            }
+          });
+        });
+      }
 
-    const json = (await response.json()) as ApiResponse<T>;
-    return json.data;
-  };
+      original._retry = true;
+      isRefreshing = true;
 
-  try {
-    return await execute();
-  } finally {
-    clearTimeout(timeout);
+      try {
+        let refreshData;
+        let attempts = 0;
+        let success = false;
+
+        while (attempts < 3 && !success) {
+          try {
+            const response = await axios.post(
+              `${API_BASE}${ENDPOINTS.auth.refresh}`,
+              {},
+              {
+                withCredentials: true,
+              },
+            );
+            refreshData = response.data;
+            success = true;
+          } catch (err) {
+            attempts++;
+            if (attempts >= 3) {
+              throw err;
+            }
+          }
+        }
+
+        const newToken = refreshData.data.accessToken;
+
+        useAuthStore.getState().setToken(newToken);
+
+        pendingQueue.forEach((cb) => cb(newToken));
+        pendingQueue = [];
+
+        original.headers.Authorization = `Bearer ${newToken}`;
+        return axiosInstance(original);
+      } catch (refreshError) {
+        pendingQueue.forEach((cb) => cb(''));
+        pendingQueue = [];
+        void useAuthStore.getState().logout();
+        if (typeof window !== 'undefined') window.location.href = '/login';
+        throw new ApiError('Session expired', 401);
+        console.error(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    throw new ApiError(message, error.response?.status || 500, code);
+  },
+);
+
+interface RequestOptions {
+  idempotencyKey?: string;
+  headers?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+function convertInitToAxiosConfig(init?: RequestOptions): Record<string, unknown> | undefined {
+  if (!init) return undefined;
+  const { idempotencyKey, ...rest } = init;
+  if (idempotencyKey) {
+    return {
+      ...rest,
+      headers: { ...rest.headers, 'X-Idempotency-Key': idempotencyKey },
+    };
   }
+  return rest;
 }
 
 export const api = {
-  get: <T>(path: string, init?: RequestInit) => request<T>(path, { ...init, method: 'GET' }),
+  get: <T>(path: string, init?: RequestOptions) =>
+    axiosInstance.get<unknown, T>(path, convertInitToAxiosConfig(init)),
   post: <T>(path: string, body?: unknown, init?: RequestOptions) =>
-    request<T>(path, { ...init, method: 'POST', body }),
+    axiosInstance.post<unknown, T>(path, body, convertInitToAxiosConfig(init)),
   put: <T>(path: string, body?: unknown, init?: RequestOptions) =>
-    request<T>(path, { ...init, method: 'PUT', body }),
+    axiosInstance.put<unknown, T>(path, body, convertInitToAxiosConfig(init)),
   patch: <T>(path: string, body?: unknown, init?: RequestOptions) =>
-    request<T>(path, { ...init, method: 'PATCH', body }),
-  del: <T>(path: string, init?: RequestInit) => request<T>(path, { ...init, method: 'DELETE' }),
+    axiosInstance.patch<unknown, T>(path, body, convertInitToAxiosConfig(init)),
+  del: <T>(path: string, init?: RequestOptions) =>
+    axiosInstance.delete<unknown, T>(path, convertInitToAxiosConfig(init)),
 };
 
 export async function getServerAccessToken(): Promise<string> {
@@ -132,7 +193,7 @@ export async function getServerAccessToken(): Promise<string> {
     body: '{}',
     cache: 'no-store',
   });
-  if (!response.ok) throw await parseError(response);
+  if (!response.ok) throw new ApiError('Bypass failed', response.status);
   const json = (await response.json()) as ApiResponse<{ accessToken: string }>;
   return json.data.accessToken;
 }
@@ -145,7 +206,7 @@ export async function serverFetch<T>(path: string, token?: string): Promise<T> {
     },
     cache: 'no-store',
   });
-  if (!response.ok) throw await parseError(response);
+  if (!response.ok) throw new ApiError('Server fetch failed', response.status);
   const json = (await response.json()) as ApiResponse<T>;
   return json.data;
 }

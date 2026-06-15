@@ -3,6 +3,7 @@
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { Clock, EyeOff, ExternalLink } from 'lucide-react';
+import { env } from '@/lib/env';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import React from 'react';
@@ -21,7 +22,7 @@ import { SURFACE } from '@/components/shared/page-section';
 import { cn } from '@/lib/utils';
 import { useUpdateEventType } from '@/hooks/mutations/use-event-type-mutations';
 import { formatDuration, getEventTypeDurations } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import type { EventType } from '@/types';
 
 function stopDragPointer(e: React.PointerEvent) {
@@ -52,7 +53,7 @@ export const EventTypeCard = React.memo(function EventTypeCard({
 }: EventTypeCardProps) {
   const router = useRouter();
   const updateMutation = useUpdateEventType();
-  const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}${ROUTES.publicBooking(username, eventType.slug)}`;
+  const publicUrl = `${env.NEXT_PUBLIC_APP_URL}${ROUTES.publicBooking(username, eventType.slug)}`;
   const durations = getEventTypeDurations(eventType);
   const editHref = ROUTES.eventTypeEdit(eventType.id);
 

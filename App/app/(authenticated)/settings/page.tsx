@@ -1,7 +1,7 @@
 import { Globe, Palette, User } from 'lucide-react';
 
 import { SettingsCard } from '@/components/settings/settings-card';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 
 export default function SettingsPage() {
   return (

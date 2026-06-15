@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Plus, Search, ShieldCheck, X } from 'lucide-react';
+import { env } from '@/lib/env';
 import Link from 'next/link';
 
 import { EventTypeCard } from '@/components/event-types/event-type-card';
@@ -13,7 +14,7 @@ import { CardListSkeleton } from '@/components/shared/skeletons/card-list-skelet
 import { SURFACE } from '@/components/shared/page-section';
 import { Button } from '@/components/ui/button';
 import { useEventTypes } from '@/hooks/queries/use-event-types';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 
@@ -22,7 +23,7 @@ export function EventTypeList() {
   const [isDragging, setIsDragging] = useState(false);
   const { data, isLoading } = useEventTypes();
   const user = useAuthStore((s) => s.user);
-  const username = user?.username ?? process.env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
+  const username = user?.username ?? env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
 
   const filtered = useMemo(() => {
     if (!data) return [];

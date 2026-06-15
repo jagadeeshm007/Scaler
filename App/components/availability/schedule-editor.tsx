@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useUpdateSchedule } from '@/hooks/mutations/use-availability-mutations';
 import { useSchedule } from '@/hooks/queries/use-availability';
-import { DEFAULT_WORK_HOURS } from '@/lib/constants';
+import { DEFAULT_WORK_HOURS } from '@/lib/constants/booking';
 import type { DateOverride, ScheduleAvailability } from '@/types';
 
 interface ScheduleEditorProps {

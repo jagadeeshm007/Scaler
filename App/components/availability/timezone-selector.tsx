@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { COMMON_TIMEZONES } from '@/lib/constants';
+import { COMMON_TIMEZONES } from '@/lib/constants/booking';
 import { cn } from '@/lib/utils';
 
 interface TimezoneSelectorProps {

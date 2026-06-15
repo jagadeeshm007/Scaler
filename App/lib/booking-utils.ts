@@ -1,6 +1,6 @@
 import { isPast, parseISO } from 'date-fns';
 
-import type { BookingStatusTab } from '@/lib/constants';
+import type { BookingStatusTab } from '@/lib/constants/booking';
 import type { Booking } from '@/types';
 
 export function filterBookingsByTab(bookings: Booking[], tab: BookingStatusTab): Booking[] {

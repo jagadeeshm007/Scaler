@@ -9,8 +9,8 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { api } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
-import { ROUTES } from '@/lib/routes';
+import { ENDPOINTS } from '@/lib/constants/api';
+import { ROUTES } from '@/lib/constants/routes';
 import { useAuthStore } from '@/store/auth.store';
 import type { AuthPayload, RegisterInput } from '@/types';
 

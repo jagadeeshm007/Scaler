@@ -5,7 +5,7 @@ import { Copy, Plus, Trash2 } from 'lucide-react';
 import { TimeRangePicker } from '@/components/availability/time-range-picker';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { DAY_NAMES } from '@/lib/constants';
+import { DAY_NAMES } from '@/lib/constants/booking';
 import type { ScheduleAvailabilityInput } from '@scaler/types';
 import { cn } from '@/lib/utils';
 

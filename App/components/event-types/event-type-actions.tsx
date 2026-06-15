@@ -12,6 +12,7 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react';
+import { env } from '@/lib/env';
 import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
@@ -32,7 +33,7 @@ import {
 } from '@/hooks/mutations/use-event-type-mutations';
 import { useEventTypes } from '@/hooks/queries/use-event-types';
 import { slugify } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import type { EventType } from '@/types';
 
@@ -88,7 +89,7 @@ export function EventTypeActions({
   const updateMutation = useUpdateEventType();
 
   const fullEventType = eventTypes?.find((item) => item.id === eventTypeId) ?? eventType;
-  const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}${ROUTES.publicBooking(username, slug)}`;
+  const publicUrl = `${env.NEXT_PUBLIC_APP_URL}${ROUTES.publicBooking(username, slug)}`;
   const profileToggleLabel = fullEventType.is_hidden ? 'Show on profile' : 'Hide from profile';
 
   const copyLink = async () => {

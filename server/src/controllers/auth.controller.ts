@@ -1,4 +1,5 @@
 import ms from 'ms';
+import * as jwt from 'jsonwebtoken';
 
 import type { Request, Response } from 'express';
 import { HTTP_STATUS } from '../config/constants';
@@ -65,19 +66,35 @@ export class AuthController {
       return ApiResponse.error(res, HTTP_STATUS.UNAUTHORIZED, 'No refresh token provided');
     }
 
-    const { accessToken, newRefreshToken } = await TokenService.rotateTokens(oldRefreshToken);
+    try {
+      const { accessToken, newRefreshToken } = await TokenService.rotateTokens(oldRefreshToken);
 
-    AuthController.setRefreshTokenCookie(res, newRefreshToken);
+      AuthController.setRefreshTokenCookie(res, newRefreshToken);
 
-    return ApiResponse.success(res, 'Token refreshed successfully', {
-      accessToken,
-    });
+      return ApiResponse.success(res, 'Token refreshed successfully', {
+        accessToken,
+      });
+    } catch (error) {
+      res.clearCookie('refresh_token');
+      throw error;
+    }
   });
 
   static logout = asyncHandler(async (req: Request, res: Response) => {
-    // If the user is authenticated via middleware, req.user will be populated
     if (req.user) {
       await TokenService.revokeAllUserTokens(req.user.id);
+    } else {
+      const refreshToken = req.cookies.refresh_token;
+      if (refreshToken) {
+        try {
+          const decoded = jwt.decode(refreshToken) as { userId?: string };
+          if (decoded?.userId) {
+            await TokenService.revokeAllUserTokens(decoded.userId);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
     }
 
     res.clearCookie('refresh_token');

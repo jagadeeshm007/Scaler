@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { BookingPageShell } from '@/components/booking-page/booking-page-shell';
 import { Skeleton } from '@/components/ui/skeleton';
 import { serverFetch } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
+import { ENDPOINTS } from '@/lib/constants/api';
 import type { PublicEventType } from '@/types';
 
 interface BookingPageProps {

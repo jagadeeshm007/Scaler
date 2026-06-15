@@ -24,7 +24,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useAvailability } from '@/hooks/queries/use-availability';
 import { useUpdateSchedule } from '@/hooks/mutations/use-availability-mutations';
 import { useIsMdUp } from '@/hooks/use-media-query';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import { TransitionLink } from '@/components/layout/transition-link';
 
@@ -259,9 +259,9 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
             <div className="px-2">
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   setOpen(false);
-                  logout();
+                  await logout();
                   router.push(ROUTES.login);
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-red-400 transition-colors hover:bg-red-950/20 active:bg-red-950/20"
@@ -373,8 +373,8 @@ export function UserAvatarDropdown({ avatarClassName }: UserAvatarDropdownProps)
 
         {/* Logout */}
         <DropdownMenuItem
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
             router.push(ROUTES.login);
           }}
           className="flex cursor-pointer items-center gap-2 text-red-400 focus:bg-red-950/30 focus:text-red-400"

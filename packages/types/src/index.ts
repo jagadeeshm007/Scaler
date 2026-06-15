@@ -3,3 +3,4 @@ export * from './schemas/user.schemas';
 export * from './schemas/event-type.schemas';
 export * from './schemas/availability.schemas';
 export * from './schemas/booking.schemas';
+export * from './models';

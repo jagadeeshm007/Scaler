@@ -2,7 +2,6 @@ import { loginSchema, bypassSchema, registerSchema } from '@scaler/types';
 import { Router } from 'express';
 
 import { AuthController } from '../controllers/auth.controller';
-import { requireAuth } from '../middleware/auth';
 import { authRateLimiter } from '../middleware/rate-limit';
 import { validate } from '../middleware/validate';
 
@@ -15,6 +14,6 @@ router.post('/bypass', validate(bypassSchema), AuthController.bypass);
 router.post('/refresh', AuthController.refresh);
 
 // Protected auth routes
-router.post('/logout', requireAuth, AuthController.logout);
+router.post('/logout', AuthController.logout);
 
 export { router as authRoutes };

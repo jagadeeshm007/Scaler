@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Circle, User, Users, RefreshCw, Building2 } from 'lucide-react';
+import { env } from '@/lib/env';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createEventTypeSchema, type CreateEventTypeInput } from '@scaler/types';
@@ -22,7 +23,7 @@ import { Input } from '@/components/ui/input';
 import { useCreateEventType } from '@/hooks/mutations/use-event-type-mutations';
 import { slugify } from '@/lib/format';
 import { Switch } from '@/components/ui/switch';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 
@@ -95,7 +96,7 @@ export function CreateEventTypeForm() {
     });
   };
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const appUrl = env.NEXT_PUBLIC_APP_URL;
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] items-start justify-center px-4 py-8 md:items-center md:py-12">

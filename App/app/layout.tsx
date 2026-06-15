@@ -1,5 +1,6 @@
 import { Inter } from 'next/font/google';
 
+import '@/lib/env';
 import { Toaster } from '@/components/ui/sonner';
 
 import { Providers } from './providers';

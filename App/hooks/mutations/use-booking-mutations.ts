@@ -3,16 +3,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { api } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
-import { queryKeys } from '@/lib/query-keys';
-import type { Booking, CreateBookingInput } from '@/types';
+import { createBooking, updateBookingStatus, updatePublicBookingStatus } from '@/lib/api/bookings';
+import { queryKeys } from '@/lib/constants/query-keys';
+import type { Booking } from '@/types';
 
 export function useCreateBooking() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ data, idempotencyKey }: { data: CreateBookingInput; idempotencyKey: string }) =>
-      api.post<Booking>(ENDPOINTS.bookings.create, data, { idempotencyKey }),
+    mutationFn: ({ data, idempotencyKey }: { data: unknown; idempotencyKey?: string }) =>
+      createBooking(data, idempotencyKey || ''),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.all() });
       toast.success('Booking confirmed');
@@ -25,9 +24,10 @@ export function usePublicMarkRescheduled() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ uid, timezone }: { uid: string; timezone: string }) =>
-      api.patch<Booking>(
-        `${ENDPOINTS.publicBookings.status(uid)}?timezone=${encodeURIComponent(timezone)}`,
+      updatePublicBookingStatus(
+        uid,
         { status: 'RESCHEDULED', cancellation_reason: null },
+        timezone,
       ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.all() });
@@ -40,9 +40,10 @@ export function usePublicCancelBooking() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ uid, reason, timezone }: { uid: string; reason?: string; timezone: string }) =>
-      api.patch<Booking>(
-        `${ENDPOINTS.publicBookings.status(uid)}?timezone=${encodeURIComponent(timezone)}`,
+      updatePublicBookingStatus(
+        uid,
         { status: 'CANCELLED', cancellation_reason: reason ?? null },
+        timezone,
       ),
     onSuccess: (_data, { uid }) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.publicByUid(uid) });
@@ -55,11 +56,13 @@ export function usePublicCancelBooking() {
 export function useMarkRescheduled() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, timezone }: { id: string; timezone: string }) =>
-      api.patch<Booking>(
-        `${ENDPOINTS.bookings.status(id)}?timezone=${encodeURIComponent(timezone)}`,
-        { status: 'RESCHEDULED', cancellation_reason: null },
-      ),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: { status: string; cancellation_reason?: string | null };
+    }) => updateBookingStatus(id, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.all() });
     },
@@ -71,9 +74,10 @@ export function useCancelBooking() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, reason, timezone }: { id: string; reason?: string; timezone: string }) =>
-      api.patch<Booking>(
-        `${ENDPOINTS.bookings.status(id)}?timezone=${encodeURIComponent(timezone)}`,
+      updateBookingStatus(
+        id,
         { status: 'CANCELLED', cancellation_reason: reason ?? null },
+        timezone,
       ),
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.bookings.list({}) });

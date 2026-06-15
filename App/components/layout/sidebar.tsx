@@ -3,12 +3,13 @@
 import { Calendar, Clock, ExternalLink, Grid3x3, Search, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
+import { env } from '@/lib/env';
 import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
 
 import { TransitionLink } from '@/components/layout/transition-link';
 import { UserAvatarDropdown } from '@/components/layout/user-avatar-dropdown';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 
@@ -74,7 +75,7 @@ function NavItem({
 export function Sidebar({ className, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
-  const username = user?.username ?? process.env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
+  const username = user?.username ?? env.NEXT_PUBLIC_DEFAULT_USERNAME ?? '';
 
   return (
     <TooltipProvider delayDuration={200}>

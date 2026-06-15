@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { env } from '@/lib/env';
 import {
   Calendar,
   Clock,
@@ -49,7 +50,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useDeleteEventType, useUpdateEventType } from '@/hooks/mutations/use-event-type-mutations';
 import { formatDuration } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 import type { EventType } from '@/types';
@@ -117,7 +118,7 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
     },
   });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const appUrl = env.NEXT_PUBLIC_APP_URL;
   const publicUrl = `${appUrl}${ROUTES.publicBooking(username, eventType.slug)}`;
   // eslint-disable-next-line react-hooks/incompatible-library
   const watchedTitle = form.watch('title');

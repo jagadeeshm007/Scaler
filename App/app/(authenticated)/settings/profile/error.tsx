@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 
 interface ProfileSettingsErrorProps {
   error: Error & { digest?: string };

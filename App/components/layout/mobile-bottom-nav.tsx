@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { EventTypeLinkIcon } from '@/components/event-types/event-type-ui';
 
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 
 const items = [

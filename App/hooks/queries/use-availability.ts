@@ -2,17 +2,15 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { api } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
-import { queryKeys } from '@/lib/query-keys';
+import { fetchAvailabilityList, fetchAvailability } from '@/lib/api/availability';
+import { queryKeys } from '@/lib/constants/query-keys';
 import { useAuthReady } from '@/hooks/use-auth-ready';
-import type { Schedule } from '@/types';
 
 export function useAvailability() {
   const isAuthReady = useAuthReady();
   return useQuery({
     queryKey: queryKeys.availability.list(),
-    queryFn: () => api.get<Schedule[]>(ENDPOINTS.availability.list),
+    queryFn: () => fetchAvailabilityList(),
     staleTime: 30_000,
     enabled: isAuthReady,
   });
@@ -22,7 +20,7 @@ export function useSchedule(id: string) {
   const isAuthReady = useAuthReady();
   return useQuery({
     queryKey: queryKeys.availability.byId(id),
-    queryFn: () => api.get<Schedule>(ENDPOINTS.availability.byId(id)),
+    queryFn: () => fetchAvailability(id),
     enabled: Boolean(id) && isAuthReady,
   });
 }

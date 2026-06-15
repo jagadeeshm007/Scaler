@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-import { api } from '@/lib/api';
-import { ENDPOINTS } from '@/lib/endpoints';
+import { logoutUser, refreshSession } from '@/lib/api/auth';
+import { fetchUserProfile } from '@/lib/api/users';
 import type { AuthUser } from '@/types';
 
 interface AuthState {
@@ -15,7 +15,7 @@ interface AuthState {
 interface AuthActions {
   setAuth: (user: AuthUser, token: string) => void;
   setToken: (token: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   hydrate: () => Promise<void>;
   retryHydrate: () => Promise<void>;
 }
@@ -38,33 +38,37 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
 
   setToken: (token) => set({ accessToken: token }),
 
-  logout: () =>
-    set({
-      user: null,
-      accessToken: null,
-      isAuthenticated: false,
-      isHydrating: false,
-      hasHydrated: true,
-    }),
+  logout: async () => {
+    try {
+      await logoutUser();
+    } catch {
+      // Ignore errors on logout
+    } finally {
+      set({
+        user: null,
+        accessToken: null,
+        isAuthenticated: false,
+        isHydrating: false,
+        hasHydrated: true,
+      });
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/login';
+      }
+    }
+  },
 
   hydrate: async () => {
     if (get().hasHydrated || get().isHydrating) return;
     set({ isHydrating: true });
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
-      const refreshRes = await fetch(`${API_BASE}${ENDPOINTS.auth.refresh}`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!refreshRes.ok) throw new Error('Refresh failed');
-
-      const refreshData = await refreshRes.json();
-      const accessToken = refreshData.data.accessToken;
+      const refreshData = await refreshSession();
+      const accessToken = refreshData.accessToken;
 
       set({ accessToken });
 
-      const user = await api.get<AuthUser>(ENDPOINTS.users.me);
+      const user = await fetchUserProfile();
 
       set({
         user,

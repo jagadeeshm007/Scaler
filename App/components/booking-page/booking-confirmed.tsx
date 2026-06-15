@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { usePublicCancelBooking } from '@/hooks/mutations/use-booking-mutations';
 import { useTimezone } from '@/hooks/use-timezone';
 import { formatBookingTimeRange } from '@/lib/format';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { cn } from '@/lib/utils';
 import type { Booking } from '@/types';
 

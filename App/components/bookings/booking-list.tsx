@@ -21,7 +21,7 @@ import {
 import { useBookings } from '@/hooks/queries/use-bookings';
 import { useTimezone } from '@/hooks/use-timezone';
 import { filterBookingsByTab } from '@/lib/booking-utils';
-import type { BookingStatusTab } from '@/lib/constants';
+import type { BookingStatusTab } from '@/lib/constants/booking';
 import type { Booking } from '@/types';
 import { cn } from '@/lib/utils';
 
