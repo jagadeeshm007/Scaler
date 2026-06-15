@@ -103,7 +103,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
       <canvas
         ref={canvasRef}
         {...rest}
-        className={rest.className || 'pointer-events-none fixed inset-0 h-full w-full'}
+        className={rest.className || 'pointer-events-none fixed inset-0 z-[100] h-full w-full'}
       />
       {children}
     </ConfettiContext.Provider>

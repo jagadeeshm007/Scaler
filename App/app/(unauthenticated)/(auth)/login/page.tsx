@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useTransition } from 'react';
 import Link from 'next/link';
 import { loginAction } from '@/actions/auth.actions';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,16 @@ import { ROUTES } from '@/lib/constants/routes';
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(loginAction, undefined);
+  const [isDemoPending, startDemoTransition] = useTransition();
+
+  const handleDemoLogin = () => {
+    startDemoTransition(() => {
+      const formData = new FormData();
+      formData.append('email', 'jagadeesh.m@deeptaai.com');
+      formData.append('password', 'demo123!');
+      action(formData);
+    });
+  };
 
   return (
     <Card className="border-border bg-card p-6">
@@ -45,8 +55,17 @@ export default function LoginPage() {
 
         {state?.message && <p className="text-sm text-red-500">{state.message}</p>}
 
-        <Button type="submit" className="w-full" disabled={pending}>
+        <Button type="submit" className="w-full" disabled={pending || isDemoPending}>
           {pending ? 'Signing in...' : 'Login'}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={handleDemoLogin}
+          disabled={pending || isDemoPending}
+        >
+          {isDemoPending ? 'Logging in as Demo...' : 'Demo Login'}
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-muted-foreground">

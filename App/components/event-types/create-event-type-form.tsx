@@ -101,7 +101,7 @@ export function CreateEventTypeForm() {
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] items-start justify-center px-4 py-8 md:items-center md:py-12">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-xl md:p-8">
+      <div className="w-full max-w-xl rounded-2xl border border-border bg-card p-6 shadow-xl md:p-8">
         <div className="mb-6">
           <h1 className="text-xl font-semibold text-foreground">Add a new event type</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -136,9 +136,11 @@ export function CreateEventTypeForm() {
                 <FormItem>
                   <FormLabel className="text-neutral-300">URL</FormLabel>
                   <FormControl>
-                    <div className="flex h-10 overflow-hidden rounded-md border border-border bg-background">
-                      <span className="flex shrink-0 items-center border-r border-border px-3 text-sm text-muted-foreground">
-                        {appUrl}/{username}/
+                    <div className="flex w-full flex-col sm:h-10 sm:flex-row overflow-hidden rounded-md border border-border bg-background focus-within:ring-2 focus-within:ring-white/20">
+                      <span className="flex shrink-0 sm:max-w-[60%] items-center border-b sm:border-b-0 sm:border-r border-border px-3 py-2 sm:py-0 text-sm text-muted-foreground overflow-hidden">
+                        <span className="whitespace-nowrap overflow-hidden w-full text-left [mask-image:linear-gradient(to_right,black_calc(100%-1rem),transparent_100%)]">
+                          {appUrl}/{username}/
+                        </span>
                       </span>
                       <input
                         {...field}
@@ -147,7 +149,7 @@ export function CreateEventTypeForm() {
                           setSlugManuallyEdited(true);
                           field.onChange(e);
                         }}
-                        className="min-w-0 flex-1 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-neutral-600"
+                        className="min-w-0 flex-1 bg-transparent px-3 py-2 sm:py-0 text-sm text-foreground outline-none placeholder:text-neutral-600"
                       />
                     </div>
                   </FormControl>
@@ -229,7 +231,10 @@ export function CreateEventTypeForm() {
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value ?? true}
+                      onCheckedChange={(checked) => field.onChange(checked)}
+                    />
                   </FormControl>
                 </FormItem>
               )}

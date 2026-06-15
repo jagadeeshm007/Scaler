@@ -7,7 +7,7 @@ import { AnimatePresence, m } from 'motion/react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-import { Confetti } from '@/components/ui/confetti';
+import confetti from 'canvas-confetti';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -174,7 +174,8 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
   const cancelMutation = usePublicCancelBooking();
 
   const isSuccessBookingPage = searchParams.get('isSuccessBookingPage') === 'true';
-
+  const [initialIsSuccess] = useState(isSuccessBookingPage);
+  // const [showConfetti, setShowConfetti] = useState(false);
   let themeConfigObj: { party_mode_enabled?: boolean } | null = null;
   if (typeof booking.event_type.theme_config === 'string') {
     try {
@@ -186,11 +187,24 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
     themeConfigObj = booking.event_type.theme_config as { party_mode_enabled?: boolean } | null;
   }
   const partyModeEnabled = themeConfigObj?.party_mode_enabled ?? true;
-
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [isCancelled, setIsCancelled] = useState(booking.status === 'CANCELLED');
   const isRescheduled = booking.status === 'RESCHEDULED';
+
+  useEffect(() => {
+    if (initialIsSuccess && !isCancelled && partyModeEnabled) {
+      const timer = setTimeout(() => {
+        void confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+          zIndex: 9999,
+        });
+      }, 450);
+      return () => clearTimeout(timer);
+    }
+  }, [initialIsSuccess, isCancelled, partyModeEnabled]);
 
   const formerTimeStr = searchParams.get('formerTime');
   const formerTime = formerTimeStr ? new Date(formerTimeStr) : null;
@@ -298,15 +312,6 @@ export function BookingConfirmed({ booking }: BookingConfirmedProps) {
 
   return (
     <>
-      {isSuccessBookingPage && !isCancelled && partyModeEnabled && (
-        <Confetti
-          options={{
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 },
-          }}
-        />
-      )}
       <m.div
         className="mx-auto w-full max-w-xl"
         initial={{ opacity: 0, y: 16 }}

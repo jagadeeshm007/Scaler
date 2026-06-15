@@ -305,13 +305,15 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                   <FormItem>
                     <FormLabel>URL</FormLabel>
                     <FormControl>
-                      <div className="flex h-10 overflow-hidden rounded-md border border-border bg-background">
-                        <span className="flex shrink-0 items-center border-r border-border px-3 text-sm text-muted-foreground">
-                          {appUrl.replace(/^https?:\/\//, '')}/{username}/
+                      <div className="flex w-full flex-col sm:h-10 sm:flex-row overflow-hidden rounded-md border border-border bg-background focus-within:ring-2 focus-within:ring-white/20">
+                        <span className="flex shrink-0 sm:max-w-[60%] items-center border-b sm:border-b-0 sm:border-r border-border px-3 py-2 sm:py-0 text-sm text-muted-foreground overflow-hidden">
+                          <span className="whitespace-nowrap overflow-hidden w-full text-left [mask-image:linear-gradient(to_right,black_calc(100%-1rem),transparent_100%)]">
+                            {appUrl.replace(/^https?:\/\//, '')}/{username}/
+                          </span>
                         </span>
                         <input
                           {...field}
-                          className="min-w-0 flex-1 bg-transparent px-3 text-sm text-foreground outline-none"
+                          className="min-w-0 flex-1 bg-transparent px-3 py-2 sm:py-0 text-sm text-foreground outline-none"
                         />
                       </div>
                     </FormControl>
@@ -419,7 +421,10 @@ export function EditEventTypeForm({ eventType }: EditEventTypeFormProps) {
                       </FormDescription>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value ?? true}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
