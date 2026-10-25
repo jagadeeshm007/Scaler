@@ -6,7 +6,7 @@ async function main() {
   console.log('Seeding database...');
 
   // 1. Pre-seed the bypass demo user
-  const demoEmail = 'jagadeesh.m@deeptaai.com';
+  const demoEmail = 'demo@example.com';
   const passwordHash = await bcrypt.hash('demo123!', 12);
 
   const demoUser = await prisma.user.upsert({

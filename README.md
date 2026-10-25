@@ -10,7 +10,7 @@ After running the database seed, use these credentials to sign in manually at `/
 
 | Field    | Value                      |
 | -------- | -------------------------- |
-| Email    | `jagadeesh.m@deeptaai.com` |
+| Email    | `demo@example.com` |
 | Password | `demo123!`                 |
 | Username | `jagadeesh`                |
 

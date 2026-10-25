@@ -1205,7 +1205,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Default user credentials (for assignment bypass mode)
 # These are used by POST /auth/bypass — no actual secrets here
-NEXT_PUBLIC_DEFAULT_USERNAME=jagadeesh.deeptaai
+NEXT_PUBLIC_DEFAULT_USERNAME=jagadeesh
 ```
 
 Note: `NEXT_PUBLIC_*` vars are exposed to the browser. No secrets here. The backend holds all OAuth secrets.

@@ -93,7 +93,7 @@ export class AuthService {
     refreshToken: string;
     user: Omit<User, 'password_hash'>;
   }> {
-    const demoEmail = 'jagadeesh.m@deeptaai.com';
+    const demoEmail = 'demo@example.com';
 
     let user = await prisma.user.findUnique({
       where: { email: demoEmail },

@@ -102,7 +102,7 @@ All endpoint request/response shapes are defined in `packages/types/src/schemas/
 
 ## 9. Known Constraints & Assumptions
 
-- Assignment specifies "No Login Required" for admin side. We assume a default seeded user (`jagadeesh.m@deeptaai.com`) exists and is automatically authenticated by the frontend.
+- Assignment specifies "No Login Required" for admin side. We assume a default seeded user (`demo@example.com`) exists and is automatically authenticated by the frontend.
 - Dates are strictly UTC in DB. Timezone conversion happens at the edge/frontend.
 - Cal.com reference UI is the single source of truth for design.
 
